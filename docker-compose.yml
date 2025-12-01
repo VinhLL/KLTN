@@ -1,0 +1,17 @@
+services:
+  neo4j:
+    image: neo4j:5.22
+    container_name: neo4j
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: neo4j/test123456   # username/password
+    ports:
+      - "7474:7474"   # Neo4j Browser
+      - "7687:7687"   # Bolt protocol
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
