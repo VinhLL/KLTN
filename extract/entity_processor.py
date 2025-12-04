@@ -1,0 +1,861 @@
+"""Xử lý thực thể: merge, tìm similar, post-process."""
+
+import re
+from typing import List, Dict, Any, Optional
+from difflib import SequenceMatcher
+from collections import defaultdict
+import config
+import utils
+from topic_processor import TopicProcessor
+
+
+def should_skip_entity(entity: Dict, topic_config: Dict) -> bool:
+    """Kiểm tra xem entity có thuộc danh sách blacklist không."""
+    if not topic_config:
+        return False
+    
+    blacklist = topic_config.get('entity_blacklist', [])
+    entity_id = entity.get('id', '').lower()
+    entity_description = entity.get('description', '').lower()
+    entity_type = entity.get('type', '')
+    
+    # Kiểm tra xem entity có chứa từ blacklist không
+    for blacklisted in blacklist:
+        if blacklisted.lower() in entity_id or blacklisted.lower() in entity_description:
+            return True
+    
+    # Kiểm tra các entity quá chung chung
+    general_terms = [
+        'chính phủ', 'hội', 'trí tuệ con người', 'nhân dân thế giới',
+        'nhân dân', 'thế giới', 'con người', 'trí tuệ', 'phe', 'quân',
+        'đế quốc', 'phong kiến', 'chiến tranh', 'kháng chiến', 'cách mạng',
+        'đồng minh', 'tổ quốc', 'đất nước', 'dân tộc', 'quốc gia'
+    ]
+    
+    for term in general_terms:
+        if entity_id == term or entity_id in term:
+            return True
+    
+    # Kiểm tra entity là ngày/tháng/năm đơn thuần
+    date_patterns = [
+        r'^\d{1,2}\s*[-–]\s*\d{1,2}\s*[-–]\s*\d{4}$',  # 2-9-1945
+        r'^\d{4}\s*[-–]\s*\d{4}$',  # 1955-1975
+        r'^\d{4}$',  # 1945
+        r'^tháng\s+\d{1,2}\s*[-–]\s*\d{4}$',  # tháng 5-1972
+        r'^ngày\s+\d{1,2}$',  # ngày 30
+        r'^ngày\s+\d{1,2}\s+tháng\s+\d{1,2}\s+năm\s+\d{4}$',  # ngày 30 tháng 4 năm 1977
+    ]
+    
+    for pattern in date_patterns:
+        if re.match(pattern, entity_id, re.IGNORECASE):
+            return True
+    
+    # Kiểm tra entity quá ngắn và không phải tên riêng
+    if len(entity_id) < 3:
+        return True
+    
+    # Kiểm tra entity chỉ là từ đơn và quá chung
+    words = entity_id.split()
+    if len(words) == 1 and len(entity_id) < 6:
+        common_words = ['hội', 'phe', 'quân', 'ngày', 'năm', 'tháng']
+        if entity_id in common_words:
+            return True
+    
+    # Đặc biệt cho chủ đề Hồ Chí Minh: bỏ qua các từ chỉ cảm xúc, đánh giá chung
+    if "HỒ CHÍ MINH" in str(topic_config):
+        emotional_words = ['vĩ đại', 'thiêng liêng', 'bất tử', 'vĩnh cửu', 'thiên tài']
+        for word in emotional_words:
+            if word in entity_id or word in entity_description:
+                return True
+    
+    # Kiểm tra entity type không ưu tiên
+    priority_types = topic_config.get('priority_entities', [])
+    
+    if priority_types and entity_type not in priority_types:
+        # Cho phép các type khác nhưng với điều kiện nghiêm ngặt hơn
+        # Đặc biệt cho chủ đề Hồ Chí Minh, cho phép các type như "Công trình", "Địa điểm"
+        if "HỒ CHÍ MINH" in str(topic_config) and entity_type in ["Công trình", "Địa điểm", "Văn kiện/Hiệp định"]:
+            return False
+        return len(entity_id.split()) < 2  # Bỏ qua các từ đơn quá ngắn
+    
+    return False
+
+
+def validate_entity_type_for_topic(entity_type: str, topic_config: Dict) -> str:
+    """Validate entity type với ưu tiên của chủ đề."""
+    if entity_type in config.VALID_ENTITY_TYPES:
+        return entity_type
+    
+    # Mapping đặc thù cho các chủ đề
+    type_mapping = {
+        "Tổ chức quốc tế": "Tổ chức",
+        "Hội nghị quốc tế": "Hội nghị",
+        "Hiệp ước": "Văn kiện/Hiệp định",
+        "Văn bản quốc tế": "Văn kiện/Hiệp định",
+        "Nhân vật lịch sử": "Nhân Vật",
+        "Cường quốc": "Quốc gia",
+        "Sự kiện lịch sử": "Sự kiện",
+        "Chiến tranh": "Sự kiện",
+        "Địa danh": "Địa điểm",
+        "Văn kiện": "Văn kiện/Hiệp định",
+        "Chiến dịch": "Chiến dịch/Trận đánh",
+        "Trận đánh": "Chiến dịch/Trận đánh",
+        "Chủ trương": "Chiến lược/Chủ trương"
+    }
+    
+    return type_mapping.get(entity_type, "Khái niệm")
+
+
+def find_similar_entity(new_entity: Dict, existing_entities: List[Dict]) -> Optional[Dict]:
+    """Find similar entity in existing entities with improved deduplication."""
+    new_id = new_entity['id'].lower()
+    new_type = new_entity['type']
+    
+    # Rule 1: Check for exact ID and type match (case-insensitive)
+    for existing in existing_entities:
+        if existing['id'].lower() == new_id and existing['type'] == new_type:
+            return existing
+    
+    # Rule 2: Check for entities that are too similar
+    similarity_threshold = 0.9  # High threshold for strict matching
+    
+    for existing in existing_entities:
+        if existing['type'] != new_type:
+            continue
+            
+        # Check similarity between IDs
+        id_similarity = SequenceMatcher(None, new_id, existing['id'].lower()).ratio()
+        
+        # Check similarity between labels
+        label_similarity = 0
+        for new_label in new_entity.get('label', []):
+            for existing_label in existing.get('label', []):
+                similarity = SequenceMatcher(None, new_label.lower(), existing_label.lower()).ratio()
+                label_similarity = max(label_similarity, similarity)
+        
+        if id_similarity > similarity_threshold or label_similarity > similarity_threshold:
+            return existing
+    
+    # Rule 3: Check for entities with same base name but different qualifiers
+    # Remove common qualifiers for comparison
+    def normalize_name(name: str) -> str:
+        # Remove common prefixes/suffixes
+        name = name.lower()
+        # Remove parenthetical content
+        name = re.sub(r'\([^)]*\)', '', name)
+        # Remove common qualifiers
+        qualifiers = [
+            'thế giới', 'hai cực', 'trật tự', 'cộng hoà', 'dân chủ',
+            'xã hội chủ nghĩa', 'chủ nghĩa', 'liên bang'
+        ]
+        for qualifier in qualifiers:
+            name = name.replace(qualifier, '')
+        # Remove extra spaces
+        name = re.sub(r'\s+', ' ', name).strip()
+        return name
+    
+    new_normalized = normalize_name(new_id)
+    for existing in existing_entities:
+        if existing['type'] != new_type:
+            continue
+            
+        existing_normalized = normalize_name(existing['id'].lower())
+        if new_normalized == existing_normalized and len(new_normalized) > 3:
+            return existing
+    
+    return None
+
+def normalize_entity(entity: Dict) -> Dict:
+    """Chuẩn hóa entity để xử lý trùng lặp."""
+    entity_id = entity.get('id', '')
+    
+    # Chuẩn hóa dấu gạch ngang
+    entity_id = re.sub(r'[–—]', '-', entity_id)
+    
+    # Chuẩn hóa khoảng trắng
+    entity_id = re.sub(r'\s+', ' ', entity_id).strip()
+    
+    # Chuẩn hóa viết hoa cho tên riêng
+    if entity.get('type') in ['Nhân Vật', 'Tổ chức', 'Quốc gia', 'Địa điểm']:
+        # Giữ nguyên cách viết hoa đặc biệt, chỉ chuẩn hóa khoảng trắng
+        pass
+    
+    entity['id'] = entity_id
+    return entity
+
+
+def merge_entities(existing: Dict, new: Dict) -> bool:
+    """Merge two entities with strict rules to avoid incorrect merging."""
+    # Kiểm tra xem có thực sự giống nhau không
+    if existing['id'] != new['id']:
+        # Kiểm tra độ tương đồng
+        similarity = SequenceMatcher(None, existing['id'].lower(), new['id'].lower()).ratio()
+        if similarity < 0.8:  # Ngưỡng thấp hơn để tránh merge nhầm
+            return False
+    
+    # Kiểm tra type có giống nhau không
+    if existing['type'] != new['type']:
+        return False
+    
+    # Merge labels
+    existing_labels = set(label.lower() for label in existing['label'])
+    new_labels = set(label.lower() for label in new['label'])
+    all_labels = existing_labels.union(new_labels)
+    
+    # Giữ nguyên thứ tự và case của labels
+    merged_labels = []
+    seen = set()
+    
+    # Ưu tiên giữ label của existing entity trước
+    for label in existing['label']:
+        if label.lower() not in seen:
+            seen.add(label.lower())
+            merged_labels.append(label)
+    
+    # Thêm label mới nếu chưa có
+    for label in new['label']:
+        if label.lower() not in seen:
+            seen.add(label.lower())
+            merged_labels.append(label)
+    
+    existing['label'] = merged_labels
+    
+    # Merge original_text without duplicates
+    existing_texts = {(occ['topic'], occ['lesson'], occ['exact_text']) 
+                     for occ in existing['original_text']}
+    
+    for new_occ in new['original_text']:
+        key = (new_occ['topic'], new_occ['lesson'], new_occ['exact_text'])
+        if key not in existing_texts:
+            existing['original_text'].append(new_occ)
+            existing_texts.add(key)
+    
+    existing['occurrence_count'] = len(existing['original_text'])
+    
+    # Merge window indices
+    existing['window_indices'] = list(set(existing['window_indices'] + new['window_indices']))
+    
+    # Merge metadata
+    merge_metadata(existing['metadata'], new['metadata'])
+    
+    # Merge properties (cẩn thận với các property quan trọng)
+    for key, value in new.get('properties', {}).items():
+        if key not in existing['properties']:
+            existing['properties'][key] = value
+        elif isinstance(existing['properties'][key], list) and isinstance(value, list):
+            # Tránh trùng lặp trong list
+            existing_set = set(str(item) for item in existing['properties'][key])
+            new_set = set(str(item) for item in value)
+            merged_list = list(existing_set.union(new_set))
+            existing['properties'][key] = merged_list
+    
+    existing['confidence'] = max(existing['confidence'], new['confidence'])
+    
+    return True
+
+
+def merge_metadata(existing_metadata: Dict, new_metadata: Dict) -> None:
+    """Merge metadata from two entities."""
+    # Merge window indices
+    existing_metadata['window_indices'] = list(set(
+        existing_metadata.get('window_indices', []) + 
+        new_metadata.get('window_indices', [])
+    ))
+    
+    # Merge timeline events without duplicates
+    existing_events = existing_metadata.get('timeline_events', [])
+    new_events = new_metadata.get('timeline_events', [])
+    
+    existing_event_keys = set()
+    for event in existing_events:
+        key = (event.get('sentence', ''), tuple(event.get('dates', [])), tuple(event.get('years', [])))
+        existing_event_keys.add(key)
+    
+    for event in new_events:
+        key = (event.get('sentence', ''), tuple(event.get('dates', [])), tuple(event.get('years', [])))
+        if key not in existing_event_keys:
+            existing_events.append(event)
+            existing_event_keys.add(key)
+    
+    existing_metadata['timeline_events'] = existing_events
+
+
+def post_process_entities(entities: List[Dict]) -> List[Dict]:
+    """Post-process entities to fix issues and ensure quality."""
+    processed = []
+    
+    for entity in entities:
+        # Clean entity ID
+        entity['id'] = entity['id'].strip()
+        
+        # Clean labels
+        entity['label'] = utils.clean_labels(entity['label'])
+        
+        # Ensure ID is in labels
+        if entity['id'] not in entity['label']:
+            entity['label'].insert(0, entity['id'])
+        
+        # Remove duplicate occurrences in original_text
+        unique_occurrences = []
+        seen_occurrences = set()
+        
+        for occ in entity['original_text']:
+            key = (occ['topic'], occ['lesson'], occ['exact_text'])
+            if key not in seen_occurrences:
+                seen_occurrences.add(key)
+                unique_occurrences.append(occ)
+        
+        entity['original_text'] = unique_occurrences
+        entity['occurrence_count'] = len(unique_occurrences)
+        
+        # Simplify metadata further
+        entity['metadata'] = simplify_metadata(entity['metadata'])
+        
+        processed.append(entity)
+    
+    return processed
+
+
+def simplify_metadata(metadata: Dict) -> Dict:
+    """Simplify metadata to remove unnecessary fields with better duplicate handling."""
+    simplified = {
+        'topic': metadata.get('topic', ''),
+        'lesson': metadata.get('lesson', ''),
+        'window_indices': metadata.get('window_indices', []),
+        'timeline_events': metadata.get('timeline_events', [])
+    }
+    
+    # Group timeline events by date/year with de-duplication
+    timeline_summary = {}
+    
+    for event in simplified['timeline_events']:
+        # Clean the sentence text
+        sentence = event.get('sentence', '').strip()
+        if not sentence:
+            continue
+        
+        # For each date in the event
+        for date in event.get('dates', []):
+            if date not in timeline_summary:
+                timeline_summary[date] = []
+            
+            # Check if similar sentence already exists for this date
+            # Use string similarity to avoid exact duplicates
+            is_duplicate = False
+            for existing_sentence in timeline_summary[date]:
+                similarity = SequenceMatcher(None, sentence, existing_sentence).ratio()
+                if similarity > config.TIMELINE_SIMILARITY_THRESHOLD:
+                    is_duplicate = True
+                    break
+            
+            if not is_duplicate:
+                timeline_summary[date].append(sentence)
+        
+        # For each year in the event
+        for year in event.get('years', []):
+            if year not in timeline_summary:
+                timeline_summary[year] = []
+            
+            # Check if similar sentence already exists for this year
+            is_duplicate = False
+            for existing_sentence in timeline_summary[year]:
+                similarity = SequenceMatcher(None, sentence, existing_sentence).ratio()
+                if similarity > config.TIMELINE_SIMILARITY_THRESHOLD:
+                    is_duplicate = True
+                    break
+            
+            if not is_duplicate:
+                timeline_summary[year].append(sentence)
+    
+    # Limit the number of sentences per date/year to avoid too much repetition
+    for key in list(timeline_summary.keys()):
+        # Remove empty entries
+        if not timeline_summary[key]:
+            del timeline_summary[key]
+            continue
+        
+        # Remove exact duplicates (case-insensitive)
+        unique_sentences = []
+        seen_sentences = set()
+        
+        for sentence in timeline_summary[key]:
+            # Normalize sentence for comparison
+            normalized = sentence.lower().strip()
+            if normalized not in seen_sentences:
+                seen_sentences.add(normalized)
+                unique_sentences.append(sentence)
+        
+        # Keep only first 3 unique sentences per date/year
+        timeline_summary[key] = unique_sentences[:config.MAX_SENTENCES_PER_DATE]
+    
+    # Also filter out very similar sentences across different dates/years
+    # by checking if a sentence appears in multiple places
+    if timeline_summary:
+        # Create a mapping of sentence to all its dates/years
+        sentence_to_dates = defaultdict(list)
+        for date_year, sentences in timeline_summary.items():
+            for sentence in sentences:
+                sentence_to_dates[sentence].append(date_year)
+        
+        # If a sentence appears in too many places, keep it only in the most relevant
+        for sentence, dates in list(sentence_to_dates.items()):
+            if len(dates) > 3:  # If appears in more than 3 dates/years
+                # Remove from all but keep in the first occurrence
+                for date in dates[3:]:
+                    if date in timeline_summary and sentence in timeline_summary[date]:
+                        timeline_summary[date].remove(sentence)
+                        # If this date has no more sentences, remove it
+                        if not timeline_summary[date]:
+                            del timeline_summary[date]
+    
+    simplified['timeline_summary'] = timeline_summary
+    
+    return simplified
+
+
+def apply_topic_specific_rules(entity: Dict, topic: str, topic_config: Dict) -> Dict:
+    """Áp dụng rules đặc thù theo chủ đề."""
+    if "HỒ CHÍ MINH" in topic:
+        return apply_ho_chi_minh_rules(entity, topic_config)
+    elif "CÔNG CUỘC ĐỔI MỚI" in topic:
+        return apply_doi_moi_rules(entity, topic_config)
+    elif "LỊCH SỬ ĐỐI NGOẠI" in topic:
+        return apply_doi_ngoai_rules(entity, topic_config)
+    elif "CÁCH MẠNG THÁNG TÁM" in topic or "CHIẾN TRANH GIẢI PHÓNG" in topic:
+        return apply_vietnam_war_rules(entity, topic_config)
+    elif "ASEAN" in topic:
+        return apply_asean_specific_rules(entity, topic_config)
+    return entity
+
+
+def apply_ho_chi_minh_rules(entity: Dict, topic_config: Dict) -> Dict:
+    """Áp dụng rules đặc thù cho các entity liên quan đến Hồ Chí Minh."""
+    entity_id = entity.get('id', '')
+    entity_type = entity.get('type', '')
+    
+    # Xử lý các tên gọi của Hồ Chí Minh
+    ho_chi_minh_names = topic_config.get('ho_chi_minh_names', [])
+    if entity_id in ho_chi_minh_names and entity_type == "Nhân Vật":
+        if 'properties' not in entity:
+            entity['properties'] = {}
+        
+        # Thêm thông tin về thời kỳ sử dụng tên
+        name_periods = {
+            'Nguyễn Sinh Cung': '1890-1901 (tên khai sinh)',
+            'Nguyễn Tất Thành': '1901-1911 (thời niên thiếu)',
+            'Văn Ba': '1911 (trên tàu La-tu-sơ Tơ-rê-vin)',
+            'Nguyễn Ái Quốc': '1919-1942 (thời kỳ hoạt động ở nước ngoài)',
+            'Hồ Chí Minh': '1942-1969',
+            'Bác Hồ': 'Cách gọi thân thương của nhân dân'
+        }
+        
+        if entity_id in name_periods:
+            entity['properties']['thời_kỳ_sử_dụng_tên'] = [name_periods[entity_id]]
+            
+            # Đảm bảo tất cả các tên đều có description liên kết với Hồ Chí Minh
+            if not entity.get('description'):
+                entity['description'] = f"Một trong những tên gọi của Chủ tịch Hồ Chí Minh"
+    
+    # Xử lý các thành viên gia đình
+    family_members = topic_config.get('family_members', [])
+    if entity_id in family_members and entity_type == "Nhân Vật":
+        if 'properties' not in entity:
+            entity['properties'] = {}
+        
+        # Thêm quan hệ với Hồ Chí Minh
+        relationships = {
+            'Nguyễn Sinh Sắc': 'Cha của Hồ Chí Minh',
+            'Hoàng Thị Loan': 'Mẹ của Hồ Chí Minh',
+            'Nguyễn Sinh Khiêm': 'Anh trai của Hồ Chí Minh',
+            'Nguyễn Thị Thanh': 'Chị gái của Hồ Chí Minh'
+        }
+        
+        if entity_id in relationships:
+            entity['properties']['quan_hệ_với_HCM'] = [relationships[entity_id]]
+    
+    # Xử lý các tổ chức do Hồ Chí Minh sáng lập
+    organizations_founded = topic_config.get('organizations_founded', [])
+    if entity_id in organizations_founded and entity_type == "Tổ chức":
+        if 'properties' not in entity:
+            entity['properties'] = {}
+        
+        # Thêm năm thành lập và vai trò của Hồ Chí Minh
+        founding_info = {
+            'Đảng Cộng sản Việt Nam': {'năm': '1930', 'vai_trò': 'Người sáng lập'},
+            'Việt Minh': {'năm': '1941', 'vai_trò': 'Người sáng lập'},
+            'Hội Việt Nam Cách mạng Thanh niên': {'năm': '1925', 'vai_trò': 'Người sáng lập'},
+            'Hội Liên hiệp thuộc địa': {'năm': '1921', 'vai_trò': 'Người sáng lập'},
+            'Đội Việt Nam Tuyên truyền Giải phóng quân': {'năm': '1944', 'vai_trò': 'Người chỉ thị thành lập'}
+        }
+        
+        if entity_id in founding_info:
+            entity['properties']['năm_thành_lập'] = [founding_info[entity_id]['năm']]
+            entity['properties']['vai_trò_HCM'] = [founding_info[entity_id]['vai_trò']]
+    
+    # Xử lý các văn kiện của Hồ Chí Minh
+    key_documents_hcm = topic_config.get('key_documents_hcm', [])
+    if entity_id in key_documents_hcm and entity_type == "Văn kiện/Hiệp định":
+        if 'properties' not in entity:
+            entity['properties'] = {}
+        
+        # Thêm năm soạn thảo
+        document_years = {
+            'Tuyên ngôn Độc lập': '1945',
+            'Chính cương vắn tắt': '1930',
+            'Sách lược vắn tắt': '1930',
+            'Di chúc': '1969',
+            'Lời kêu gọi toàn quốc kháng chiến': '1946',
+            'Yêu sách của nhân dân An Nam': '1919'
+        }
+        
+        if entity_id in document_years:
+            entity['properties']['năm_soạn_thảo'] = [document_years[entity_id]]
+            entity['properties']['tác_giả'] = ['Hồ Chí Minh']
+    
+    return entity
+
+
+def apply_doi_moi_rules(entity: Dict, topic_config: Dict) -> Dict:
+    """Áp dụng rules đặc thù cho các entity Đổi mới."""
+    entity_id = entity.get('id', '')
+    entity_type = entity.get('type', '')
+    
+    # Xử lý các từ viết tắt kinh tế
+    if entity_id in topic_config.get('acronyms', {}):
+        full_name = topic_config['acronyms'][entity_id]
+        if 'label' not in entity:
+            entity['label'] = []
+        if full_name not in entity['label']:
+            entity['label'].append(full_name)
+        
+        if not entity.get('description'):
+            entity['description'] = f"{full_name} - trong công cuộc Đổi mới"
+    
+    # Xử lý các chính sách kinh tế
+    key_policies = topic_config.get('key_policies', [])
+    if entity_id in key_policies and entity_type == "Chiến lược/Chủ trương":
+        if 'properties' not in entity:
+            entity['properties'] = {}
+        
+        # Thêm thông tin về thời điểm
+        policy_years = {
+            'Đổi mới': '1986',
+            'Kinh tế thị trường định hướng XHCN': '1986',
+            'Công nghiệp hoá, Hiện đại hoá': '1996',
+            'Hội nhập quốc tế': '1995'
+        }
+        
+        if entity_id in policy_years:
+            entity['properties']['năm_ban_hành'] = [policy_years[entity_id]]
+    
+    # Xử lý các tổ chức quốc tế
+    international_orgs = topic_config.get('international_organizations', [])
+    if entity_id in international_orgs and entity_type == "Tổ chức":
+        if 'properties' not in entity:
+            entity['properties'] = {}
+        
+        # Thêm năm Việt Nam tham gia
+        join_years = {
+            'WTO': '2007',
+            'ASEAN': '1995',
+            'APEC': '1998',
+            'Liên hợp quốc': '1977',
+            'SEV': '1978'
+        }
+        
+        if entity_id in join_years:
+            entity['properties']['năm_VN_tham_gia'] = [join_years[entity_id]]
+    
+    return entity
+
+
+def apply_doi_ngoai_rules(entity: Dict, topic_config: Dict) -> Dict:
+    """Áp dụng rules đặc thù cho các entity Đối ngoại."""
+    entity_id = entity.get('id', '')
+    entity_type = entity.get('type', '')
+    
+    # Xử lý các từ viết tắt ngoại giao
+    if entity_id in topic_config.get('acronyms', {}):
+        full_name = topic_config['acronyms'][entity_id]
+        if 'label' not in entity:
+            entity['label'] = []
+        if full_name not in entity['label']:
+            entity['label'].append(full_name)
+        
+        if not entity.get('description'):
+            entity['description'] = f"{full_name} - trong lịch sử đối ngoại Việt Nam"
+    
+    # Xử lý các nhân vật đối ngoại
+    diplomatic_figures = topic_config.get('diplomatic_figures', [])
+    if entity_id in diplomatic_figures and entity_type == "Nhân Vật":
+        if 'properties' not in entity:
+            entity['properties'] = {}
+        
+        # Thêm vai trò đối ngoại
+        roles = {
+            'Phan Bội Châu': 'Nhà yêu nước, hoạt động ở Nhật Bản, Trung Quốc',
+            'Phan Châu Trinh': 'Nhà yêu nước, hoạt động ở Pháp',
+            'Nguyễn Ái Quốc': 'Nhà cách mạng, hoạt động quốc tế',
+            'Hồ Chí Minh': 'Chủ tịch nước, nhà ngoại giao'
+        }
+        
+        if entity_id in roles:
+            entity['properties']['vai_trò_đối_ngoại'] = [roles[entity_id]]
+    
+    # Xử lý các hiệp định ngoại giao
+    diplomatic_docs = topic_config.get('diplomatic_documents', [])
+    if entity_id in diplomatic_docs and entity_type == "Văn kiện/Hiệp định":
+        if 'properties' not in entity:
+            entity['properties'] = {}
+        
+        # Thêm năm ký kết
+        doc_years = {
+            'Hiệp định Sơ bộ': '1946',
+            'Tạm ước Việt - Pháp': '1946',
+            'Hiệp định Giơ-ne-vơ': '1954',
+            'Hiệp định Pa-ri': '1973'
+        }
+        
+        if entity_id in doc_years:
+            entity['properties']['năm_ký_kết'] = [doc_years[entity_id]]
+    
+    return entity
+
+
+def apply_vietnam_war_rules(entity: Dict, topic_config: Dict) -> Dict:
+    """Áp dụng rules đặc thù cho các entity lịch sử quân sự Việt Nam."""
+    entity_id = entity.get('id', '')
+    entity_type = entity.get('type', '')
+    
+    # Xử lý các từ viết tắt quân sự
+    if entity_id in topic_config.get('acronyms', {}):
+        full_name = topic_config['acronyms'][entity_id]
+        if 'label' not in entity:
+            entity['label'] = []
+        if full_name not in entity['label']:
+            entity['label'].append(full_name)
+        
+        if not entity.get('description'):
+            entity['description'] = f"{full_name} - trong lịch sử quân sự Việt Nam"
+    
+    # Xử lý các chiến dịch quân sự
+    military_campaigns = topic_config.get('military_campaigns', [])
+    if entity_id in military_campaigns and entity_type == "Chiến dịch/Trận đánh":
+        if 'properties' not in entity:
+            entity['properties'] = {}
+        
+        # Thêm thông tin về giai đoạn
+        if "Điện Biên" in entity_id:
+            entity['properties']['giai_đoạn'] = ['Kháng chiến chống Pháp (1945-1954)']
+        elif any(x in entity_id for x in ['Tây Nguyên', 'Huế', 'Hồ Chí Minh', 'Mậu Thân']):
+            entity['properties']['giai_đoạn'] = ['Kháng chiến chống Mỹ (1954-1975)']
+        elif "Vị Xuyên" in entity_id or "biên giới" in entity_id.lower():
+            entity['properties']['giai_đoạn'] = ['Bảo vệ biên giới (1975-1989)']
+    
+    # Xử lý các nhân vật lịch sử
+    historical_figures = topic_config.get('historical_figures', [])
+    if entity_id in historical_figures and entity_type == "Nhân Vật":
+        if 'properties' not in entity:
+            entity['properties'] = {}
+        
+        # Thêm vai trò
+        roles = {
+            'Hồ Chí Minh': 'Chủ tịch nước, lãnh đạo tối cao',
+            'Võ Nguyên Giáp': 'Đại tướng, Tổng Tư lệnh',
+            'Ngô Đình Diệm': 'Tổng thống Việt Nam Cộng hòa',
+            'Nguyễn Thị Định': 'Nữ tướng, lãnh đạo Đồng khởi',
+            'Pôn Pốt': 'Lãnh đạo Cam-pu-chia Dân chủ'
+        }
+        
+        if entity_id in roles:
+            entity['properties']['vai_trò'] = [roles[entity_id]]
+    
+    # Xử lý các văn kiện
+    key_documents = topic_config.get('key_documents', [])
+    if entity_id in key_documents and entity_type == "Văn kiện/Hiệp định":
+        if 'properties' not in entity:
+            entity['properties'] = {}
+        
+        # Thêm năm ký kết
+        document_years = {
+            'Tuyên ngôn Độc lập': '1945',
+            'Hiệp định Giơ-ne-vơ': '1954',
+            'Hiệp định Pa-ri': '1973',
+            'Luật Biển Việt Nam': '2012',
+            'Tuyên bố về lãnh hải': '1977'
+        }
+        
+        if entity_id in document_years:
+            entity['properties']['năm_ký_kết'] = [document_years[entity_id]]
+    
+    return entity
+
+
+def apply_asean_specific_rules(entity: Dict, topic_config: Dict) -> Dict:
+    """Áp dụng rules đặc thù cho các entity ASEAN."""
+    entity_id = entity.get('id', '')
+    
+    # Xử lý các từ viết tắt ASEAN
+    if entity_id in topic_config.get('acronyms', {}):
+        full_name = topic_config['acronyms'][entity_id]
+        # Thêm tên đầy đủ vào labels
+        if 'label' not in entity:
+            entity['label'] = []
+        if full_name not in entity['label']:
+            entity['label'].append(full_name)
+        
+        # Cập nhật description nếu chưa có
+        if not entity.get('description'):
+            entity['description'] = f"{full_name} - một tổ chức/thành phần của ASEAN"
+    
+    # Xử lý các nước thành viên ASEAN
+    member_countries = topic_config.get('member_countries', [])
+    if entity_id in member_countries and entity.get('type') == 'Quốc gia':
+        # Thêm thông tin về tư cách thành viên ASEAN
+        if 'properties' not in entity:
+            entity['properties'] = {}
+        
+        entity['properties']['tư_cách_ASEAN'] = ['thành viên']
+        
+        # Xác định năm gia nhập nếu có thể
+        join_years = {
+            'Việt Nam': '1995',
+            'Lào': '1997',
+            'Myanmar': '1997',
+            'Campuchia': '1999',
+            'Brunei': '1984'
+        }
+        
+        if entity_id in join_years:
+            entity['properties']['năm_gia_nhập_ASEAN'] = [join_years[entity_id]]
+    
+    return entity
+
+
+def enhance_properties_for_topic(entity: Dict, text: str, topic_config: Dict) -> Dict:
+    """Tăng cường properties với thông tin đặc thù của chủ đề."""
+    properties = entity.get('properties', {})
+    
+    # Trích xuất ngày tháng từ text
+    date_patterns = [
+        r'ngày\s+(\d{1,2}\s*[–\-]\s*\d{1,2}\s*[–\-]\s*\d{4})',
+        r'ngày\s+(\d{1,2})\s*tháng\s*(\d{1,2})\s*năm\s*(\d{4})',
+        r'(\d{1,2}\s*[–\-]\s*\d{1,2}\s*[–\-]\s*\d{4})',
+        r'tháng\s+(\d{1,2})\s*năm\s*(\d{4})',
+        r'năm\s+(\d{4})',
+        r'(\d{4})\s*[–\-]\s*(\d{4})'  # Khoảng thời gian
+    ]
+    
+    all_dates = []
+    for pattern in date_patterns:
+        matches = re.findall(pattern, text)
+        for match in matches:
+            if isinstance(match, tuple):
+                if len(match) == 3:
+                    date_str = f"{match[0]}-{match[1]}-{match[2]}"
+                elif len(match) == 2:
+                    date_str = f"{match[0]}-{match[1]}"
+                else:
+                    continue
+            else:
+                date_str = match
+            
+            # Chỉ lấy các năm từ 1960 trở đi (phù hợp với ASEAN)
+            year_match = re.search(r'(\d{4})', date_str)
+            if year_match:
+                year = int(year_match.group(1))
+                if year >= 1960:  # ASEAN thành lập 1967
+                    all_dates.append(date_str)
+    
+    if all_dates:
+        properties['các_mốc_thời_gian'] = list(set(all_dates))
+    
+    # Thêm thông tin về giai đoạn lịch sử
+    if topic_config and 'time_period' in topic_config:
+        properties['giai_đoạn_lịch_sử'] = topic_config['time_period']
+        
+        # Chi tiết hóa cho ASEAN
+        if "ASEAN" in str(topic_config):
+            asean_periods = {
+                '1967-1976': 'Giai đoạn khởi đầu, xây dựng nền móng',
+                '1976-1999': 'Giai đoạn mở rộng và hợp tác chính trị',
+                '1999-2015': 'Giai đoạn hoàn thiện và hội nhập',
+                '2015-nay': 'Giai đoạn Cộng đồng ASEAN'
+            }
+            properties['giai_đoạn_ASEAN'] = asean_periods
+    
+    return properties
+
+
+def create_topic_specific_metadata(entity: Dict, window: Dict, topic: str, lesson: str, topic_config: Dict) -> Dict:
+    """Tạo metadata đặc thù cho chủ đề."""
+    metadata = {
+        'topic': topic,
+        'lesson': lesson,
+        'window_indices': [window['window_index']],
+        'topic_period': topic_config.get('time_period', '') if topic_config else '',
+        'priority_level': 'high' if entity['type'] in topic_config.get('priority_entities', []) else 'medium'
+    }
+    
+    # Trích xuất timeline events với trọng tâm vào chủ đề
+    timeline_events = extract_timeline_events_with_context(window['text'], topic_config)
+    if timeline_events:
+        metadata['timeline_events'] = timeline_events
+    
+    return metadata
+
+
+def extract_timeline_events_with_context(text: str, topic_config: Dict) -> List[Dict]:
+    """Trích xuất sự kiện timeline với context phù hợp chủ đề."""
+    from text_processor import extract_timeline_events
+    
+    events = extract_timeline_events(text)
+    
+    # Thêm context đặc thù cho chủ đề
+    if topic_config and 'time_period' in topic_config:
+        for event in events:
+            event['topic_period'] = topic_config['time_period']
+    
+    return events
+
+def cleanup_entities(entities: List[Dict]) -> List[Dict]:
+    """Làm sạch danh sách entities cuối cùng."""
+    cleaned = []
+    
+    for entity in entities:
+        entity_id = entity.get('id', '')
+        
+        # Bỏ qua các entity là ngày tháng đơn thuần
+        date_patterns = [
+            r'^\d{4}$',
+            r'^\d{1,2}\s*[-–]\s*\d{1,2}\s*[-–]\s*\d{4}$',
+            r'^tháng\s+\d{1,2}\s*[-–]\s*\d{4}$',
+            r'^ngày\s+\d{1,2}$',
+            r'^năm\s+\d{4}$',
+        ]
+        
+        is_date = False
+        for pattern in date_patterns:
+            if re.match(pattern, entity_id, re.IGNORECASE):
+                is_date = True
+                break
+        
+        if is_date:
+            continue
+        
+        # Bỏ qua các entity quá chung
+        general_terms = [
+            'chính phủ', 'hội', 'trí tuệ con người', 'nhân dân thế giới',
+            'nhân dân', 'thế giới', 'phe', 'quân', 'đế quốc'
+        ]
+        
+        if entity_id.lower() in general_terms:
+            continue
+        
+        # Bỏ qua entity chỉ có 1 từ và quá ngắn
+        if len(entity_id.split()) == 1 and len(entity_id) < 4:
+            continue
+        
+        cleaned.append(entity)
+    
+    return cleaned

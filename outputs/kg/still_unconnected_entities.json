@@ -1,0 +1,30 @@
+[
+  {
+    "id": "Đội Việt Nam Tuyên truyền Giải phóng quân",
+    "type": "Tổ chức",
+    "label": [
+      "Đội Việt Nam Tuyên truyền Giải phóng quân"
+    ],
+    "occurrence_count": 1,
+    "context_windows_found": 1
+  },
+  {
+    "id": "Cộng đồng Văn hoá – Xã hội ASEAN",
+    "type": "Chiến lược/Chủ trương",
+    "label": [
+      "Cộng đồng Văn hoá – Xã hội ASEAN",
+      "ASCC"
+    ],
+    "occurrence_count": 1,
+    "context_windows_found": 1
+  },
+  {
+    "id": "Đoan Hùng",
+    "type": "Địa điểm",
+    "label": [
+      "Đoan Hùng"
+    ],
+    "occurrence_count": 1,
+    "context_windows_found": 1
+  }
+]
