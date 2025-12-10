@@ -25,16 +25,48 @@ def extract_topic_and_lesson(file_path: str) -> Tuple[str, str]:
 
 
 def clean_labels(labels: List[str]) -> List[str]:
-    """Clean and deduplicate labels."""
-    cleaned = []
-    seen = set()
+    """Clean and deduplicate labels, normalizing case to avoid duplicates like 'abc' vs 'Abc'."""
+    if not labels:
+        return []
+    
+    # Dictionary to track the best label for each lowercase version
+    # We prefer labels that start with uppercase
+    best_labels = {}
+    
     for label in labels:
-        if label and label.strip():
-            clean_label = label.strip()
-            if clean_label not in seen:
-                seen.add(clean_label)
-                cleaned.append(clean_label)
-    return cleaned
+        if not label or not label.strip():
+            continue
+        
+        clean_label = label.strip()
+        label_lower = clean_label.lower()
+        
+        if label_lower not in best_labels:
+            best_labels[label_lower] = clean_label
+        else:
+            # Already have this label (case-insensitive), choose the better one
+            existing = best_labels[label_lower]
+            
+            # Prefer label starting with uppercase
+            if clean_label[0].isupper() and not existing[0].isupper():
+                best_labels[label_lower] = clean_label
+            # If both have same case, prefer shorter one
+            elif clean_label[0].isupper() == existing[0].isupper():
+                if len(clean_label) < len(existing):
+                    best_labels[label_lower] = clean_label
+    
+    # Return unique labels, maintaining original order for first occurrence
+    result = []
+    seen_lower = set()
+    
+    for label in labels:
+        if not label or not label.strip():
+            continue
+        label_lower = label.strip().lower()
+        if label_lower not in seen_lower:
+            seen_lower.add(label_lower)
+            result.append(best_labels[label_lower])
+    
+    return result
 
 
 def validate_entity_type(entity_type: str) -> str:
@@ -93,8 +125,32 @@ def group_consecutive_occurrences(occurrences: List[Dict]) -> List[Dict]:
     if not occurrences:
         return []
     
-    # Sort occurrences by topic, lesson, and sentence_index
-    occurrences.sort(key=lambda x: (x['topic'], x['lesson'], x['sentence_index']))
+    # Đảm bảo tất cả occurrences có các trường cần thiết (với giá trị mặc định nếu thiếu)
+    for occ in occurrences:
+        if 'sentence_index' not in occ:
+            occ['sentence_index'] = 0
+        if 'label' not in occ:
+            occ['label'] = []
+        if 'topic' not in occ:
+            occ['topic'] = ''
+        if 'lesson' not in occ:
+            occ['lesson'] = ''
+        if 'exact_text' not in occ:
+            occ['exact_text'] = ''
+    
+    # Sort occurrences by topic, lesson, and sentence_index - using .get() for safety
+    try:
+        occurrences.sort(key=lambda x: (
+            str(x.get('topic', '')), 
+            str(x.get('lesson', '')), 
+            int(x.get('sentence_index', 0))
+        ))
+    except (TypeError, ValueError) as e:
+        # Fallback: sort by topic and lesson only if sentence_index has issues
+        occurrences.sort(key=lambda x: (
+            str(x.get('topic', '')), 
+            str(x.get('lesson', ''))
+        ))
     
     grouped = []
     current_group = None
@@ -102,36 +158,38 @@ def group_consecutive_occurrences(occurrences: List[Dict]) -> List[Dict]:
     for occ in occurrences:
         if current_group is None:
             current_group = {
-                'topic': occ['topic'],
-                'lesson': occ['lesson'],
-                'labels': occ['label'],
-                'texts': [occ['exact_text']],
-                'sentence_range': [occ['sentence_index'], occ['sentence_index']]
+                'topic': occ.get('topic', ''),
+                'lesson': occ.get('lesson', ''),
+                'labels': occ.get('label', []),
+                'texts': [occ.get('exact_text', '')],
+                'sentence_range': [occ.get('sentence_index', 0), occ.get('sentence_index', 0)]
             }
         else:
             # Check if this occurrence can be grouped with current
             # Also check for similar texts to avoid grouping duplicates
-            can_group = (occ['topic'] == current_group['topic'] and 
-                        occ['lesson'] == current_group['lesson'] and
-                        occ['sentence_index'] <= current_group['sentence_range'][1] + 5)
+            can_group = (occ.get('topic', '') == current_group['topic'] and 
+                        occ.get('lesson', '') == current_group['lesson'] and
+                        occ.get('sentence_index', 0) <= current_group['sentence_range'][1] + 5)
             
             # Check if text is too similar to existing texts in group
             if can_group:
                 is_similar = False
+                exact_text = occ.get('exact_text', '')
                 for existing_text in current_group['texts']:
-                    similarity = SequenceMatcher(None, occ['exact_text'], existing_text).ratio()
-                    if similarity > 0.8:  # 80% similarity threshold
-                        is_similar = True
-                        break
+                    if exact_text and existing_text:
+                        similarity = SequenceMatcher(None, exact_text, existing_text).ratio()
+                        if similarity > 0.8:  # 80% similarity threshold
+                            is_similar = True
+                            break
                 
                 if not is_similar:
-                    current_group['texts'].append(occ['exact_text'])
-                    current_group['sentence_range'][1] = max(current_group['sentence_range'][1], occ['sentence_index'])
+                    current_group['texts'].append(exact_text)
+                    current_group['sentence_range'][1] = max(current_group['sentence_range'][1], occ.get('sentence_index', 0))
                     # Merge labels
-                    current_group['labels'] = list(set(current_group['labels'] + occ['label']))
+                    current_group['labels'] = list(set(current_group['labels'] + occ.get('label', [])))
                 else:
                     # Text is too similar, don't add but update sentence range
-                    current_group['sentence_range'][1] = max(current_group['sentence_range'][1], occ['sentence_index'])
+                    current_group['sentence_range'][1] = max(current_group['sentence_range'][1], occ.get('sentence_index', 0))
             else:
                 # Finalize current group
                 finalize_group(current_group)
@@ -139,11 +197,11 @@ def group_consecutive_occurrences(occurrences: List[Dict]) -> List[Dict]:
                 
                 # Start new group
                 current_group = {
-                    'topic': occ['topic'],
-                    'lesson': occ['lesson'],
-                    'labels': occ['label'],
-                    'texts': [occ['exact_text']],
-                    'sentence_range': [occ['sentence_index'], occ['sentence_index']]
+                    'topic': occ.get('topic', ''),
+                    'lesson': occ.get('lesson', ''),
+                    'labels': occ.get('label', []),
+                    'texts': [occ.get('exact_text', '')],
+                    'sentence_range': [occ.get('sentence_index', 0), occ.get('sentence_index', 0)]
                 }
     
     # Add the last group

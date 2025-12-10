@@ -3,67 +3,110 @@ import re
 import time
 from typing import List, Dict, Any, Tuple, Optional
 from collections import defaultdict
-from api_handler import call_gemini_api
+from api_handler import call_deepseek_api
 from config import MAX_RETRIES, MIN_EVIDENCE_LENGTH, MIN_PREDICATE_LENGTH, MAX_PREDICATE_LENGTH
 from utils import get_timestamp
 
+# Import JSON processor neu co
+try:
+    from json_processor import SemanticChunk, create_relationship_prompt
+    JSON_PROCESSOR_AVAILABLE = True
+except ImportError:
+    JSON_PROCESSOR_AVAILABLE = False
+    SemanticChunk = None
+
 def validate_relationship(relationship: Dict, entity_lookup: Dict[str, Dict]) -> bool:
-    """Validate if a relationship is valid (đã giảm nhẹ)."""
+    """
+    Validate if a relationship is valid (yêu cầu nghiêm ngặt).
+    
+    Điều kiện:
+    - Subject và Object PHẢI tồn tại trong Entity Lookup (theo ID hoặc labels)
+    - Subject và Object không được trùng nhau
+    - Predicate phải có độ dài tối thiểu 2 ký tự
+    - Evidence phải có độ dài tối thiểu 8 ký tự và chứa ít nhất một thực thể hoặc keyword
+    """
     subject_id = relationship.get('subject_id', '').strip()
     object_id = relationship.get('object_id', '').strip()
     predicate = relationship.get('predicate', '').strip()
     evidence = relationship.get('evidence', '').strip()
     
-    # Kiểm tra cơ bản
+    # Kiểm tra cơ bản - các trường bắt buộc
     if not subject_id or not object_id or not predicate:
         return False
     
+    # Subject và Object không được trùng nhau
     if subject_id == object_id:
         return False
     
-    # Giảm nhẹ: chỉ cần một trong hai thực thể tồn tại
+    # ===== KIỂM TRA NGHIÊM NGẶT: CẢ HAI PHẢI TỒN TẠI =====
+    
+    # Kiểm tra Subject tồn tại (theo ID)
     subject_exists = subject_id in entity_lookup
+    
+    # Nếu không tồn tại theo ID, thử tìm qua labels
+    if not subject_exists:
+        for entity in entity_lookup.values():
+            entity_labels = entity.get('label', [])
+            if isinstance(entity_labels, str):
+                entity_labels = [entity_labels]
+            # Kiểm tra exact match hoặc case-insensitive match
+            if subject_id in entity_labels or any(subject_id.lower() == label.lower() for label in entity_labels):
+                subject_exists = True
+                break
+    
+    # Kiểm tra Object tồn tại (theo ID)
     object_exists = object_id in entity_lookup
     
-    # Nếu không tồn tại trong lookup, thử tìm qua labels
-    if not subject_exists:
-        subject_exists = any(subject_id.lower() in label.lower() 
-                           for entity in entity_lookup.values() 
-                           for label in entity.get('label', []))
-    
+    # Nếu không tồn tại theo ID, thử tìm qua labels
     if not object_exists:
-        object_exists = any(object_id.lower() in label.lower() 
-                          for entity in entity_lookup.values() 
-                          for label in entity.get('label', []))
+        for entity in entity_lookup.values():
+            entity_labels = entity.get('label', [])
+            if isinstance(entity_labels, str):
+                entity_labels = [entity_labels]
+            # Kiểm tra exact match hoặc case-insensitive match
+            if object_id in entity_labels or any(object_id.lower() == label.lower() for label in entity_labels):
+                object_exists = True
+                break
     
-    # Chấp nhận nếu ít nhất một thực thể tồn tại
-    if not subject_exists and not object_exists:
+    # YÊU CẦU NGHIÊM NGẶT: CẢ HAI subject VÀ object PHẢI tồn tại
+    if not subject_exists or not object_exists:
         return False
     
-    # Giảm nhẹ yêu cầu về predicate
-    if len(predicate) < 2:  # Giảm từ 3 xuống 2
+    # Kiểm tra predicate có độ dài tối thiểu
+    if len(predicate) < 2:
         return False
     
-    # Giảm nhẹ yêu cầu về evidence
-    if len(evidence) < 8:  # Giảm từ 15 xuống 8
+    # Kiểm tra evidence có độ dài tối thiểu
+    if len(evidence) < 8:
         return False
-        
-    # Giảm nhẹ: không bắt buộc cả subject và object đều phải có trong evidence
+    
+    # Kiểm tra evidence chứa ít nhất một thực thể hoặc keyword liên kết
     evidence_lower = evidence.lower()
-    subject_found = any(label.lower() in evidence_lower 
-                       for entity in entity_lookup.values() 
-                       if entity.get('id') == subject_id 
-                       for label in entity.get('label', []))
     
-    object_found = any(label.lower() in evidence_lower 
-                      for entity in entity_lookup.values() 
-                      if entity.get('id') == object_id 
-                      for label in entity.get('label', []))
+    # Tìm subject trong evidence
+    subject_found = False
+    for entity in entity_lookup.values():
+        if entity.get('id') == subject_id:
+            for label in entity.get('label', []):
+                if label.lower() in evidence_lower:
+                    subject_found = True
+                    break
+            break
     
-    # Chấp nhận nếu có ít nhất một trong hai xuất hiện trong evidence
+    # Tìm object trong evidence
+    object_found = False
+    for entity in entity_lookup.values():
+        if entity.get('id') == object_id:
+            for label in entity.get('label', []):
+                if label.lower() in evidence_lower:
+                    object_found = True
+                    break
+            break
+    
+    # Chấp nhận nếu có ít nhất MỘT thực thể xuất hiện trong evidence
+    # HOẶC evidence chứa từ khóa liên kết quan hệ
     if not subject_found and not object_found:
-        # Vẫn có thể chấp nhận nếu evidence có chứa từ khóa chung
-        common_keywords = ['với', 'của', 'cho', 'tại', 'trong', 'bởi']
+        common_keywords = ['với', 'của', 'cho', 'tại', 'trong', 'bởi', 'là', 'được', 'do', 'từ', 'đến', 'và']
         if not any(keyword in evidence_lower for keyword in common_keywords):
             return False
     
@@ -351,7 +394,7 @@ LOẠI QUAN HỆ GỢI Ý (có thể sử dụng hoặc tự đề xuất quan h
 
 Chỉ trả về JSON hợp lệ, không thêm nội dung khác."""
     
-    result = call_gemini_api(full_prompt, MAX_RETRIES)
+    result = call_deepseek_api(full_prompt, MAX_RETRIES)
     if not result:
         return None
     
@@ -375,3 +418,174 @@ Chỉ trả về JSON hợp lệ, không thêm nội dung khác."""
         'window_index': start_idx,
         'target_entity': target_entity_id
     }
+
+
+def extract_relationships_from_json_chunk(
+    chunk: Any,  # SemanticChunk from json_processor
+    entity_lookup: Dict[str, Dict],
+    chunk_index: int = 0
+) -> Optional[Dict]:
+    """
+    Extract relationships from a JSON semantic chunk.
+    
+    Args:
+        chunk: SemanticChunk object from json_processor
+        entity_lookup: Dictionary of entities
+        chunk_index: Index of this chunk
+        
+    Returns:
+        Dictionary with extracted relationships (never None)
+    """
+    if not JSON_PROCESSOR_AVAILABLE:
+        print("[Warning] json_processor not available")
+        return {'relationships': [], 'chunk_index': chunk_index, 'chunk_path': '', 'error': 'json_processor not available'}
+    
+    # Tao prompt tu json_processor
+    entities_list = list(entity_lookup.values())
+    prompt = create_relationship_prompt(chunk, entities_list)
+    
+    # Goi API
+    result = call_deepseek_api(prompt, MAX_RETRIES)
+    
+    # Handle API failure - return empty result instead of None
+    if not result:
+        print(f"   [!] API returned no result for chunk {chunk_index}")
+        return {
+            'relationships': [],
+            'chunk_index': chunk_index,
+            'chunk_path': chunk.full_path,
+            'status': 'api_failed'
+        }
+    
+    # Get raw relationships from API
+    raw_relationships = result.get('relationships', [])
+    
+    # Validate relationships
+    validated_relationships = []
+    validation_stats = {
+        'total': len(raw_relationships),
+        'valid': 0,
+        'invalid_subject': 0,
+        'invalid_object': 0,
+        'same_entity': 0,
+        'missing_predicate': 0
+    }
+    
+    for rel in raw_relationships:
+        # Check basic structure
+        subject_id = rel.get('subject_id', '')
+        object_id = rel.get('object_id', '')
+        predicate = rel.get('predicate', '')
+        
+        # Skip if missing predicate
+        if not predicate:
+            validation_stats['missing_predicate'] += 1
+            continue
+            
+        # Skip if same entity
+        if subject_id and object_id and subject_id.lower() == object_id.lower():
+            validation_stats['same_entity'] += 1
+            continue
+        
+        # Validate with entity lookup
+        if validate_relationship(rel, entity_lookup):
+            rel['chunk_info'] = {
+                'chunk_index': chunk_index,
+                'topic': chunk.topic_description,
+                'lesson': chunk.lesson_title,
+                'section': chunk.section_title,
+                'subsection': chunk.subsection_title,
+                'full_path': chunk.full_path
+            }
+            validated_relationships.append(rel)
+            validation_stats['valid'] += 1
+        else:
+            # Log why validation failed
+            if subject_id not in entity_lookup:
+                validation_stats['invalid_subject'] += 1
+            elif object_id not in entity_lookup:
+                validation_stats['invalid_object'] += 1
+    
+    # Log validation summary if there were issues
+    if validation_stats['total'] > 0 and validation_stats['valid'] == 0:
+        print(f"   [!] No relationships extracted (raw: {validation_stats['total']}, "
+              f"invalid_subj: {validation_stats['invalid_subject']}, "
+              f"invalid_obj: {validation_stats['invalid_object']}, "
+              f"same_entity: {validation_stats['same_entity']})")
+    elif validation_stats['total'] > validation_stats['valid']:
+        rejected = validation_stats['total'] - validation_stats['valid']
+        print(f"   [Validation] {validation_stats['valid']}/{validation_stats['total']} valid "
+              f"(rejected: {rejected})")
+    
+    return {
+        'relationships': validated_relationships,
+        'chunk_index': chunk_index,
+        'chunk_path': chunk.full_path,
+        'validation_stats': validation_stats
+    }
+
+
+def process_json_chunks_for_relationships(
+    json_path: str,
+    entity_lookup: Dict[str, Dict],
+    max_chunks: int = None
+) -> List[Dict]:
+    """
+    Process all JSON chunks to extract relationships.
+    
+    Args:
+        json_path: Path to JSON textbook file
+        entity_lookup: Dictionary of entities
+        max_chunks: Maximum chunks to process (for testing)
+        
+    Returns:
+        List of all extracted relationships
+    """
+    if not JSON_PROCESSOR_AVAILABLE:
+        print("[Error] json_processor not available")
+        return []
+    
+    from json_processor import JSONTextbookProcessor
+    
+    processor = JSONTextbookProcessor(json_path)
+    
+    # Sử dụng chunks với overlap để xử lý context dài
+    # 7 câu/chunk, 5 câu overlap (step = 2)
+    print("\n[INFO] Đang chia chunks với overlap (7 câu/chunk, 5 câu overlap)...")
+    chunks = processor.get_all_chunks_with_overlap()
+    
+    if max_chunks:
+        chunks = chunks[:max_chunks]
+    
+    print(f"\n[JSON Relationship Extraction]")
+    print(f"Total chunks: {len(chunks)}")
+    print("=" * 60)
+    
+    all_relationships = []
+    
+    for i, chunk in enumerate(chunks):
+        print(f"\n[{i+1}/{len(chunks)}] {chunk.full_path}")
+        print(f"   Section: {chunk.section_title}")
+        print(f"   Subsection: {chunk.subsection_title}")
+        
+        result = extract_relationships_from_json_chunk(
+            chunk=chunk,
+            entity_lookup=entity_lookup,
+            chunk_index=i
+        )
+        
+        if result and result.get('relationships'):
+            rels = result['relationships']
+            all_relationships.extend(rels)
+            print(f"   [OK] Extracted {len(rels)} relationships")
+        else:
+            print(f"   [!] No relationships extracted")
+    
+    # Merge duplicate relationships
+    merged = merge_relationships(all_relationships)
+    
+    print("\n" + "=" * 60)
+    print(f"Total relationships: {len(merged)}")
+    print("=" * 60)
+    
+    return merged

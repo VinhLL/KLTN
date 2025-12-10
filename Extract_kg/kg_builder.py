@@ -8,13 +8,235 @@ from text_processor import read_source_files, find_context_windows_for_entity
 from relationship_processor import extract_relationships_from_window, post_process_relationships
 from utils import extract_topic_and_lesson, create_overlapping_windows, split_into_sentences
 from topic_processor import process_topic_1_file, process_asean_file, process_ho_chi_minh_file, process_vietnam_war_file, process_doi_moi_file, process_diplomacy_file
+import config
 import json
+
+# Import JSON reader nếu có
+try:
+    from json_reader import (
+        load_textbook_json,
+        iterate_lessons,
+        iterate_sections,
+        iterate_subsections,
+        get_lesson_text
+    )
+    from text_processor import find_context_windows_combined, get_compact_context
+    JSON_READER_AVAILABLE = True
+except ImportError:
+    JSON_READER_AVAILABLE = False
 
 class KnowledgeGraphBuilder:
     def __init__(self):
         self.api_request_count = 0
         self.kg = {'entities': [], 'triplets': []}
+        self.use_json = getattr(config, 'USE_JSON_FORMAT', False) and JSON_READER_AVAILABLE
+    
+    def build_from_json(self, entities: List[Dict]) -> KnowledgeGraph:
+        """
+        Build knowledge graph từ JSON format mới.
+        Tối ưu token bằng cách sử dụng cấu trúc JSON có sẵn.
+        """
+        if not JSON_READER_AVAILABLE:
+            raise ImportError("JSON reader not available. Fallback to build_from_existing.")
         
+        print("=" * 60)
+        print("XÂY DỰNG KNOWLEDGE GRAPH TỪ JSON FORMAT")
+        print("=" * 60)
+        
+        entity_lookup = create_entity_lookup(entities)
+        print(f"Đã tạo lookup cho {len(entity_lookup)} thực thể")
+        
+        self.kg = {
+            'entities': entities,
+            'triplets': []
+        }
+        
+        # Load JSON data
+        json_file = getattr(config, 'JSON_INPUT_FILE', None)
+        if not json_file:
+            raise ValueError("JSON_INPUT_FILE not configured")
+        
+        json_data = load_textbook_json(json_file)
+        print(f"Loaded {len(json_data)} lessons từ JSON")
+        
+        # Group lessons by topic
+        lessons_by_topic = defaultdict(list)
+        for lesson in json_data:
+            topic = lesson.get('topic_id', 'Unknown')
+            lessons_by_topic[topic].append(lesson)
+        
+        print(f"\nPhát hiện {len(lessons_by_topic)} chủ đề:")
+        for topic, lessons in lessons_by_topic.items():
+            print(f"  {topic}: {len(lessons)} bài")
+        
+        # Process each topic
+        for topic, lessons in lessons_by_topic.items():
+            print(f"\n{'='*60}")
+            print(f"XỬ LÝ: {topic}")
+            print(f"{'='*60}")
+            
+            for lesson in lessons:
+                self._process_lesson_json(lesson, entity_lookup)
+        
+        # Supplement unconnected entities using JSON context
+        self._supplement_unconnected_json(entity_lookup, json_data)
+        
+        return self._create_knowledge_graph()
+    
+    def _process_lesson_json(self, lesson: Dict, entity_lookup: Dict[str, Dict]):
+        """Process một lesson từ JSON format."""
+        topic_id = lesson.get('topic_id', 'Unknown')
+        lesson_id = lesson.get('lesson_id', 'Unknown')
+        
+        print(f"\nProcessing: {lesson_id} - {lesson.get('lesson_title', '')}")
+        
+        # Filter entities for this lesson
+        all_entities = self.kg.get('entities', [])
+        filtered_entity_lookup = filter_entities_by_topic_lesson(all_entities, topic_id, lesson_id)
+        print(f"  Found {len(filtered_entity_lookup)} entities for this lesson")
+        
+        # Process each subsection
+        window_count = 0
+        for section in iterate_sections(lesson):
+            for subsection in iterate_subsections(section):
+                content = subsection.get("content", [])
+                if not content or len(content) < 3:
+                    continue
+                
+                # Create file_info from JSON metadata
+                file_info = {
+                    'topic': topic_id,
+                    'lesson': lesson_id,
+                    'section_index': section.get('index', 0),
+                    'section_title': section.get('title', ''),
+                    'subsection_label': subsection.get('label', ''),
+                    'subsection_title': subsection.get('title', ''),
+                    'source_format': 'json'
+                }
+                
+                # Create windows from content
+                window_size = getattr(config, 'WINDOW_SIZE', 10)
+                for i in range(0, len(content), window_size // 2):
+                    window_sentences = content[i:min(i + window_size, len(content))]
+                    
+                    if len(window_sentences) >= 3:
+                        window_count += 1
+                        
+                        result = extract_relationships_from_window(
+                            i,
+                            window_sentences,
+                            filtered_entity_lookup,
+                            file_info
+                        )
+                        
+                        if result:
+                            relationships = result.get('relationships', [])
+                            self._add_relationships_from_json(relationships, file_info)
+                        
+                        time.sleep(getattr(config, 'REQUEST_DELAY', 2))
+        
+        print(f"  Processed {window_count} windows, total triplets: {len(self.kg['triplets'])}")
+    
+    def _add_relationships_from_json(self, relationships: List[Dict], file_info: Dict):
+        """Add relationships từ JSON extraction."""
+        existing_triplets = self.kg.get('triplets', [])
+        existing_keys = set((t['subject_id'], t['predicate'], t['object_id']) for t in existing_triplets)
+        
+        for rel in relationships:
+            key = (rel['subject_id'], rel['predicate'], rel['object_id'])
+            if key not in existing_keys:
+                triplet = {
+                    'subject_id': rel['subject_id'],
+                    'predicate': rel['predicate'],
+                    'object_id': rel['object_id'],
+                    'properties': rel.get('properties', {}),
+                    'metadata': {
+                        'extraction_method': 'json_subsection_analysis',
+                        'file_info': file_info,
+                        'evidence_count': len(rel.get('supporting_sentences', [])),
+                        'source_format': 'json'
+                    },
+                    'supporting_sentences': rel.get('supporting_sentences', []),
+                    'confidence': rel.get('confidence', 0.9),
+                    'occurrence_count': rel.get('occurrence_count', 1)
+                }
+                existing_triplets.append(triplet)
+                existing_keys.add(key)
+        
+        self.kg['triplets'] = existing_triplets
+    
+    def _supplement_unconnected_json(self, entity_lookup: Dict[str, Dict], json_data: List[Dict]):
+        """Supplement unconnected entities using JSON context."""
+        connected_entities, unconnected_entities = identify_unconnected_entities(self.kg)
+        
+        print(f"\n{'='*60}")
+        print("BỔ SUNG QUAN HỆ TỪ JSON CONTEXT")
+        print(f"{'='*60}")
+        print(f"Thực thể chưa kết nối: {len(unconnected_entities)}")
+        
+        if not unconnected_entities:
+            return
+        
+        # Process unconnected entities with targeted extraction
+        for entity_id in list(unconnected_entities)[:50]:  # Limit to 50
+            entity = entity_lookup.get(entity_id)
+            if not entity:
+                continue
+            
+            entity_labels = [entity['id']] + entity.get('label', [])
+            
+            # Find lesson containing this entity
+            for lesson in json_data:
+                lesson_text = get_lesson_text(lesson)
+                
+                found = any(
+                    label.lower() in lesson_text.lower()
+                    for label in entity_labels
+                    if label and len(label) > 2
+                )
+                
+                if found:
+                    # Extract relationships for this entity
+                    file_info = {
+                        'topic': lesson.get('topic_id', ''),
+                        'lesson': lesson.get('lesson_id', ''),
+                        'source_format': 'json_supplement'
+                    }
+                    
+                    all_entities = self.kg.get('entities', [])
+                    filtered_lookup = filter_entities_by_topic_lesson(
+                        all_entities,
+                        file_info['topic'],
+                        file_info['lesson']
+                    )
+                    
+                    if entity_id not in filtered_lookup:
+                        filtered_lookup[entity_id] = entity
+                    
+                    # Find relevant subsection
+                    for section in iterate_sections(lesson):
+                        for subsection in iterate_subsections(section):
+                            content = subsection.get("content", [])
+                            subsection_text = " ".join(content)
+                            
+                            if any(label.lower() in subsection_text.lower() for label in entity_labels if label):
+                                result = extract_relationships_from_window(
+                                    0,
+                                    content[:10],
+                                    filtered_lookup,
+                                    file_info,
+                                    target_entity_id=entity_id
+                                )
+                                if result:
+                                    rels = result.get('relationships', [])
+                                    relevant = [r for r in rels if r.get('subject_id') == entity_id or r.get('object_id') == entity_id]
+                                    if relevant:
+                                        self._add_relationships_from_json(relevant, file_info)
+                                        break
+                    break
+            
+            time.sleep(1)
+    
     def build_from_existing(self, entities: List[Dict], source_files: Dict[str, str]) -> KnowledgeGraph:
         """Build knowledge graph với xử lý theo chủ đề."""
         print("Bắt đầu xây dựng knowledge graph với xử lý theo chủ đề...")

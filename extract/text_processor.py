@@ -4,6 +4,21 @@ import re
 from typing import List, Dict, Any
 from difflib import SequenceMatcher
 import utils
+import config
+
+# Import JSON reader cho format mới
+try:
+    from json_reader import (
+        load_textbook_json,
+        create_windows_for_entity_extraction,
+        create_compact_context,
+        iterate_lessons,
+        iterate_sections,
+        iterate_subsections
+    )
+    JSON_READER_AVAILABLE = True
+except ImportError:
+    JSON_READER_AVAILABLE = False
 
 
 def read_files(file_paths: List[str]) -> Dict[str, str]:
@@ -17,7 +32,6 @@ def read_files(file_paths: List[str]) -> Dict[str, str]:
             print(f"Warning: File {file_path} not found")
             contents[file_path] = ""
     return contents
-
 
 def create_non_overlapping_windows(sentences: List[str], window_size: int = 5) -> List[Dict]:
     """Create non-overlapping windows of sentences."""
@@ -40,8 +54,17 @@ def find_entity_occurrences(entity: Dict, window: Dict, topic: str, lesson: str)
     occurrences = []
     entity_labels = [entity['id']] + entity.get('label', [])
     
-    for i, sentence in enumerate(window['sentences']):
-        sentence_idx = window['start_idx'] + i
+    # Lấy sentences - hỗ trợ cả list và text
+    sentences = window.get('sentences', [])
+    if not sentences and 'text' in window:
+        # Fallback: split text thành sentences
+        sentences = [s.strip() for s in window['text'].split('.') if s.strip()]
+    
+    # Lấy start_idx - mặc định là 0 nếu không có
+    start_idx = window.get('start_idx', window.get('window_index', 0))
+    
+    for i, sentence in enumerate(sentences):
+        sentence_idx = start_idx + i
         found_labels = []
         
         # Check for each label in the sentence
@@ -54,10 +77,10 @@ def find_entity_occurrences(entity: Dict, window: Dict, topic: str, lesson: str)
         
         # If we found any labels, add as occurrence with expanded context
         if found_labels:
-            # Get expanded context (current sentence ± 2 sentences)
+            # Get expanded context (current sentence +/- 2 sentences)
             context_start = max(0, i - 2)
-            context_end = min(len(window['sentences']), i + 3)
-            context_sentences = window['sentences'][context_start:context_end]
+            context_end = min(len(sentences), i + 3)
+            context_sentences = sentences[context_start:context_end]
             context_text = ' '.join(context_sentences)
             
             occurrence = {
@@ -66,7 +89,10 @@ def find_entity_occurrences(entity: Dict, window: Dict, topic: str, lesson: str)
                 'sentence_index': sentence_idx,
                 'label': found_labels,
                 'exact_text': context_text,
-                'context_range': (context_start + window['start_idx'], context_end + window['start_idx'] - 1)
+                'context_range': (context_start + start_idx, context_end + start_idx - 1),
+                # Thêm metadata từ JSON format nếu có
+                'section': window.get('section_title', ''),
+                'subsection': window.get('subsection_title', '')
             }
             occurrences.append(occurrence)
     
@@ -154,3 +180,92 @@ def expand_acronyms(text: str, topic_config: Dict) -> str:
         text = re.sub(pattern, f"{acronym} ({expansion})", text)
     
     return text
+
+
+# ============ JSON Format Functions (New) ============
+
+def read_json_input() -> List[Dict[str, Any]]:
+    """
+    Đọc file JSON input mới.
+    Returns danh sách lessons từ JSON.
+    """
+    if not JSON_READER_AVAILABLE:
+        raise ImportError("json_reader module not available")
+    
+    if not hasattr(config, 'JSON_INPUT_FILE'):
+        raise ValueError("JSON_INPUT_FILE not configured in config.py")
+    
+    return load_textbook_json(config.JSON_INPUT_FILE)
+
+
+def create_windows_from_json(window_size: int = None) -> List[Dict[str, Any]]:
+    """
+    Tạo windows từ JSON file (format mới).
+    Tối ưu token bằng cách sử dụng cấu trúc có sẵn.
+    
+    Returns:
+        List windows với metadata đầy đủ
+    """
+    if not JSON_READER_AVAILABLE:
+        raise ImportError("json_reader module not available")
+    
+    if window_size is None:
+        window_size = getattr(config, 'WINDOW_SIZE', 5)
+    
+    return create_windows_for_entity_extraction(
+        config.JSON_INPUT_FILE,
+        window_size=window_size
+    )
+
+
+def get_windows_for_extraction() -> List[Dict[str, Any]]:
+    """
+    Hàm wrapper để lấy windows cho entity extraction.
+    Tự động chọn JSON format nếu được cấu hình.
+    """
+    use_json = getattr(config, 'USE_JSON_FORMAT', False)
+    
+    if use_json and JSON_READER_AVAILABLE:
+        print(f"[INFO] Using JSON format: {config.JSON_INPUT_FILE}")
+        return create_windows_from_json()
+    else:
+        # Fallback to old txt format
+        print("[INFO] Using legacy TXT format")
+        file_contents = read_files(config.INPUT_FILES)
+        all_windows = []
+        
+        for file_path, content in file_contents.items():
+            if not content:
+                continue
+            sentences = utils.split_sentences_vietnamese(content)
+            windows = create_non_overlapping_windows(
+                sentences, 
+                getattr(config, 'WINDOW_SIZE', 5)
+            )
+            
+            # Add file metadata
+            for window in windows:
+                topic, lesson = utils.extract_topic_and_lesson(file_path)
+                window['topic'] = topic
+                window['lesson'] = lesson
+                window['file_path'] = file_path
+            
+            all_windows.extend(windows)
+        
+        return all_windows
+
+
+def get_compact_context_for_window(window: Dict[str, Any]) -> str:
+    """
+    Tạo context ngắn gọn cho window (tối ưu token).
+    """
+    if JSON_READER_AVAILABLE and getattr(config, 'USE_COMPACT_CONTEXT', False):
+        return create_compact_context(window)
+    
+    # Fallback: tạo context đơn giản
+    parts = []
+    if window.get('topic'):
+        parts.append(window['topic'])
+    if window.get('lesson'):
+        parts.append(window['lesson'])
+    return " > ".join(parts) if parts else ""

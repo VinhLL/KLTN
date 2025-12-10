@@ -1,23 +1,47 @@
-"""Xử lý đặc thù theo từng chủ đề."""
+"""Xu ly dac thu theo tung chu de."""
 import utils
 
 import json
 import re
 import time
 from collections import defaultdict
-from typing import Dict, List, Optional, Tuple
-import google.generativeai as genai
+from typing import Dict, List, Optional, Tuple, Any
+import config
+
+# Import topic_config manager moi
+try:
+    from topic_config import get_topic_config as _get_topic_config_from_manager
+    TOPIC_CONFIG_AVAILABLE = True
+except ImportError:
+    TOPIC_CONFIG_AVAILABLE = False
 
 class TopicProcessor:
-    """Xử lý đặc thù theo từng chủ đề."""
+    """Xu ly dac thu theo tung chu de."""
+    
+    # JSON path mac dinh
+    _json_path = None
+    
+    @classmethod
+    def set_json_path(cls, json_path: str):
+        """Thiet lap duong dan JSON de load topic configs."""
+        cls._json_path = json_path
     
     @staticmethod
     def get_topic_config(topic_name: str) -> Dict[str, Any]:
-        """Cấu hình riêng cho từng chủ đề."""
+        """
+        Lay cau hinh cho chu de.
+        Uu tien su dung topic_config.py neu co.
+        """
+        # Su dung topic_config manager neu co
+        if TOPIC_CONFIG_AVAILABLE:
+            json_path = getattr(config, 'JSON_INPUT_FILE', None)
+            return _get_topic_config_from_manager(topic_name, json_path)
+        
+        # Fallback: hardcoded configs (legacy)
         configs = {
-            "CHỦ ĐỀ 1: THẾ GIỚI TRONG VÀ SAU CHIẾN TRANH LẠNH": {
+            "CHU DE 1: THE GIOI TRONG VA SAU CHIEN TRANH LANH": {
                 "priority_entities": [
-                    "Tổ chức", "Hội nghị", "Văn kiện/Hiệp định", 
+                    "To chuc", "Hoi nghi", "Van kien/Hiep dinh", 
                     "Quốc gia", "Nhân Vật", "Sự kiện", "Chiến dịch/Trận đánh"
                 ],
                 "entity_blacklist": [
@@ -344,7 +368,26 @@ class TopicProcessor:
                 ]
             }
         }
-        return configs.get(topic_name, {})
+        
+        # Tim exact match truoc
+        if topic_name in configs:
+            return configs[topic_name]
+        
+        # Neu khong co exact match, tim partial match
+        topic_upper = topic_name.upper()
+        for config_key, config_value in configs.items():
+            # Kiem tra neu topic_name nam trong config_key hoac nguoc lai
+            config_key_upper = config_key.upper()
+            if topic_upper in config_key_upper or config_key_upper in topic_upper:
+                return config_value
+            # Kiem tra cac tu khoa quan trong
+            keywords = ["THẾ GIỚI", "ASEAN", "CÁCH MẠNG THÁNG TÁM", "ĐỔI MỚI", "ĐỐI NGOẠI", "HỒ CHÍ MINH"]
+            for kw in keywords:
+                if kw in topic_upper and kw in config_key_upper:
+                    return config_value
+        
+        # Tra ve config rong neu khong tim thay
+        return {}
     
     @staticmethod
     def create_topic_prompt(window_text: str, file_path: str, topic_config: Dict[str, Any]) -> str:

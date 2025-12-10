@@ -11,7 +11,11 @@ from models import Entity
 
 
 def save_request_statistics(entities: List[Dict]) -> None:
-    """Save detailed request statistics to a separate JSON file."""
+    """Save detailed request statistics to a separate JSON file.
+    
+    Hỗ trợ cả TXT format (có file_path) và JSON format (có topic/lesson/section).
+    Xử lý an toàn các trường hợp thiếu trường hoặc giá trị None.
+    """
     from api_handler import get_request_details, get_request_counter
     
     request_details = get_request_details()
@@ -20,24 +24,50 @@ def save_request_statistics(entities: List[Dict]) -> None:
     if not request_details:
         return
     
-    # Tính toán tổng hợp thống kê
-    successful_requests = sum(1 for req in request_details if req['status'] == 'success')
-    failed_requests = sum(1 for req in request_details if req['status'] == 'error')
+    # Tính toán tổng hợp thống kê - sử dụng .get() an toàn
+    successful_requests = sum(1 for req in request_details if req.get('status') == 'success')
+    failed_requests = sum(1 for req in request_details if req.get('status') == 'error')
     
-    # Tính thời gian xử lý
-    total_processing_time = sum(req.get('processing_time_seconds', 0) for req in request_details)
+    # Tính thời gian xử lý - xử lý an toàn giá trị None hoặc string
+    total_processing_time = 0
+    for req in request_details:
+        time_val = req.get('processing_time_seconds', 0)
+        if isinstance(time_val, (int, float)):
+            total_processing_time += time_val
+    
     avg_processing_time = total_processing_time / total_requests if total_requests > 0 else 0
     
-    # Tính số entity trung bình
-    total_entities_extracted = sum(req.get('entities_extracted', 0) for req in request_details)
-    total_entities_processed = sum(req.get('entities_processed', 0) for req in request_details)
+    # Tính số entity trung bình - xử lý an toàn
+    total_entities_extracted = 0
+    total_entities_processed = 0
+    for req in request_details:
+        extracted = req.get('entities_extracted', 0)
+        processed = req.get('entities_processed', 0)
+        if isinstance(extracted, (int, float)):
+            total_entities_extracted += int(extracted)
+        if isinstance(processed, (int, float)):
+            total_entities_processed += int(processed)
     
     avg_entities_per_request = total_entities_extracted / successful_requests if successful_requests > 0 else 0
     
-    # Thống kê theo file
+    # Thống kê theo file/section (hỗ trợ cả TXT và JSON format)
     requests_by_file = {}
     for req in request_details:
-        file_path = req['file_path']
+        # Lấy file_path hoặc fallback sang section path cho JSON format
+        file_path = req.get('file_path', '')
+        if not file_path:
+            # Tạo path từ topic/lesson/section cho JSON format
+            topic = req.get('topic', 'Unknown')
+            lesson = req.get('lesson', '')
+            section = req.get('section', '')
+            
+            # Xử lý an toàn None values
+            topic = str(topic) if topic else 'Unknown'
+            lesson = str(lesson) if lesson else ''
+            section = str(section) if section else ''
+            
+            file_path = f"{topic}/{lesson}/{section}" if section else f"{topic}/{lesson}"
+        
         if file_path not in requests_by_file:
             requests_by_file[file_path] = {
                 'request_count': 0,
@@ -45,13 +75,21 @@ def save_request_statistics(entities: List[Dict]) -> None:
                 'entities_processed': 0
             }
         requests_by_file[file_path]['request_count'] += 1
-        requests_by_file[file_path]['entities_extracted'] += req.get('entities_extracted', 0)
-        requests_by_file[file_path]['entities_processed'] += req.get('entities_processed', 0)
+        
+        # Xử lý an toàn khi cộng entities
+        extracted = req.get('entities_extracted', 0)
+        processed = req.get('entities_processed', 0)
+        if isinstance(extracted, (int, float)):
+            requests_by_file[file_path]['entities_extracted'] += int(extracted)
+        if isinstance(processed, (int, float)):
+            requests_by_file[file_path]['entities_processed'] += int(processed)
     
     # Thống kê theo topic
     requests_by_topic = {}
     for req in request_details:
-        topic = req['topic']
+        topic = req.get('topic', 'Unknown')
+        topic = str(topic) if topic else 'Unknown'
+        
         if topic not in requests_by_topic:
             requests_by_topic[topic] = {
                 'request_count': 0,
@@ -59,8 +97,14 @@ def save_request_statistics(entities: List[Dict]) -> None:
                 'entities_processed': 0
             }
         requests_by_topic[topic]['request_count'] += 1
-        requests_by_topic[topic]['entities_extracted'] += req.get('entities_extracted', 0)
-        requests_by_topic[topic]['entities_processed'] += req.get('entities_processed', 0)
+        
+        # Xử lý an toàn khi cộng entities
+        extracted = req.get('entities_extracted', 0)
+        processed = req.get('entities_processed', 0)
+        if isinstance(extracted, (int, float)):
+            requests_by_topic[topic]['entities_extracted'] += int(extracted)
+        if isinstance(processed, (int, float)):
+            requests_by_topic[topic]['entities_processed'] += int(processed)
     
     # Tạo summary
     summary = {
@@ -106,11 +150,14 @@ def save_request_statistics(entities: List[Dict]) -> None:
     print(f"Final Unique Entities: {len(entities)}")
     print(f"Statistics saved to: {stats_filename}")
     
-    # In thống kê theo file
-    print(f"\n=== REQUESTS BY FILE ===")
+    # In thống kê theo file/section
+    print(f"\n=== REQUESTS BY SOURCE ===")
     for file_path, stats in requests_by_file.items():
-        filename = os.path.basename(file_path)
-        print(f"{filename}: {stats['request_count']} requests, {stats['entities_processed']} entities")
+        # Lấy phần cuối của path để hiển thị ngắn gọn
+        display_name = file_path.split('/')[-1] if '/' in file_path else os.path.basename(file_path)
+        if not display_name:
+            display_name = file_path[:50] + "..." if len(file_path) > 50 else file_path
+        print(f"{display_name}: {stats['request_count']} requests, {stats['entities_processed']} entities")
 
 
 def save_entities(entities: List[Dict]) -> None:

@@ -5,11 +5,20 @@ from typing import List, Dict, Any
 # Get the root directory (KLTN folder)
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# File paths
-ENTITY_FILE = os.path.join(ROOT_DIR, "extract", "entities", "entities_20251202_171911.json")
-OUTPUT_JSON = os.path.join(ROOT_DIR, "knowledge_graph_historical_v2.json")
+# ===== JSON INPUT (Format mới - ưu tiên sử dụng) =====
+JSON_INPUT_FILE = r"SGK\SGK_Lich_Su_12_Ket_Noi_Tri_Thuc.json"
+USE_JSON_FORMAT = True  # Set False để dùng format txt cũ
 
-# Input files
+# ===== Token Optimization =====
+MAX_TOKENS_PER_CHUNK = 1200  # Giảm từ mặc định để tối ưu API calls
+OVERLAP_SENTENCES = 1  # Số câu overlap giữa chunks
+USE_COMPACT_CONTEXT = True  # Dùng context ngắn gọn
+
+# File paths
+ENTITY_FILE = os.path.join(ROOT_DIR, "outputs", "entities", "entities_20251210_103252.json")
+OUTPUT_JSON = os.path.join(ROOT_DIR, "outputs", "kg", "knowledge_graph_historical_v4.json")
+
+# Input files (format txt cũ - backup)
 INPUT_FILES = [
     os.path.join(ROOT_DIR, "SGK", "Nguồn", "Chủ đề 1", "Bài 1.txt"),
     os.path.join(ROOT_DIR, "SGK", "Nguồn", "Chủ đề 1", "Bài 2.txt"),
@@ -30,26 +39,27 @@ INPUT_FILES = [
     os.path.join(ROOT_DIR, "SGK", "Nguồn", "Chủ đề 6", "Bài 17.txt"),
 ]
 
-# API Configuration
+# ===== DeepSeek API Configuration =====
+DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")
+DEEPSEEK_BASE_URL = "https://api.deepseek.com"
+DEEPSEEK_MODEL = "deepseek-chat"  # deepseek-chat cho extraction, deepseek-reasoner cho reasoning
+
+# Legacy: Google API (không còn sử dụng)
 def get_api_key() -> str:
-    """Get API key from environment variables."""
-    for i in range(1, 9):
-        key = os.environ.get(f"GOOGLE_API_KEY_{i}")
-        if key:
-            return key
-    return os.environ.get("GOOGLE_API_KEY", "")
+    """Get DeepSeek API key from environment variables."""
+    return os.environ.get("DEEPSEEK_API_KEY", "")
 
 # Processing parameters
-WINDOW_SIZE = 8
+WINDOW_SIZE = 10
 STEP_SIZE = 3
-MAX_ENTITIES_PER_PROMPT = 500
+MAX_ENTITIES_PER_PROMPT = 300
 MAX_RETRIES = 3
 REQUEST_DELAY = 2
 
 # Validation parameters
-MIN_EVIDENCE_LENGTH = 5
-MIN_PREDICATE_LENGTH = 2
-MAX_PREDICATE_LENGTH = 300
+MIN_EVIDENCE_LENGTH = 10
+MIN_PREDICATE_LENGTH = 3
+MAX_PREDICATE_LENGTH = 200
 
 # Topic-specific processing flags
 ENABLE_TOPIC_SPECIFIC_PROCESSING = True

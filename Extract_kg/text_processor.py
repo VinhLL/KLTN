@@ -2,6 +2,22 @@
 import re
 from typing import List, Dict, Any, Tuple
 from utils import create_overlapping_windows, split_into_sentences, extract_topic_and_lesson
+import config
+
+# Import JSON reader cho format mới
+try:
+    from json_reader import (
+        load_textbook_json,
+        create_windows_for_entity_extraction,
+        create_compact_context,
+        iterate_lessons,
+        iterate_sections,
+        iterate_subsections,
+        get_lesson_text
+    )
+    JSON_READER_AVAILABLE = True
+except ImportError:
+    JSON_READER_AVAILABLE = False
 
 def read_source_files(file_paths: List[str]) -> Dict[str, str]:
     """Read all source files and return their contents."""
@@ -227,3 +243,147 @@ def extract_key_sections(text: str, section_keywords: Dict[str, List[str]]) -> D
         sections[current_section].extend(current_sentences)
     
     return {k: v for k, v in sections.items() if v}
+
+
+# ============ JSON Format Functions for Relationship Extraction ============
+
+def read_json_source() -> List[Dict[str, Any]]:
+    """
+    Đọc file JSON input mới cho relationship extraction.
+    """
+    if not JSON_READER_AVAILABLE:
+        raise ImportError("json_reader module not available")
+    
+    if not hasattr(config, 'JSON_INPUT_FILE'):
+        raise ValueError("JSON_INPUT_FILE not configured in config.py")
+    
+    return load_textbook_json(config.JSON_INPUT_FILE)
+
+
+def create_context_windows_from_json(
+    entity_id: str,
+    entity_lookup: Dict[str, Dict],
+    window_size: int = None
+) -> List[Dict[str, Any]]:
+    """
+    Tạo context windows từ JSON cho một entity cụ thể.
+    Tối ưu: sử dụng metadata JSON thay vì tìm kiếm trong text.
+    """
+    if not JSON_READER_AVAILABLE:
+        return []
+    
+    if window_size is None:
+        window_size = getattr(config, 'WINDOW_SIZE', 10)
+    
+    entity = entity_lookup.get(entity_id)
+    if not entity:
+        return []
+    
+    context_windows = []
+    entity_labels = [entity['id']] + entity.get('label', [])
+    
+    # Load JSON data
+    try:
+        data = read_json_source()
+    except Exception as e:
+        print(f"Error loading JSON: {e}")
+        return []
+    
+    for lesson in iterate_lessons(data):
+        lesson_text = get_lesson_text(lesson)
+        
+        # Check if entity appears in this lesson
+        found = False
+        for label in entity_labels:
+            if label and len(label) > 2 and label.lower() in lesson_text.lower():
+                found = True
+                break
+        
+        if not found:
+            continue
+        
+        # Tạo windows từ subsections
+        for section in iterate_sections(lesson):
+            for subsection in iterate_subsections(section):
+                content = subsection.get("content", [])
+                if not content:
+                    continue
+                
+                # Check if entity in this subsection
+                subsection_text = " ".join(content)
+                entity_in_subsection = any(
+                    label.lower() in subsection_text.lower()
+                    for label in entity_labels
+                    if label and len(label) > 2
+                )
+                
+                if not entity_in_subsection:
+                    continue
+                
+                # Create windows from this subsection
+                for i in range(0, len(content), window_size // 2):
+                    end_idx = min(i + window_size, len(content))
+                    window_sentences = content[i:end_idx]
+                    
+                    if len(window_sentences) >= 3:
+                        context_windows.append({
+                            'sentences': window_sentences,
+                            'start_idx': i,
+                            'file_info': {
+                                'topic': lesson.get('topic_id', ''),
+                                'lesson': lesson.get('lesson_id', ''),
+                                'section_index': section.get('index', 0),
+                                'section_title': section.get('title', ''),
+                                'subsection_label': subsection.get('label', ''),
+                                'subsection_title': subsection.get('title', '')
+                            },
+                            'entity_id': entity_id,
+                            'entity_type': entity.get('type', 'Unknown'),
+                        })
+    
+    print(f"[JSON] Found {len(context_windows)} context windows for {entity_id}")
+    return context_windows
+
+
+def find_context_windows_combined(
+    entity_id: str,
+    entity_lookup: Dict[str, Dict],
+    source_files: Dict[str, str] = None
+) -> List[Dict[str, Any]]:
+    """
+    Hàm wrapper: ưu tiên dùng JSON format, fallback sang txt.
+    """
+    use_json = getattr(config, 'USE_JSON_FORMAT', False)
+    
+    if use_json and JSON_READER_AVAILABLE:
+        windows = create_context_windows_from_json(entity_id, entity_lookup)
+        if windows:
+            return windows
+    
+    # Fallback to original function
+    if source_files:
+        return find_context_windows_for_entity(entity_id, entity_lookup, source_files)
+    
+    return []
+
+
+def get_compact_context(window: Dict[str, Any]) -> str:
+    """
+    Tạo context ngắn gọn cho window (tối ưu token).
+    """
+    file_info = window.get('file_info', {})
+    parts = []
+    
+    if file_info.get('topic'):
+        parts.append(file_info['topic'])
+    if file_info.get('lesson'):
+        parts.append(file_info['lesson'])
+    if file_info.get('section_index'):
+        section_part = f"Mục {file_info['section_index']}"
+        if file_info.get('subsection_label'):
+            section_part += file_info['subsection_label']
+        parts.append(section_part)
+    if file_info.get('subsection_title'):
+        parts.append(file_info['subsection_title'][:50])
+    
+    return " > ".join(parts) if parts else ""

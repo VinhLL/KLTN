@@ -2,11 +2,12 @@
 import re
 import json
 import time
+import os
 from typing import Dict, List, Optional, Tuple, Any
 from collections import defaultdict
 from utils import extract_topic_and_lesson, create_overlapping_windows, split_into_sentences
-from api_handler import get_next_api_key
-import google.generativeai as genai
+from api_handler import call_deepseek_api
+import config
 
 API_REQUEST_COUNT = 0
 
@@ -207,7 +208,8 @@ class TopicProcessor:
         """Tạo prompt đặc thù cho chủ đề."""
         topic_config = TopicProcessor.get_topic_config(topic_name)
         if not topic_config:
-            return TopicProcessor._create_default_prompt(window_text, existing_entities_str)
+            # Pass empty dict as topic_config for unknown topics
+            return TopicProcessor._create_default_prompt(window_text, existing_entities_str, {}, **kwargs)
         
         prompt_methods = {
             "Chủ đề 1": TopicProcessor._create_topic1_prompt,
@@ -1050,94 +1052,42 @@ def identify_key_sections_topic1(sentences: List[str]) -> Dict[str, List[str]]:
 def extract_relationships_with_topic_prompt(prompt: str, start_idx: int, window_sentences: List[str], 
                                           entity_lookup: Dict[str, Dict], file_info: Dict[str, str], 
                                           target_entity_id: str = None) -> Optional[Dict]:
-    """Extract relationships với prompt đặc thù theo chủ đề."""
+    """Extract relationships với prompt đặc thù theo chủ đề - sử dụng DeepSeek API."""
     global API_REQUEST_COUNT
     
-    for attempt in range(3):
-        try:
-            time.sleep(2)
-            
-            api_key, key_idx = get_next_api_key()
-            if not api_key:
-                print("Không có API key")
-                return None
-                
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-2.5-flash-lite')
-            
-            API_REQUEST_COUNT += 1
-            print(f"[API #{API_REQUEST_COUNT}] Window {start_idx}", end="")
-            
-            response = model.generate_content(prompt)
-            
-            if not response or not hasattr(response, 'text') or response.text is None:
-                print(f"Lỗi: response rỗng (lần {attempt+1})")
-                if attempt < 2:
-                    time.sleep(3)
-                continue
-
-            response_text = response.text
-            
-            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-            
-            if json_match:
-                try:
-                    json_str = json_match.group()
-                    json_str = json_str.replace('\x00', '').replace('\ufffd', '')
-
-                    if json_str.count('{') > 1:
-                        # Tìm JSON object đầu tiên
-                        start = json_str.find('{')
-                        end = json_str.rfind('}')
-                        if end > start:
-                            json_str = json_str[start:end+1]
-                            
-                    relationships_data = json.loads(json_match.group())
-                    validated_relationships = []
-                    
-                    for rel in relationships_data.get('relationships', []):
-                        if validate_relationship_topic1(rel, entity_lookup):
-                            rel['window_info'] = {
-                                'start_idx': start_idx,
-                                'sentences': window_sentences[:3],
-                                'file_info': file_info,
-                                'target_entity': target_entity_id
-                            }
-                            
-                            evidence_quality = assess_evidence_quality(rel.get('evidence', ''))
-                            rel['confidence'] = min(0.95, rel.get('confidence', 0.8) * evidence_quality)
-                            
-                            validated_relationships.append(rel)
-                    
-                    return {
-                        'relationships': validated_relationships,
-                        'window_index': start_idx,
-                        'target_entity': target_entity_id
-                    }
-                    
-                except json.JSONDecodeError as e:
-                    print(f"Lỗi JSON: {e}")
-                    with open(f"json_error_window_{start_idx}.txt", 'w', encoding='utf-8') as f:
-                        f.write(f"Response: {response_text}\n\nError: {e}")
-                    try:
-                        json_pattern = r'\{(?:[^{}]|(?:\{[^{}]*\}))*\}'
-                        all_json = re.findall(json_pattern, response_text)
-                        if all_json:
-                            # Lấy JSON object đầu tiên
-                            relationships_data = json.loads(all_json[0])
-                            # ... xử lý tiếp ...
-                    except:
-                        pass
-                    
-                    if attempt < 2:
-                        time.sleep(3)
-            
-        except Exception as e:
-            print(f"Lỗi API (lần {attempt + 1}): {e}")
-            if attempt < 2:
-                time.sleep(3)
+    API_REQUEST_COUNT += 1
+    print(f"[DeepSeek #{API_REQUEST_COUNT}] Window {start_idx}", end=" ")
     
-    return None
+    # Gọi DeepSeek API
+    result = call_deepseek_api(prompt, max_retries=3)
+    
+    if not result:
+        print("No response")
+        return None
+    
+    validated_relationships = []
+    
+    for rel in result.get('relationships', []):
+        if validate_relationship_topic1(rel, entity_lookup):
+            rel['window_info'] = {
+                'start_idx': start_idx,
+                'sentences': window_sentences[:3],
+                'file_info': file_info,
+                'target_entity': target_entity_id
+            }
+            
+            evidence_quality = assess_evidence_quality(rel.get('evidence', ''))
+            rel['confidence'] = min(0.95, rel.get('confidence', 0.8) * evidence_quality)
+            
+            validated_relationships.append(rel)
+    
+    print(f"-> {len(validated_relationships)} rels")
+    
+    return {
+        'relationships': validated_relationships,
+        'window_index': start_idx,
+        'target_entity': target_entity_id
+    }
 
 def validate_relationship_topic1(relationship: Dict, entity_lookup: Dict[str, Dict]) -> bool:
     """Validate relationship với tiêu chí giảm nhẹ cho chủ đề 1."""
@@ -1607,13 +1557,13 @@ def extract_asean_relationships(prompt: str, start_idx: int, window_sentences: L
                 print("Không có API key")
                 return None
                 
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-2.5-flash-lite')
+            # DeepSeek API - configured in api_handler
+            # model handled by call_deepseek_api
             
             API_REQUEST_COUNT += 1
             print(f"[ASEAN-API #{API_REQUEST_COUNT}]", end=" ")
             
-            response = model.generate_content(prompt)
+            result = call_deepseek_api(prompt)
             
             if not response or not hasattr(response, 'text') or response.text is None:
                 print(f"Lỗi: response rỗng (lần {attempt+1})")
@@ -1750,7 +1700,7 @@ def validate_asean_relationship(relationship: Dict, entity_lookup: Dict[str, Dic
     if phase != 'khac' and not re.search(r'\d{4}', evidence):
         # Giảm confidence thay vì reject
         if 'confidence' in relationship:
-            relationship['confidence'] = relationship['confidence'] * 0.8
+            relationship['confidence'] = relationship['confidence'] * 0.95
     
     # KHÔNG bắt buộc phải tìm thấy cả subject và object trong evidence
     return True
@@ -2267,13 +2217,20 @@ def extract_vietnam_war_relationships(prompt: str, start_idx: int, window_senten
                 print("Không có API key")
                 return None
                 
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-2.5-flash-lite')
+            # DeepSeek API - configured in api_handler
+            # model handled by call_deepseek_api
             
             API_REQUEST_COUNT += 1
             print(f"[War-API #{API_REQUEST_COUNT}]", end=" ")
             
-            response = model.generate_content(prompt)
+            # THÊM: Debug prompt nếu cần
+            if attempt == 0 and API_REQUEST_COUNT % 5 == 0:
+                debug_prompt_file = f"debug_prompt_war_{API_REQUEST_COUNT}.txt"
+                with open(debug_prompt_file, 'w', encoding='utf-8') as f:
+                    f.write(f"Prompt length: {len(prompt)}\n")
+                    f.write(f"First 2000 chars:\n{prompt[:2000]}\n")
+            
+            result = call_deepseek_api(prompt)
 
             if not response or not hasattr(response, 'text') or response.text is None:
                 print(f"Lỗi: response rỗng (lần {attempt+1})")
@@ -2283,27 +2240,61 @@ def extract_vietnam_war_relationships(prompt: str, start_idx: int, window_senten
                 
             response_text = response.text
             
-            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            # THÊM: Debug response
+            if attempt == 0 and API_REQUEST_COUNT % 5 == 0:
+                debug_response_file = f"debug_response_war_{API_REQUEST_COUNT}.txt"
+                with open(debug_response_file, 'w', encoding='utf-8') as f:
+                    f.write(f"Response length: {len(response_text)}\n")
+                    f.write(f"First 1000 chars:\n{response_text[:1000]}\n")
+            
+            # Tìm JSON trong response
+            json_match = re.search(r'\{[\s\S]*\}', response_text)
+            
+            if not json_match:
+                # Thử tìm pattern khác
+                json_match = re.search(r'\[\s*\{[\s\S]*\}\s*\]', response_text)
             
             if json_match:
                 try:
                     json_str = json_match.group()
                     
-                    # THÊM KIỂM TRA: loại bỏ các ký tự null hoặc không hợp lệ
-                    json_str = json_str.replace('\x00', '').replace('\ufffd', '')
+                    # Làm sạch JSON string
+                    json_str = clean_json_string(json_str)
                     
-                    # THÊM KIỂM TRA: cắt bỏ phần thừa nếu có multiple JSON objects
-                    if json_str.count('{') > 1:
-                        # Tìm JSON object đầu tiên
-                        start = json_str.find('{')
-                        end = json_str.rfind('}')
-                        if end > start:
-                            json_str = json_str[start:end+1]
+                    # Parse JSON
+                    data = json.loads(json_str)
                     
-                    relationships_data = json.loads(json_match.group())
+                    # KIỂM TRA: data có phải là dictionary không?
+                    if not isinstance(data, dict):
+                        print(f"Dữ liệu không phải dictionary: {type(data)}")
+                        # Thử parse lại nếu là list
+                        if isinstance(data, list):
+                            data = {"relationships": data}
+                        else:
+                            return None
+                    
+                    # KIỂM TRA: relationships có phải là list không?
+                    relationships_list = data.get('relationships', [])
+                    if not isinstance(relationships_list, list):
+                        print(f"relationships không phải list: {type(relationships_list)}")
+                        relationships_list = []
+                    
                     validated_relationships = []
                     
-                    for rel in relationships_data.get('relationships', []):
+                    for rel in relationships_list:
+                        # Đảm bảo rel là dictionary
+                        if not isinstance(rel, dict):
+                            print(f"relationship không phải dict: {rel}")
+                            continue
+                        
+                        # Đảm bảo các trường cần thiết tồn tại
+                        rel.setdefault('subject_id', '')
+                        rel.setdefault('object_id', '')
+                        rel.setdefault('predicate', '')
+                        rel.setdefault('evidence', '')
+                        rel.setdefault('confidence', 0.8)
+                        
+                        # SỬA: Gọi hàm validate (dùng phiên bản đã sửa)
                         if validate_war_relationship(rel, entity_lookup, period):
                             priority_score = calculate_war_priority(rel, period)
                             
@@ -2329,6 +2320,8 @@ def extract_vietnam_war_relationships(prompt: str, start_idx: int, window_senten
                             
                             validated_relationships.append(rel)
                     
+                    print(f"{len(validated_relationships)}R", end="")
+                    
                     return {
                         'relationships': validated_relationships,
                         'window_index': start_idx,
@@ -2338,25 +2331,29 @@ def extract_vietnam_war_relationships(prompt: str, start_idx: int, window_senten
                     
                 except json.JSONDecodeError as e:
                     print(f"Lỗi JSON: {e}")
-                    debug_file = f"war_error_period_{period}_{start_idx}.txt"
+                    debug_file = f"war_error_period_{period}_{start_idx}_{API_REQUEST_COUNT}.txt"
                     with open(debug_file, 'w', encoding='utf-8') as f:
-                        f.write(f"Prompt: {prompt[:2000]}...\n\nResponse: {response_text}\n\nError: {e}")
-
-                    try:
-                        json_pattern = r'\{(?:[^{}]|(?:\{[^{}]*\}))*\}'
-                        all_json = re.findall(json_pattern, response_text)
-                        if all_json:
-                            # Lấy JSON object đầu tiên
-                            relationships_data = json.loads(all_json[0])
-                            # ... xử lý tiếp ...
-                    except:
-                        pass
+                        f.write(f"Prompt (first 2000 chars):\n{prompt[:2000]}\n\n")
+                        f.write(f"Response:\n{response_text}\n\n")
+                        f.write(f"JSON string:\n{json_str if 'json_str' in locals() else 'N/A'}\n\n")
+                        f.write(f"Error: {e}\n")
                     
                     if attempt < 2:
                         time.sleep(3)
             
+            else:
+                print(f"Không tìm thấy JSON trong response (lần {attempt+1})")
+                # Debug: lưu response để phân tích
+                debug_file = f"war_no_json_{API_REQUEST_COUNT}.txt"
+                with open(debug_file, 'w', encoding='utf-8') as f:
+                    f.write(f"Prompt (first 1000 chars):\n{prompt[:1000]}\n\n")
+                    f.write(f"Response:\n{response_text}\n")
+                
+                if attempt < 2:
+                    time.sleep(3)
+            
         except Exception as e:
-            print(f"Lỗi (lần {attempt+1}): {e}")
+            print(f"Lỗi (lần {attempt+1}): {type(e).__name__}: {str(e)[:100]}")
             if attempt < 2:
                 time.sleep(3)
     
@@ -2364,70 +2361,109 @@ def extract_vietnam_war_relationships(prompt: str, start_idx: int, window_senten
 
 def validate_war_relationship(relationship: Dict, entity_lookup: Dict[str, Dict], 
                              period: str) -> bool:
-    """Validate quan hệ chiến tranh với tiêu chí giảm nhẹ."""
-    subject_id = relationship.get('subject_id', '').strip()
-    object_id = relationship.get('object_id', '').strip()
-    predicate = relationship.get('predicate', '').strip()
-    evidence = relationship.get('evidence', '').strip()
+    """Validate quan hệ chiến tranh với tiêu chí chặt chẽ."""
+    # SỬA: Sử dụng str() để tránh lỗi NoneType
+    subject_id = str(relationship.get('subject_id', '')).strip()
+    object_id = str(relationship.get('object_id', '')).strip()
+    predicate = str(relationship.get('predicate', '')).strip()
+    evidence = str(relationship.get('evidence', '')).strip()
     
+    # Kiểm tra cơ bản
     if not subject_id or not object_id or not predicate:
         return False
     
     if subject_id == object_id:
         return False
     
-    # Giảm nhẹ kiểm tra sự tồn tại
-    subject_found = any(subject_id.lower() in label.lower() 
-                       for entity in entity_lookup.values() 
-                       for label in entity.get('context_labels', entity.get('label', [])))
+    # Kiểm tra sự tồn tại của entities trong lookup
+    # SỬA: Kiểm tra đơn giản hơn
+    subject_exists = False
+    object_exists = False
     
-    object_found = any(object_id.lower() in label.lower() 
-                      for entity in entity_lookup.values() 
-                      for label in entity.get('context_labels', entity.get('label', [])))
+    # Kiểm tra bằng ID trực tiếp
+    if subject_id in entity_lookup:
+        subject_exists = True
+    else:
+        # Kiểm tra trong labels
+        for entity in entity_lookup.values():
+            # SỬA: Kiểm tra entity có phải là dictionary không
+            if isinstance(entity, dict):
+                labels = entity.get('context_labels', entity.get('label', []))
+                # SỬA: Đảm bảo labels là list
+                if isinstance(labels, list):
+                    for label in labels:
+                        if label and subject_id.lower() in str(label).lower():
+                            subject_exists = True
+                            break
+                if subject_exists:
+                    break
     
-    if not subject_found and not object_found:
-        # Thử kiểm tra trong entity IDs
-        subject_found = subject_id in entity_lookup
-        object_found = object_id in entity_lookup
+    if object_id in entity_lookup:
+        object_exists = True
+    else:
+        for entity in entity_lookup.values():
+            if isinstance(entity, dict):
+                labels = entity.get('context_labels', entity.get('label', []))
+                if isinstance(labels, list):
+                    for label in labels:
+                        if label and object_id.lower() in str(label).lower():
+                            object_exists = True
+                            break
+                if object_exists:
+                    break
     
-    if not subject_found and not object_found:
+    # Chấp nhận nếu ít nhất một thực thể tồn tại
+    if not subject_exists and not object_exists:
         return False
     
-    # Giảm nhẹ độ dài predicate
+    # Kiểm tra predicate
     if len(predicate) < 2:
         return False
     
-    # Giảm nhẹ độ dài evidence
+    # Kiểm tra evidence
     if len(evidence) < 10:
         return False
     
-    # KHÔNG bắt buộc phải có năm trong evidence
-    # Chỉ giảm confidence nếu không có năm cho các predicate quan trọng
-    important_predicates = ['lãnh_đạo', 'chỉ_huy', 'thành_lập', 'đánh_bại', 'giải_phóng']
-    if predicate in important_predicates and not re.search(r'\d{4}', evidence):
-        if 'confidence' in relationship:
-            relationship['confidence'] = relationship['confidence'] * 0.7
-    
-    # KHÔNG bắt buộc phải tìm thấy cả subject và object trong evidence
+    # Kiểm tra evidence có chứa thực thể không (tùy chọn)
     evidence_lower = evidence.lower()
     
-    # Ưu tiên: nếu không tìm thấy cả hai, vẫn chấp nhận nếu evidence có từ khóa chiến tranh
-    war_keywords = ['chiến tranh', 'trận', 'chiến dịch', 'kháng chiến', 'đánh', 'giải phóng']
-    if not any(subject_id.lower() in evidence_lower or 
-               any(label.lower() in evidence_lower 
-                   for entity in entity_lookup.values() 
-                   if entity.get('id') == subject_id 
-                   for label in entity.get('context_labels', []))):
-        
-        if not any(object_id.lower() in evidence_lower or 
-                   any(label.lower() in evidence_lower 
-                       for entity in entity_lookup.values() 
-                       if entity.get('id') == object_id 
-                       for label in entity.get('context_labels', []))):
-            
-            # Nếu không tìm thấy cả hai, kiểm tra từ khóa chiến tranh
-            if not any(keyword in evidence_lower for keyword in war_keywords):
-                return False
+    # Chỉ cảnh báo nếu không tìm thấy, không reject
+    subject_found_in_evidence = False
+    object_found_in_evidence = False
+    
+    # Kiểm tra subject trong evidence
+    if subject_id.lower() in evidence_lower:
+        subject_found_in_evidence = True
+    else:
+        for entity in entity_lookup.values():
+            if entity.get('id') == subject_id:
+                labels = entity.get('context_labels', entity.get('label', []))
+                if isinstance(labels, list):
+                    for label in labels:
+                        if label and str(label).lower() in evidence_lower:
+                            subject_found_in_evidence = True
+                            break
+                break
+    
+    # Kiểm tra object trong evidence
+    if object_id.lower() in evidence_lower:
+        object_found_in_evidence = True
+    else:
+        for entity in entity_lookup.values():
+            if entity.get('id') == object_id:
+                labels = entity.get('context_labels', entity.get('label', []))
+                if isinstance(labels, list):
+                    for label in labels:
+                        if label and str(label).lower() in evidence_lower:
+                            object_found_in_evidence = True
+                            break
+                break
+    
+    # Nếu không tìm thấy cả hai, vẫn chấp nhận nhưng giảm confidence
+    if not subject_found_in_evidence and not object_found_in_evidence:
+        # Vẫn chấp nhận, nhưng ghi nhận confidence thấp hơn
+        if 'confidence' in relationship:
+            relationship['confidence'] = relationship.get('confidence', 0.95) * 0.85
     
     return True
 
@@ -2473,7 +2509,7 @@ def lenient_validate_relationship(relationship: Dict, entity_lookup: Dict[str, D
     
     # Luôn trả về True để chấp nhận nhiều relationship hơn
     # Ghi nhận confidence thấp hơn nếu không đạt các tiêu chí khác
-    current_confidence = relationship.get('confidence', 0.8)
+    current_confidence = relationship.get('confidence', 0.9)
     
     # Giảm confidence nếu không tìm thấy subject trong evidence
     evidence_lower = evidence.lower()
@@ -3029,13 +3065,13 @@ def extract_doi_moi_relationships(prompt: str, start_idx: int, window_sentences:
                 print("Không có API key")
                 return None
                 
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-2.5-flash-lite')
+            # DeepSeek API - configured in api_handler
+            # model handled by call_deepseek_api
             
             API_REQUEST_COUNT += 1
             print(f"[DoiMoi-API #{API_REQUEST_COUNT}]", end=" ")
             
-            response = model.generate_content(prompt)
+            result = call_deepseek_api(prompt)
             response_text = response.text
             
             json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
@@ -3768,13 +3804,13 @@ def extract_diplomacy_relationships(prompt: str, start_idx: int, window_sentence
                 print("Không có API key")
                 return None
                 
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-2.5-flash-lite')
+            # DeepSeek API - configured in api_handler
+            # model handled by call_deepseek_api
             
             API_REQUEST_COUNT += 1
             print(f"[Diplomacy-API #{API_REQUEST_COUNT}]", end=" ")
             
-            response = model.generate_content(prompt)
+            result = call_deepseek_api(prompt)
             # THÊM KIỂM TRA NÀY: kiểm tra response và response.text
             if not response or not hasattr(response, 'text') or response.text is None:
                 print(f"Lỗi: response rỗng (lần {attempt+1})")
@@ -4591,13 +4627,13 @@ def extract_ho_chi_minh_relationships(prompt: str, start_idx: int, window_senten
                 print("Không có API key")
                 return None
                 
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-2.5-flash-lite')
+            # DeepSeek API - configured in api_handler
+            # model handled by call_deepseek_api
             
             API_REQUEST_COUNT += 1
             print(f"[HoChiMinh-API #{API_REQUEST_COUNT}]", end=" ")
             
-            response = model.generate_content(prompt)
+            result = call_deepseek_api(prompt)
             response_text = response.text
             
             json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
@@ -4945,8 +4981,8 @@ def safe_extract_relationships(prompt_func, prompt: str, start_idx: int, window_
                 print(f"  Không có API key (lần {attempt+1})")
                 continue
                 
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-2.5-flash-lite')
+            # DeepSeek API - configured in api_handler
+            # model handled by call_deepseek_api
             
             API_REQUEST_COUNT += 1
             print(f"[API #{API_REQUEST_COUNT}]", end=" ")
@@ -4956,7 +4992,7 @@ def safe_extract_relationships(prompt_func, prompt: str, start_idx: int, window_
                 print(f"Prompt quá dài ({len(prompt)} chars), cắt bớt...")
                 prompt = prompt[:10000] + "\n...[ĐÃ CẮT BỚT VÌ QUÁ DÀI]..."
             
-            response = model.generate_content(prompt)
+            result = call_deepseek_api(prompt)
             
             # KIỂM TRA KỸ response
             if not response:
@@ -5025,11 +5061,18 @@ def safe_extract_relationships(prompt_func, prompt: str, start_idx: int, window_
 
 def clean_json_string(json_str: str) -> str:
     """Làm sạch string JSON trước khi parse."""
+    if not json_str:
+        return "{}"
+    
     # Loại bỏ các ký tự không hợp lệ
     json_str = json_str.replace('\x00', '').replace('\ufffd', '')
     
     # Loại bỏ các ký tự điều khiển
     json_str = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '', json_str)
+    
+    # Loại bỏ markdown code block nếu có
+    json_str = re.sub(r'```json\s*', '', json_str)
+    json_str = re.sub(r'```\s*$', '', json_str)
     
     # Đảm bảo chỉ có một JSON object
     if json_str.count('{') > 1:

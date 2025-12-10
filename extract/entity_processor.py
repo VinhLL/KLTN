@@ -12,10 +12,10 @@ from topic_processor import TopicProcessor
 def should_skip_entity(entity: Dict, topic_config: Dict) -> bool:
     """Kiểm tra xem entity có thuộc danh sách blacklist không."""
     if not topic_config:
-        return False
+        topic_config = {}
     
     blacklist = topic_config.get('entity_blacklist', [])
-    entity_id = entity.get('id', '').lower()
+    entity_id = entity.get('id', '').lower().strip()
     entity_description = entity.get('description', '').lower()
     entity_type = entity.get('type', '')
     
@@ -24,31 +24,120 @@ def should_skip_entity(entity: Dict, topic_config: Dict) -> bool:
         if blacklisted.lower() in entity_id or blacklisted.lower() in entity_description:
             return True
     
-    # Kiểm tra các entity quá chung chung
+    # ===== BLACKLIST TOÀN CỤC CHO KHÁI NIỆM/KHẨU HIỆU/CỤM TỪ KHÔNG PHẢI ENTITY =====
+    global_blacklist = [
+        # Khẩu hiệu, tiêu ngữ, cụm từ chiến lược
+        'thắng lợi quân sự', 'vừa đánh, vừa đàm', 'vừa đánh vừa đàm',
+        'cuộc chiến tranh phi nghĩa', 'chiến tranh phi nghĩa',
+        'kháng nhật, cứu nước', 'kháng nhật cứu nước',
+        'đấu tranh ngoại giao', 'thắng lợi quyết định',
+        
+        # Khái niệm trừu tượng, mô tả chung
+        'thống nhất đất nước', 'hội nhập quốc tế', 'giải trừ quân bị',
+        'chạy đua vũ trang', 'phát triển kinh tế', 'thương mại quốc tế',
+        'xoá đói giảm nghèo', 'hợp tác quốc tế', 'an ninh quốc tế',
+        'phát triển bền vững', 'bình đẳng giới', 'chiến tranh nhân dân',
+        'cách mạng thế giới', 'cách mạng vô sản thế giới',
+        'an ninh nhân dân', 'công cuộc đổi mới', 'hệ thống chính trị',
+        'tổ quốc', 'chiến lược', 'chủ trương', 'chính sách',
+        
+        # Cụm từ mô tả, không phải tên riêng
+        'phi mỹ hoá', 'việt nam hoá chiến tranh', 
+        'đổi mới toàn diện và đồng bộ', 'đổi mới kinh tế', 'đổi mới chính trị',
+        'văn hoá – xã hội', 'văn hoá - xã hội', 'khoa học và công nghệ',
+        'giáo dục và đào tạo', 'kinh tế tri thức', 'chế độ tem phiếu',
+        
+        # Khái niệm chính trị chung
+        'kinh tế hàng hoá xã hội chủ nghĩa', 'kinh tế thị trường xã hội chủ nghĩa',
+        'kinh tế thị trường định hướng xã hội chủ nghĩa',
+        'nhà nước pháp quyền xã hội chủ nghĩa', 'tổ quốc xã hội chủ nghĩa',
+        'cách mạng xã hội chủ nghĩa ở miền bắc',
+        'cách mạng dân tộc dân chủ nhân dân ở miền nam',
+        'cách mạng dân tộc dân chủ nhân dân',
+        'sự nghiệp kháng chiến chống mỹ, cứu nước',
+        
+        # Cụm từ chỉ hoạt động, trạng thái
+        'tổng tuyển cử thống nhất đất nước', 'hội nghị hiệp thương',
+        'lực lượng yêu nước', 'kháng chiến',
+        'các cuộc cách mạng tư sản', 'phong trào giải phóng dân tộc',
+        
+        # Các cụm từ mô tả tuổi, thời gian, số lượng
+        'đảng mới 15 tuổi', 'đảng 15 tuổi',
+        
+        # Cụm từ quá chung về nhóm người
+        'nhân dân tiến bộ trên thế giới', 'nhân dân các nước á, phi mỹ la-tinh',
+        'các nước xã hội chủ nghĩa', 'nhân dân mỹ', 'nhân dân việt nam',
+        'quân dân việt nam', 'quân dân cam-pu-chia',
+        
+        # Từ viết tắt đơn lẻ không rõ nghĩa
+        'cải tổ', 'hiến chương',
+    ]
+    
+    for blacklisted in global_blacklist:
+        if entity_id == blacklisted or entity_id == blacklisted.replace(',', ''):
+            return True
+    
+    # Kiểm tra các entity quá chung chung (chỉ từ đơn)
     general_terms = [
         'chính phủ', 'hội', 'trí tuệ con người', 'nhân dân thế giới',
         'nhân dân', 'thế giới', 'con người', 'trí tuệ', 'phe', 'quân',
         'đế quốc', 'phong kiến', 'chiến tranh', 'kháng chiến', 'cách mạng',
         'đồng minh', 'tổ quốc', 'đất nước', 'dân tộc', 'quốc gia'
     ]
-    
+
     for term in general_terms:
-        if entity_id == term or entity_id in term:
+        if entity_id == term:
             return True
+
+    confusing_entities = [
+        'chiến tranh thế giới thứ nhất',
+        'chiến tranh thế giới thứ hai',
+        'chiến tranh thế giới thứ ba',
+        'hội nghị i-an-ta',
+        'hội nghị tê-hê-ran',
+        'hội nghị xan phran-xi-xcô'
+    ]
     
-    # Kiểm tra entity là ngày/tháng/năm đơn thuần
+    # Nếu entity có tên gần giống với các entity dễ nhầm, cần xử lý đặc biệt
+    for confusing in confusing_entities:
+        if confusing in entity_id and entity_type == "Sự kiện":
+            # Đây là entity quan trọng, không nên bỏ qua nhưng cần xử lý cẩn thận
+            pass
+    
+    # ===== KIỂM TRA ENTITY LÀ NGÀY/THÁNG/NĂM ĐƠN THUẦN (MỞ RỘNG) =====
     date_patterns = [
         r'^\d{1,2}\s*[-–]\s*\d{1,2}\s*[-–]\s*\d{4}$',  # 2-9-1945
         r'^\d{4}\s*[-–]\s*\d{4}$',  # 1955-1975
         r'^\d{4}$',  # 1945
-        r'^tháng\s+\d{1,2}\s*[-–]\s*\d{4}$',  # tháng 5-1972
+        r'^tháng\s+\d{1,2}\s*[-–/]\s*\d{4}$',  # tháng 5-1972
         r'^ngày\s+\d{1,2}$',  # ngày 30
+        r'^ngày\s+\d{1,2}\s+tháng\s+\d{1,2}$',  # ngày 30 tháng 4
         r'^ngày\s+\d{1,2}\s+tháng\s+\d{1,2}\s+năm\s+\d{4}$',  # ngày 30 tháng 4 năm 1977
+        r'^ngày\s+\d{1,2}\s*[-–/]\s*\d{1,2}\s*[-–/]\s*\d{4}$',  # ngày 30-4-1977
+        r'^\d{1,2}\s+tháng\s+\d{1,2}\s+năm\s+\d{4}$',  # 30 tháng 4 năm 1977
+        r'^năm\s+\d{4}$',  # năm 1945
+        r'^tháng\s+\d{1,2}$',  # tháng 5
+        r'^đầu\s+năm\s+\d{4}$',  # đầu năm 1945
+        r'^cuối\s+năm\s+\d{4}$',  # cuối năm 1945
+        r'^giữa\s+năm\s+\d{4}$',  # giữa năm 1945
+        r'^\d{1,2}/\d{1,2}/\d{4}$',  # 30/4/1975
+        r'^\d{1,2}\s*[–\-]\s*\d{1,2}\s*[–\-]\s*\d{4}$',  # 30 – 4 – 1977 (với dấu cách)
+        r'^\d{1,2}\s+[–\-]\s+\d{1,2}\s+[–\-]\s+\d{4}$',  # 5 – 1 – 1978
+        r'^tháng\s+\w+\s+năm\s+\d{4}$',  # tháng Tám năm 1945
+        r'^mùa\s+\w+\s+năm\s+\d{4}$',  # mùa thu năm 1945
+        r'^xuân\s+\d{4}$',  # xuân 1975
+        r'^hè\s+\d{4}$',  # hè 1954
+        r'^thu\s+\d{4}$',  # thu 1950
+        r'^đông\s+\d{4}$',  # đông 1953
     ]
     
     for pattern in date_patterns:
         if re.match(pattern, entity_id, re.IGNORECASE):
             return True
+    
+    # Kiểm tra entity có dạng toàn số + dấu gạch
+    if re.match(r'^[\d\s\-–]+$', entity_id):
+        return True
     
     # Kiểm tra entity quá ngắn và không phải tên riêng
     if len(entity_id) < 3:
@@ -57,7 +146,7 @@ def should_skip_entity(entity: Dict, topic_config: Dict) -> bool:
     # Kiểm tra entity chỉ là từ đơn và quá chung
     words = entity_id.split()
     if len(words) == 1 and len(entity_id) < 6:
-        common_words = ['hội', 'phe', 'quân', 'ngày', 'năm', 'tháng']
+        common_words = ['hội', 'phe', 'quân', 'ngày', 'năm', 'tháng', 'đảng']
         if entity_id in common_words:
             return True
     
@@ -68,15 +157,10 @@ def should_skip_entity(entity: Dict, topic_config: Dict) -> bool:
             if word in entity_id or word in entity_description:
                 return True
     
-    # Kiểm tra entity type không ưu tiên
-    priority_types = topic_config.get('priority_entities', [])
-    
-    if priority_types and entity_type not in priority_types:
-        # Cho phép các type khác nhưng với điều kiện nghiêm ngặt hơn
-        # Đặc biệt cho chủ đề Hồ Chí Minh, cho phép các type như "Công trình", "Địa điểm"
-        if "HỒ CHÍ MINH" in str(topic_config) and entity_type in ["Công trình", "Địa điểm", "Văn kiện/Hiệp định"]:
-            return False
-        return len(entity_id.split()) < 2  # Bỏ qua các từ đơn quá ngắn
+    # Kiểm tra entity type không ưu tiên - BỎ KIỂM TRA NÀY vì quá nghiêm ngặt
+    # priority_types = topic_config.get('priority_entities', [])
+    # if priority_types and entity_type not in priority_types:
+    #     return len(entity_id.split()) < 2  # Logic này bỏ qua quá nhiều entity hợp lệ
     
     return False
 
@@ -107,7 +191,11 @@ def validate_entity_type_for_topic(entity_type: str, topic_config: Dict) -> str:
 
 
 def find_similar_entity(new_entity: Dict, existing_entities: List[Dict]) -> Optional[Dict]:
-    """Find similar entity in existing entities with improved deduplication."""
+    """Find similar entity in existing entities with improved deduplication.
+    
+    IMPORTANT: This function will NOT merge entities with different ordinal numbers
+    (e.g., "Đại hội VI" and "Đại hội VII" are DIFFERENT entities).
+    """
     new_id = new_entity['id'].lower()
     new_type = new_entity['type']
     
@@ -116,15 +204,112 @@ def find_similar_entity(new_entity: Dict, existing_entities: List[Dict]) -> Opti
         if existing['id'].lower() == new_id and existing['type'] == new_type:
             return existing
     
-    # Rule 2: Check for entities that are too similar
-    similarity_threshold = 0.9  # High threshold for strict matching
+    # ===== HELPER FUNCTION: Trích xuất số thứ tự từ tên entity =====
+    def extract_ordinal(name: str) -> Optional[str]:
+        """Trích xuất số thứ tự (La Mã hoặc chữ số) từ tên entity."""
+        name_lower = name.lower()
+        
+        # Pattern cho số La Mã (đứng độc lập hoặc sau "lần thứ", "thứ")
+        roman_patterns = [
+            r'\blần\s+thứ\s+(i{1,3}|iv|v|vi{0,3}|ix|x{1,3}|xi{0,3}|xiv|xv|xvi{0,3})\b',
+            r'\bthứ\s+(i{1,3}|iv|v|vi{0,3}|ix|x{1,3}|xi{0,3}|xiv|xv|xvi{0,3})\b',
+            r'\b(i{1,3}|iv|v|vi{0,3}|ix|x{1,3}|xi{0,3}|xiv|xv|xvi{0,3})\b(?!\w)',
+        ]
+        
+        for pattern in roman_patterns:
+            match = re.search(pattern, name_lower)
+            if match:
+                return match.group(1) if match.lastindex else match.group(0)
+        
+        # Pattern cho số thứ tự tiếng Việt
+        vn_ordinal_match = re.search(r'thứ\s+(nhất|hai|ba|tư|năm|sáu|bảy|tám|chín|mười|mười\s+một|mười\s+hai)', name_lower)
+        if vn_ordinal_match:
+            return vn_ordinal_match.group(1)
+        
+        # Pattern cho số (15, 21, etc.) - match nhiều trường hợp hơn
+        num_patterns = [
+            r'\blần\s+thứ\s+(\d+)\b',    # lần thứ 15
+            r'\bsố\s+(\d+)\b',            # số 15
+            r'\bthứ\s+(\d+)\b',           # thứ 15
+            r'\s(\d+)\s*$',               # đứng cuối chuỗi
+        ]
+        
+        for pattern in num_patterns:
+            num_match = re.search(pattern, name_lower)
+            if num_match:
+                return num_match.group(1)
+        
+        return None
+    
+    # Helper: kiểm tra xem entity có chứa ordinal keyword không
+    def has_ordinal_keyword(name: str) -> bool:
+        """Kiểm tra xem tên entity có chứa từ khóa liên quan đến số thứ tự không."""
+        ordinal_keywords = [
+            'đại hội', 'hội nghị', 'chiến tranh thế giới', 'kế hoạch', 
+            'quốc hội', 'hội nghị ban chấp hành', 'khoá', 'khóa',
+            'lần thứ', 'thứ nhất', 'thứ hai', 'thứ ba', 'thứ tư', 'chỉ thị'
+        ]
+        name_lower = name.lower()
+        return any(kw in name_lower for kw in ordinal_keywords)
+    
+    # ===== KIỂM TRA ĐẶC BIỆT: KHÔNG merge các entity có số thứ tự khác nhau =====
+    new_ordinal = extract_ordinal(new_id)
+    new_has_ordinal_keyword = has_ordinal_keyword(new_id)
     
     for existing in existing_entities:
         if existing['type'] != new_type:
             continue
+        
+        existing_id_lower = existing['id'].lower()
+        existing_ordinal = extract_ordinal(existing_id_lower)
+        existing_has_ordinal_keyword = has_ordinal_keyword(existing_id_lower)
+        
+        # Nếu cả hai entity đều có ordinal keyword
+        if new_has_ordinal_keyword and existing_has_ordinal_keyword:
+            # Nếu cùng có số thứ tự và khác nhau => KHÔNG bao giờ merge
+            if new_ordinal and existing_ordinal and new_ordinal != existing_ordinal:
+                continue  # Skip this existing entity, don't merge
             
+            # Nếu cùng số thứ tự => có thể merge
+            if new_ordinal and existing_ordinal and new_ordinal == existing_ordinal:
+                # Kiểm tra thêm xem base name có giống nhau không
+                # (ví dụ: "Đại hội VI" và "Đại hội đại biểu lần thứ VI" có thể merge)
+                similarity = SequenceMatcher(None, new_id, existing_id_lower).ratio()
+                if similarity > 0.6:  # Ngưỡng thấp vì đã match ordinal
+                    return existing
+    
+    # Rule 2: Check for entities that are too similar (tăng ngưỡng lên cao)
+    similarity_threshold = 0.92  # Tăng từ 0.9 lên 0.92 để chặt chẽ hơn
+    
+    for existing in existing_entities:
+        if existing['type'] != new_type:
+            continue
+        
+        existing_id_lower = existing['id'].lower()
+        
+        # Bỏ qua các entity có ordinal keyword khác nhau (đã xử lý ở trên)
+        if has_ordinal_keyword(new_id) or has_ordinal_keyword(existing_id_lower):
+            new_ord = extract_ordinal(new_id)
+            existing_ord = extract_ordinal(existing_id_lower)
+            if new_ord and existing_ord and new_ord != existing_ord:
+                continue  # KHÔNG merge
+            
+        # Đặc biệt với các entity quan trọng như sự kiện lịch sử, chiến dịch
+        # KHÔNG merge nếu tên khác nhau rõ ràng
+        if new_type in ["Sự kiện", "Chiến dịch/Trận đánh", "Hội nghị"]:
+            # Kiểm tra xem có phải là cùng một loại sự kiện không
+            new_words = set(new_id.split())
+            existing_words = set(existing_id_lower.split())
+            common_words = new_words.intersection(existing_words)
+            
+            # Nếu chỉ có 1-2 từ chung và nhiều từ khác nhau => có thể là khác
+            if len(common_words) <= 2 and (len(new_words) > 2 or len(existing_words) > 2):
+                similarity = SequenceMatcher(None, new_id, existing_id_lower).ratio()
+                if similarity < 0.95:  # Ngưỡng rất cao cho sự kiện
+                    continue  # Không merge
+        
         # Check similarity between IDs
-        id_similarity = SequenceMatcher(None, new_id, existing['id'].lower()).ratio()
+        id_similarity = SequenceMatcher(None, new_id, existing_id_lower).ratio()
         
         # Check similarity between labels
         label_similarity = 0
@@ -161,7 +346,15 @@ def find_similar_entity(new_entity: Dict, existing_entities: List[Dict]) -> Opti
             
         existing_normalized = normalize_name(existing['id'].lower())
         if new_normalized == existing_normalized and len(new_normalized) > 3:
-            return existing
+            # KIỂM TRA BỔ SUNG: Nếu là sự kiện lịch sử quan trọng, cần cẩn thận
+            if new_type in ["Sự kiện", "Chiến dịch/Trận đánh"]:
+                # Kiểm tra xem có phải là cùng một sự kiện không
+                new_words = new_id.split()
+                existing_words = existing['id'].lower().split()
+                if len(set(new_words).intersection(set(existing_words))) >= 2:
+                    return existing
+            else:
+                return existing
     
     return None
 
@@ -186,37 +379,142 @@ def normalize_entity(entity: Dict) -> Dict:
 
 def merge_entities(existing: Dict, new: Dict) -> bool:
     """Merge two entities with strict rules to avoid incorrect merging."""
+    
+    # ===== HELPER FUNCTION: Trích xuất số thứ tự =====
+    def extract_ordinal_for_merge(name: str) -> Optional[str]:
+        """Trích xuất số thứ tự từ tên để so sánh.
+        
+        Supports:
+        - Roman numerals: VI, VII, VIII, etc.
+        - Vietnamese ordinals: thứ nhất, thứ hai, etc.
+        - Arabic numerals: 15, 21, etc.
+        """
+        name_lower = name.lower()
+        
+        # Số La Mã - pattern chính xác hơn
+        # Tìm theo thứ tự ưu tiên: sau "lần thứ", sau "thứ", hoặc đứng độc lập cuối chuỗi
+        roman_patterns = [
+            r'lần\s+thứ\s+(i{1,3}|iv|v|vi{0,3}|ix|x{1,3}|xi{0,3}|xiv|xv|xvi{0,3})\b',
+            r'\bthứ\s+(i{1,3}|iv|v|vi{0,3}|ix|x{1,3}|xi{0,3}|xiv|xv|xvi{0,3})\b',
+            r'\s(i{1,3}|iv|v|vi{0,3}|ix|x{1,3}|xi{0,3}|xiv|xv|xvi{0,3})\s*$',  # Đứng cuối
+            r'\b(i{1,3}|iv|v|vi{0,3}|ix|x{1,3}|xi{0,3}|xiv|xv|xvi{0,3})\b',  # Fallback
+        ]
+        
+        for pattern in roman_patterns:
+            match = re.search(pattern, name_lower)
+            if match:
+                return match.group(1).strip()
+        
+        # Số thứ tự tiếng Việt
+        vn_match = re.search(r'thứ\s+(nhất|hai|ba|tư|năm|sáu|bảy|tám|chín|mười)', name_lower)
+        if vn_match:
+            return vn_match.group(1)
+        
+        # Số thường - chỉ match khi đứng cuối hoặc sau "lần thứ"
+        num_match = re.search(r'lần\s+thứ\s+(\d+)\b|\s(\d+)\s*$', name_lower)
+        if num_match:
+            return num_match.group(1) or num_match.group(2)
+        
+        return None
+    
+    # ===== KIỂM TRA ĐẶC BIỆT: Không merge các Đại hội/Hội nghị có số thứ tự khác nhau =====
+    ordinal_keywords = ['đại hội', 'hội nghị', 'quốc hội', 'khoá', 'khóa', 'lần thứ', 'chỉ thị']
+    
+    existing_id_lower = existing['id'].lower()
+    new_id_lower = new['id'].lower()
+    
+    # Kiểm tra xem cả hai có chứa ordinal keyword không
+    existing_has_keyword = any(kw in existing_id_lower for kw in ordinal_keywords)
+    new_has_keyword = any(kw in new_id_lower for kw in ordinal_keywords)
+    
+    if existing_has_keyword and new_has_keyword:
+        existing_ordinal = extract_ordinal_for_merge(existing['id'])
+        new_ordinal = extract_ordinal_for_merge(new['id'])
+        
+        if existing_ordinal and new_ordinal and existing_ordinal != new_ordinal:
+            # Số thứ tự khác nhau => TUYỆT ĐỐI KHÔNG merge
+            return False
+    
     # Kiểm tra xem có thực sự giống nhau không
     if existing['id'] != new['id']:
+        # KIỂM TRA ĐẶC BIỆT: Không merge các sự kiện lịch sử quan trọng nếu tên khác nhau
+        if existing['type'] in ["Sự kiện", "Chiến dịch/Trận đánh", "Hội nghị"]:
+            # Kiểm tra các từ khóa quan trọng
+            important_keywords = [
+                'chiến tranh thế giới', 'hội nghị', 'hiệp định', 
+                'chiến dịch', 'trận', 'đại hội'
+            ]
+            
+            for keyword in important_keywords:
+                if keyword in existing['id'].lower() and keyword in new['id'].lower():
+                    # Nếu cùng chứa từ khóa quan trọng, kiểm tra kỹ hơn
+                    existing_words = set(existing['id'].lower().split())
+                    new_words = set(new['id'].lower().split())
+                    common_words = existing_words.intersection(new_words)
+                    
+                    # Nếu ít từ chung và nhiều từ khác nhau => có thể là khác
+                    if len(common_words) <= 2 and (len(existing_words) > 3 or len(new_words) > 3):
+                        similarity = SequenceMatcher(None, existing['id'].lower(), new['id'].lower()).ratio()
+                        if similarity < 0.85:  # Ngưỡng thấp hơn để KHÔNG merge
+                            return False
+        
         # Kiểm tra độ tương đồng
         similarity = SequenceMatcher(None, existing['id'].lower(), new['id'].lower()).ratio()
-        if similarity < 0.8:  # Ngưỡng thấp hơn để tránh merge nhầm
+        if similarity < 0.85:  # Tăng ngưỡng từ 0.8 lên 0.85 để chặt chẽ hơn
             return False
     
     # Kiểm tra type có giống nhau không
     if existing['type'] != new['type']:
         return False
     
-    # Merge labels
-    existing_labels = set(label.lower() for label in existing['label'])
-    new_labels = set(label.lower() for label in new['label'])
-    all_labels = existing_labels.union(new_labels)
+    # THÊM: Không merge các entity có mô tả hoàn toàn khác nhau
+    existing_desc = existing.get('description', '').lower()
+    new_desc = new.get('description', '').lower()
+    if existing_desc and new_desc:
+        # Kiểm tra xem mô tả có tương đồng không
+        desc_similarity = SequenceMatcher(None, existing_desc, new_desc).ratio()
+        if desc_similarity < 0.5 and len(existing_desc) > 10 and len(new_desc) > 10:
+            # Mô tả quá khác nhau => có thể là entity khác
+            return False
     
-    # Giữ nguyên thứ tự và case của labels
+    # ===== MERGE LABELS VỚI LOGIC CẢI TIẾN =====
+    # Ưu tiên giữ label viết hoa đầu câu, loại bỏ duplicate chỉ khác case
     merged_labels = []
-    seen = set()
+    seen_lower = set()
     
-    # Ưu tiên giữ label của existing entity trước
+    # Helper: chọn label tốt nhất giữa hai label chỉ khác case
+    def choose_best_label(label1: str, label2: str) -> str:
+        """Chọn label tốt hơn (ưu tiên viết hoa đầu câu)."""
+        # Ưu tiên label bắt đầu bằng chữ hoa
+        if label1[0].isupper() and not label2[0].isupper():
+            return label1
+        if label2[0].isupper() and not label1[0].isupper():
+            return label2
+        # Nếu cả hai đều hoa hoặc đều thường, ưu tiên label ngắn hơn
+        return label1 if len(label1) <= len(label2) else label2
+    
+    # Tạo dict để track label tốt nhất cho mỗi lowercase version
+    best_labels = {}
+    
+    for label in existing['label'] + new['label']:
+        label_lower = label.lower()
+        if label_lower in best_labels:
+            best_labels[label_lower] = choose_best_label(best_labels[label_lower], label)
+        else:
+            best_labels[label_lower] = label
+    
+    # Chuyển về list, ưu tiên label của existing entity
     for label in existing['label']:
-        if label.lower() not in seen:
-            seen.add(label.lower())
-            merged_labels.append(label)
+        label_lower = label.lower()
+        if label_lower not in seen_lower:
+            seen_lower.add(label_lower)
+            merged_labels.append(best_labels[label_lower])
     
-    # Thêm label mới nếu chưa có
     for label in new['label']:
-        if label.lower() not in seen:
-            seen.add(label.lower())
-            merged_labels.append(label)
+        label_lower = label.lower()
+        if label_lower not in seen_lower:
+            seen_lower.add(label_lower)
+            merged_labels.append(best_labels[label_lower])
     
     existing['label'] = merged_labels
     
@@ -819,11 +1117,19 @@ def extract_timeline_events_with_context(text: str, topic_config: Dict) -> List[
     return events
 
 def cleanup_entities(entities: List[Dict]) -> List[Dict]:
-    """Làm sạch danh sách entities cuối cùng."""
+    """Làm sạch danh sách entities cuối cùng.
+    
+    Loại bỏ:
+    - Các entity là ngày tháng đơn thuần
+    - Các entity quá chung
+    - Các entity là khẩu hiệu/khái niệm trừu tượng
+    - Fix labels trùng lặp về case
+    """
     cleaned = []
     
     for entity in entities:
         entity_id = entity.get('id', '')
+        entity_id_lower = entity_id.lower().strip()
         
         # Bỏ qua các entity là ngày tháng đơn thuần
         date_patterns = [
@@ -832,6 +1138,10 @@ def cleanup_entities(entities: List[Dict]) -> List[Dict]:
             r'^tháng\s+\d{1,2}\s*[-–]\s*\d{4}$',
             r'^ngày\s+\d{1,2}$',
             r'^năm\s+\d{4}$',
+            r'^ngày\s+\d{1,2}\s+tháng\s+\d{1,2}\s+năm\s+\d{4}$',
+            r'^ngày\s+\d{1,2}\s*[-–]\s*\d{1,2}\s*[-–]\s*\d{4}$',
+            r'^\d{1,2}\s+tháng\s+\d{1,2}\s+năm\s+\d{4}$',
+            r'^[\d\s\-–]+$',  # Toàn số và dấu gạch
         ]
         
         is_date = False
@@ -846,15 +1156,67 @@ def cleanup_entities(entities: List[Dict]) -> List[Dict]:
         # Bỏ qua các entity quá chung
         general_terms = [
             'chính phủ', 'hội', 'trí tuệ con người', 'nhân dân thế giới',
-            'nhân dân', 'thế giới', 'phe', 'quân', 'đế quốc'
+            'nhân dân', 'thế giới', 'phe', 'quân', 'đế quốc', 'đảng',
+            'cải tổ', 'hiến chương', 'tổ quốc', 'chiến lược', 'chủ trương',
+            'chính sách', 'kháng chiến', 'cách mạng', 'phong trào'
         ]
         
-        if entity_id.lower() in general_terms:
+        if entity_id_lower in general_terms:
+            continue
+        
+        # Bỏ qua các khẩu hiệu, khái niệm trừu tượng
+        abstract_concepts = [
+            'thắng lợi quân sự', 'vừa đánh, vừa đàm', 'vừa đánh vừa đàm',
+            'cuộc chiến tranh phi nghĩa', 'chiến tranh phi nghĩa',
+            'thống nhất đất nước', 'hội nhập quốc tế', 'an ninh nhân dân',
+            'công cuộc đổi mới', 'hệ thống chính trị', 'đảng mới 15 tuổi',
+            'đổi mới toàn diện và đồng bộ', 'đổi mới kinh tế', 'đổi mới chính trị',
+            'văn hoá – xã hội', 'văn hoá - xã hội', 'khoa học và công nghệ',
+            'giáo dục và đào tạo', 'kinh tế tri thức', 'chế độ tem phiếu',
+            'kinh tế hàng hoá xã hội chủ nghĩa', 'kinh tế thị trường xã hội chủ nghĩa',
+        ]
+        
+        if entity_id_lower in abstract_concepts:
             continue
         
         # Bỏ qua entity chỉ có 1 từ và quá ngắn
         if len(entity_id.split()) == 1 and len(entity_id) < 4:
             continue
+        
+        # ===== FIX LABELS TRÙNG LẶP VỀ CASE =====
+        if 'label' in entity and entity['label']:
+            # Loại bỏ duplicate case trong labels
+            best_labels = {}
+            for label in entity['label']:
+                if not label or not label.strip():
+                    continue
+                label_clean = label.strip()
+                label_lower = label_clean.lower()
+                
+                if label_lower not in best_labels:
+                    best_labels[label_lower] = label_clean
+                else:
+                    # Ưu tiên label có chữ hoa đầu
+                    existing = best_labels[label_lower]
+                    if label_clean[0].isupper() and not existing[0].isupper():
+                        best_labels[label_lower] = label_clean
+            
+            # Tái tạo labels theo thứ tự, ưu tiên ID trước
+            new_labels = []
+            seen_lower = set()
+            
+            # Đảm bảo ID là label đầu tiên
+            if entity_id.lower() in best_labels:
+                new_labels.append(best_labels[entity_id.lower()])
+                seen_lower.add(entity_id.lower())
+            
+            # Thêm các labels còn lại
+            for label_lower, label in best_labels.items():
+                if label_lower not in seen_lower:
+                    new_labels.append(label)
+                    seen_lower.add(label_lower)
+            
+            entity['label'] = new_labels
         
         cleaned.append(entity)
     

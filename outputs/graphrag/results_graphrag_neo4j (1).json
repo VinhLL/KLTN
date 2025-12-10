@@ -1,0 +1,1534 @@
+{
+  "stats": {
+    "total": 40,
+    "correct": 26,
+    "mcq": 20,
+    "mcq_correct": 14,
+    "tf": 20,
+    "tf_correct": 12
+  },
+  "accuracy": {
+    "total": 65.0,
+    "mcq": 70.0,
+    "tf": 60.0
+  },
+  "results": [
+    {
+      "question": "Nội dung nào sau đây không phải là cống hiến to lớn của Nguyễn Ái Quốc đối với cách mạng Việt Nam từ năm 1911 - 1930?",
+      "correct_answer": "D",
+      "model_answer": "A",
+      "is_correct": false,
+      "entities_extracted": [
+        "Nguyễn Ái Quốc",
+        "Việt Nam",
+        "1911",
+        "1930",
+        "1911 - 1930"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, Nguyễn Ái Quốc (Nguyễn Tất Thành) đã có nhiều cống hiến to lớn đối với cách mạng Việt Nam từ năm 1911 - 1930, bao gồm:\n\n- **A. Tìm ra con đường cứu nước**: Đúng, Nguyễn Ái Quốc đã tìm ra con đường cứu nước thông qua việc đi tìm hiểu thế giới, tiếp thu tư tưởng Mác - Lênin và đề ra đường lối cách mạng.\n\n- **B. Thành lập Đảng Cộng sản**: Sai, việc thành lập Đảng Cộng sản Việt Nam xảy ra sau năm 1930, cụ thể là năm 1930, khi Nguyễn Ái",
+      "evidence": [
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_passage_0",
+          "score": 0.5291649569198477,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Ở châu Á, chiến tranh Triều Tiên (1950 – 1953), chiến tranh xâm lược Việt Nam của thực dân Pháp (1945 – 1954) và chiến tranh xâm lược Việt Nam của đế quốc Mỹ (1954 – 1975),… là những cuộc chiến tranh cục bộ tiêu biểu Ở khu vực Trung Đông, chiến tranh Trung Đông giữa I-xra-en và các ",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        },
+        {
+          "source": "Nguyễn Sinh Cung",
+          "chunk_id": "Nguyễn Sinh Cung_rel_1",
+          "score": 0.47496798734062573,
+          "provenance": "relationship_context",
+          "text_preview": "Nguyễn Sinh Sắc: Cha của Chủ tịch Hồ Chí Minh, một nhà nho mẫu mực. [LÀ_CHA_CỦA] Nguyễn Sinh Cung",
+          "entity_id": "Nguyễn Sinh Cung"
+        },
+        {
+          "source": "tàu La-tu-sơ Tơ-rê-vin",
+          "chunk_id": "tàu La-tu-sơ Tơ-rê-vin_passage_0",
+          "score": 0.45120113781503746,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 6/Bài 15] Tại đây, Nguyễn Tất Thành truyền thụ cho học sinh lòng yêu nước và những trăn trở về vận mệnh của đất nước Tháng 2 – 1911, Nguyễn Tất Thành rời Phan Thiết vào Sài Gòn, mang theo hoài bão ra nước ngoài, xem thế giới làm như thế nào rồi trở về giúp đồng bào Sau một thời gian tìm hiểu",
+          "entity_id": "tàu La-tu-sơ Tơ-rê-vin"
+        }
+      ]
+    },
+    {
+      "question": "Nguyên nhân chủ yếu dẫn tới cục diện hai cực, hai phe sau Chiến tranh thế giới thứ hai là gì?",
+      "correct_answer": "A",
+      "model_answer": "A",
+      "is_correct": true,
+      "entities_extracted": [
+        "Chiến tranh thế giới thứ hai",
+        "Liên Xô",
+        "Mỹ",
+        "Anh"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, nguyên nhân chủ yếu dẫn tới cục diện hai cực, hai phe sau Chiến tranh thế giới thứ hai là **sự đối lập về mục tiêu và chiến lược giữa hai cường quốc Liên Xô và Mỹ**. Đây là kết quả của sự chia cắt châu Âu và châu Á sau Chiến tranh thế giới thứ hai tại Hội nghị I-an-ta, trong đó Liên Xô và Mỹ đã phân chia quyền lực, ảnh hưởng và mục tiêu phát triển khác nhau, dẫn đến hình thành Trật tự thế giới hai cực.\n\n**Đáp án đúng: A**.",
+      "evidence": [
+        {
+          "source": "Chiến tranh thế giới mới",
+          "chunk_id": "Chiến tranh thế giới mới_passage_0",
+          "score": 0.47397916244740285,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 1] 2 Vai trò của Liên hợp quốc\na) Duy trì hoà bình, an ninh quốc tế\nTrước hết, Liên hợp quốc góp phần ngăn ngừa không để xảy ra một cuộc chiến tranh thế giới mới kể từ năm 1945 đến nay Thứ hai, Liên hợp quốc triển khai hoạt động gìn giữ hoà bình ở nhiều khu vực trên thế giới, góp phần ",
+          "entity_id": "Chiến tranh thế giới mới"
+        },
+        {
+          "source": "phe Đồng minh",
+          "chunk_id": "phe Đồng minh_passage_0",
+          "score": 0.4730775548823508,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] BÀI 2 TRẬT TỰ THẾ GIỚI TRONG CHIẾN TRANH LẠNH\n1 Quá trình hình thành và tồn tại của Trật tự thế giới hai cực I-an-ta\n\na) Sự hình thành Trật tự thế giới hai cực I-an-ta\n\nHội nghị I-an-ta diễn ra vào giai đoạn cuối của Chiến tranh thế giới thứ hai, từ ngày 4 đến ngày 12 – 2 – 1945, kh",
+          "entity_id": "phe Đồng minh"
+        },
+        {
+          "source": "phe Đồng minh",
+          "chunk_id": "phe Đồng minh_rel_summary",
+          "score": 0.45457623256801305,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of phe Đồng minh]\nphe Đồng minh --[THAM_GIA_VÀO_QUÁ_TRÌNH_THÀNH_LẬP]--> Liên hợp quốc: Tổ chức quốc tế được mong muốn thiết lập để bảo vệ hòa bình, an ninh thế giới thay thế cho Hội Quốc \nphe Đồng minh --[THAM_GIA]--> Chiến tranh thế giới thứ hai: Cuộc chiến tranh toàn cầu kết thúc và",
+          "entity_id": "phe Đồng minh"
+        }
+      ]
+    },
+    {
+      "question": "Quốc gia nào sau đây từng có công dân là Tổng thư ký Liên hợp quốc?",
+      "correct_answer": "A",
+      "model_answer": "A",
+      "is_correct": true,
+      "entities_extracted": [
+        "Liên hợp quốc",
+        "Việt Nam",
+        "Trung Quốc",
+        "Tổng thư ký Liên hợp quốc"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, không có bất kỳ quốc gia nào được nêu rõ trong các nguồn đã cung cấp từng có công dân là Tổng thư ký Liên hợp quốc. Tuy nhiên, trong các đáp án được đưa ra, **Nhật Bản** được đề cập là một quốc gia Đông Á, từng là đế quốc và có vai trò quan trọng trong Chiến tranh thế giới thứ hai. Mặc dù không có thông tin cụ thể về Tổng thư ký Liên hợp quốc của Nhật Bản, nhưng trong các quốc gia còn lại (Hàn Quốc, Trung Quốc, Việt Nam), không có thông tin nào về việc có Tổng thư ký Liên hợp quốc.\n\nDo đó, **đáp án đúng nhất**",
+      "evidence": [
+        {
+          "source": "Hiến chương Liên hợp quốc",
+          "chunk_id": "Hiến chương Liên hợp quốc_rel_summary",
+          "score": 0.5263425289221639,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Hiến chương Liên hợp quốc]\nHiến chương Liên hợp quốc --[ĐƯỢC_THÔNG_QUA_BỞI]--> Xan Phran-xi-xcô: Thành phố tại Mỹ, nơi diễn ra hội nghị thành lập Liên hợp quốc.\nHiến chương Liên hợp quốc --[ĐƯỢC_THÔNG_QUA_BỞI]--> Liên hợp quốc: Tổ chức quốc tế được mong muốn thiết lập để bảo vệ hòa",
+          "entity_id": "Hiến chương Liên hợp quốc"
+        },
+        {
+          "source": "Trung Hoa Dân quốc",
+          "chunk_id": "Trung Hoa Dân quốc_rel_summary",
+          "score": 0.48194019457980225,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Trung Hoa Dân quốc]\nTrung Hoa Dân quốc --[TỒN_TẠI_TRONG]--> Chiến tranh thế giới thứ hai: Cuộc chiến tranh toàn cầu kết thúc vào giai đoạn cuối có những chuyển biến quan trọng trên thế giới.\nTrung Hoa Dân quốc --[THAM_GIA]--> Tuyên bố về Liên hợp quốc: Văn kiện lịch sử với sự tham ",
+          "entity_id": "Trung Hoa Dân quốc"
+        },
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_passage_0",
+          "score": 0.45982901941984766,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Ở châu Á, chiến tranh Triều Tiên (1950 – 1953), chiến tranh xâm lược Việt Nam của thực dân Pháp (1945 – 1954) và chiến tranh xâm lược Việt Nam của đế quốc Mỹ (1954 – 1975),… là những cuộc chiến tranh cục bộ tiêu biểu Ở khu vực Trung Đông, chiến tranh Trung Đông giữa I-xra-en và các ",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        }
+      ]
+    },
+    {
+      "question": "Nội dung nào sau đây là mục tiêu hướng tới của các nước Đông Nam Á khi xây dựng Cộng đồng Văn hóa - Xã hội ASEAN?",
+      "correct_answer": "B",
+      "model_answer": "B",
+      "is_correct": true,
+      "entities_extracted": [
+        "ASEAN",
+        "Đông Nam Á"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, mục tiêu của việc xây dựng Cộng đồng Văn hóa - Xã hội ASEAN là **tăng cường hợp tác văn hóa, xã hội và phát triển bền vững giữa các nước thành viên**, nhằm **tạo dựng môi trường hòa bình, ổn định và phát triển chung**. Trong đó, **tình đoàn kết, hữu nghị giữa các nước ASEAN** là một trong những mục tiêu quan trọng nhất.\n\nĐáp án **B. xây dựng tình đoàn kết, hữu nghị giữa các nước ASEAN** là **đúng nhất**.\n\n**Đáp án: B**",
+      "evidence": [
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_3",
+          "score": 0.6732811917752567,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 5] ”\n\nc) Kế hoạch xây dựng Cộng đồng ASEAN\n\nĐể thực hiện mục tiêu xây dựng Cộng đồng ASEAN, các nước thành viên đã thông qua kế hoạch triển khai cụ thể trên ba trụ cột: chính trị – an ninh, kinh tế,văn hoá – xã hội Kế hoạch được nêu rõ trong văn bản \"Lộ trình xây dựng Cộng đồng ASEAN (",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_1",
+          "score": 0.6061425199002567,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 4] 3 Thúc đẩy sự cộng tác tích cực và giúp đỡ lẫn nhau trong các vấn đề cùng quan tâm trong các lĩnh vực kinh tế, xã hội, văn hoá, khoa học – kĩ thuật và hành chính, ASEAN được thành lập nhằm mục đích chính là tăng cường hợp tác kinh tế, văn hoá,xã hội, tạo điều kiện cho các nước thành",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_0",
+          "score": 0.5939354886502567,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 3] **\n\n**Thứ ba là vai trò ngày càng gia tăng của các trung tâm, tổ chức kinh tế, tài chính quốc tế, khu vực **\n\nSau Chiến tranh lạnh, các tổ chức kinh tế, tài chính khu vực, liên khu vực có vai trò ngày càng lớn đối với sự phát triển của thế giới, tiêu biểu là: Nhóm 20 nền kinh tế lớn",
+          "entity_id": "ASEAN"
+        }
+      ]
+    },
+    {
+      "question": "Một trong những văn kiện đã nêu rõ kế hoạch xây dựng Cộng đồng ASEAN là",
+      "correct_answer": "A",
+      "model_answer": "A",
+      "is_correct": true,
+      "entities_extracted": [
+        "ASEAN",
+        "Cộng đồng ASEAN",
+        "2009",
+        "2015",
+        "2009-2015"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, **kế hoạch tổng thể xây dựng Cộng đồng ASEAN** được nêu rõ trong **Kế hoạch Tổng thể xây dựng Cộng đồng Văn hoá – Xã hội ASEAN (2009)**, là một trong những văn kiện quan trọng đã định hướng kế hoạch xây dựng Cộng đồng ASEAN. Các đáp án khác như \"tuyên bố chung Cua-la Lăm-pơ\", \"lộ trình xây dựng cộng đồng ASEAN (2009-2015)\" và \"hội nghị cấp cao ASEAN lần thứ 37 tại Hà Nội\" không được đề cập rõ ràng như kế hoạch tổng thể.\n\n**Đáp án đúng:",
+      "evidence": [
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_2",
+          "score": 0.549689975006802,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 4] **2015 đến nay:** Thành lập và xây dựng Cộng đồng ASEAN với ba trụ cột: chính trị – an ninh, kinh tế, văn hoá – xã hội; đẩy mạnh hợp tác bên trong giữa ASEAN và bên ngoài ASEAN với các đối tác đối thoại, nâng cao uy tín, vai trò của ASEAN ở khu vực và trên thế giới Ra Tuyên bố thành",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_0",
+          "score": 0.542854037506802,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 3] **\n\n**Thứ ba là vai trò ngày càng gia tăng của các trung tâm, tổ chức kinh tế, tài chính quốc tế, khu vực **\n\nSau Chiến tranh lạnh, các tổ chức kinh tế, tài chính khu vực, liên khu vực có vai trò ngày càng lớn đối với sự phát triển của thế giới, tiêu biểu là: Nhóm 20 nền kinh tế lớn",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_rel_summary",
+          "score": 0.5354730476613515,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of ASEAN]\nASEAN --[THÔNG_QUA]--> Tầm nhìn ASEAN 2020: Văn kiện định hướng cho sự phát triển trong tương lai của ASEAN, nêu rõ việc xây dựng Cộng đồng ASEA\nASEAN --[THÔNG_QUA]--> Tầm nhìn ASEAN 2020: Tầm nhìn về sự phát triển của ASEAN vào năm 2020.\nASEAN --[THÔNG_QUA]--> Kế hoạch Tổng",
+          "entity_id": "ASEAN"
+        }
+      ]
+    },
+    {
+      "question": "Nội dung nào không phản ánh đúng những cơ hội khi Việt Nam gia nhập tổ chức ASEAN?",
+      "correct_answer": "D",
+      "model_answer": "D",
+      "is_correct": true,
+      "entities_extracted": [
+        "ASEAN",
+        "Việt Nam",
+        "Anh"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, nội dung **không phản ánh đúng** những cơ hội khi Việt Nam gia nhập ASEAN là **D. Tranh thủ viện trợ để giải quyết khó khăn ở trong nước**.\n\nLý do: Việc gia nhập ASEAN chủ yếu tập trung vào các cơ hội như thu hút đầu tư, mở rộng thị trường, thúc đẩy công nghiệp hóa và hiện đại hóa, chứ không phải là \"tranh thủ viện trợ để giải quyết khó khăn ở trong nước\". Viện trợ thường là một yếu tố của các tổ chức quốc tế khác như ODA (Hỗ trợ phát triển của các nước phát triển), chứ không phải là mục tiêu chính của việc tham gia ASEAN.",
+      "evidence": [
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_rel_summary",
+          "score": 0.5683520071126925,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of ASEAN]\nASEAN --[THÔNG_QUA]--> Tầm nhìn ASEAN 2020: Văn kiện định hướng cho sự phát triển trong tương lai của ASEAN, nêu rõ việc xây dựng Cộng đồng ASEA\nASEAN --[THÔNG_QUA]--> Tầm nhìn ASEAN 2020: Tầm nhìn về sự phát triển của ASEAN vào năm 2020.\nASEAN --[THÔNG_QUA]--> Kế hoạch Tổng",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_0",
+          "score": 0.5597558011502567,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 3] **\n\n**Thứ ba là vai trò ngày càng gia tăng của các trung tâm, tổ chức kinh tế, tài chính quốc tế, khu vực **\n\nSau Chiến tranh lạnh, các tổ chức kinh tế, tài chính khu vực, liên khu vực có vai trò ngày càng lớn đối với sự phát triển của thế giới, tiêu biểu là: Nhóm 20 nền kinh tế lớn",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_passage_0",
+          "score": 0.5174462069198477,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Ở châu Á, chiến tranh Triều Tiên (1950 – 1953), chiến tranh xâm lược Việt Nam của thực dân Pháp (1945 – 1954) và chiến tranh xâm lược Việt Nam của đế quốc Mỹ (1954 – 1975),… là những cuộc chiến tranh cục bộ tiêu biểu Ở khu vực Trung Đông, chiến tranh Trung Đông giữa I-xra-en và các ",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        }
+      ]
+    },
+    {
+      "question": "Nội dung nào sau đây không phải là biểu hiện của xu thế Toàn cầu hóa?",
+      "correct_answer": "A",
+      "model_answer": "A",
+      "is_correct": true,
+      "entities_extracted": [
+        "Anh",
+        "Toàn cầu hóa"
+      ],
+      "raw_response": "Đáp án đúng là **D. Sáp nhập và hợp nhất các công ty thành những tập đoàn lớn**.\n\n**Phân tích:**  \nXu thế Toàn cầu hóa thể hiện qua việc các quốc gia, doanh nghiệp liên kết, hợp tác trên phạm vi toàn cầu. Các đáp án A, B, C đều phản ánh sự kết nối, hợp tác và phát triển trên quy mô quốc tế, là biểu hiện của toàn cầu hóa. Trong khi đó, **D** chỉ đề cập đến quá trình sáp nhập, hợp nhất doanh nghiệp trong nước, không phản ánh rõ sự liên kết toàn cầu, mà là quá trình phát triển trong phạm vi quốc gia. Do đó, **D** không",
+      "evidence": [
+        {
+          "source": "Chiến tranh thế giới mới",
+          "chunk_id": "Chiến tranh thế giới mới_passage_0",
+          "score": 0.47715299057240285,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 1] 2 Vai trò của Liên hợp quốc\na) Duy trì hoà bình, an ninh quốc tế\nTrước hết, Liên hợp quốc góp phần ngăn ngừa không để xảy ra một cuộc chiến tranh thế giới mới kể từ năm 1945 đến nay Thứ hai, Liên hợp quốc triển khai hoạt động gìn giữ hoà bình ở nhiều khu vực trên thế giới, góp phần ",
+          "entity_id": "Chiến tranh thế giới mới"
+        },
+        {
+          "source": "Cuộc Tiến công chiến lược năm 1972",
+          "chunk_id": "Cuộc Tiến công chiến lược năm 1972_ft_2",
+          "score": 0.4189453125,
+          "provenance": "fulltext_search",
+          "text_preview": "Cuộc Tiến công chiến lược năm 1972: Một cuộc tấn công lớn của Quân đội Nhân dân Việt Nam nhằm vào các mục tiêu chiến lược của Hoa Kỳ và Việt Nam Cộng hòa, dẫn đến việc Mỹ phải thừa nhận thất bại của chiến lược 'Việt Nam hóa chiến tranh'.",
+          "entity_id": "Cuộc Tiến công chiến lược năm 1972"
+        },
+        {
+          "source": "Chiến tranh thế giới mới",
+          "chunk_id": "Chiến tranh thế giới mới_rel_summary",
+          "score": 0.40795019214805217,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Chiến tranh thế giới mới]\nChiến tranh thế giới mới --[ĐƯỢC_NGĂN_CHẶN_BỞI]--> Liên hợp quốc: Tổ chức quốc tế được mong muốn thiết lập để bảo vệ hòa bình, an ninh thế giới thay thế cho Hội Quốc ",
+          "entity_id": "Chiến tranh thế giới mới"
+        }
+      ]
+    },
+    {
+      "question": "Mục đích chủ yếu của Mỹ khi triển khai chiến lược toàn cầu từ sau Chiến tranh thế giới thứ hai đến kết thúc Chiến tranh lạnh là",
+      "correct_answer": "A",
+      "model_answer": "C",
+      "is_correct": false,
+      "entities_extracted": [
+        "Chiến tranh thế giới thứ hai",
+        "Chiến tranh lạnh",
+        "Mỹ",
+        "Anh",
+        "Tây Âu"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, chiến lược toàn cầu của Mỹ sau Chiến tranh Thế giới thứ hai đến kết thúc Chiến tranh Lạnh chủ yếu nhằm **khống chế các cường quốc đế quốc và các nước xã hội chủ nghĩa**, đặc biệt là Đức, Ý, Nhật – những nước có ảnh hưởng lớn đến trật tự thế giới. Việc thành lập Liên Hợp Quốc, Hội nghị I-an-ta, và các tổ chức quân sự như NATO đều phản ánh mục tiêu này.\n\nĐáp án **C. khống chế Đức, Ý, Nhật** là **đúng nhất**.\n\n**Đáp án: C**",
+      "evidence": [
+        {
+          "source": "nước Tây Âu",
+          "chunk_id": "nước Tây Âu_passage_0",
+          "score": 0.5894550396214101,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] BÀI 2 TRẬT TỰ THẾ GIỚI TRONG CHIẾN TRANH LẠNH\n1 Quá trình hình thành và tồn tại của Trật tự thế giới hai cực I-an-ta\n\na) Sự hình thành Trật tự thế giới hai cực I-an-ta\n\nHội nghị I-an-ta diễn ra vào giai đoạn cuối của Chiến tranh thế giới thứ hai, từ ngày 4 đến ngày 12 – 2 – 1945, kh",
+          "entity_id": "nước Tây Âu"
+        },
+        {
+          "source": "Chiến tranh thế giới mới",
+          "chunk_id": "Chiến tranh thế giới mới_passage_0",
+          "score": 0.47129361557240285,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 1] 2 Vai trò của Liên hợp quốc\na) Duy trì hoà bình, an ninh quốc tế\nTrước hết, Liên hợp quốc góp phần ngăn ngừa không để xảy ra một cuộc chiến tranh thế giới mới kể từ năm 1945 đến nay Thứ hai, Liên hợp quốc triển khai hoạt động gìn giữ hoà bình ở nhiều khu vực trên thế giới, góp phần ",
+          "entity_id": "Chiến tranh thế giới mới"
+        },
+        {
+          "source": "Xan Phran-xi-xcô",
+          "chunk_id": "Xan Phran-xi-xcô_rel_summary",
+          "score": 0.45645671382977476,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Xan Phran-xi-xcô]\nXan Phran-xi-xcô --[DIỄN_RA_TẠI]--> Liên hợp quốc: Tổ chức quốc tế được mong muốn thiết lập để bảo vệ hòa bình, an ninh thế giới thay thế cho Hội Quốc \nHiến chương Liên hợp quốc: Văn bản pháp lý nền tảng của Liên hợp quốc, được thông qua sau quyết định tại Hội ngh",
+          "entity_id": "Xan Phran-xi-xcô"
+        }
+      ]
+    },
+    {
+      "question": "Mục đích của Bộ Chính trị Ban Chấp hành Trung ương Đảng Cộng sản Việt Nam khi phát động “Học tập và làm theo tấm gương đạo đức Hồ Chí Minh” là",
+      "correct_answer": "D",
+      "model_answer": "D",
+      "is_correct": true,
+      "entities_extracted": [
+        "Đảng Cộng sản Việt Nam",
+        "Hồ Chí Minh",
+        "Việt Nam"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, Chỉ thị 06-CT/TW là văn bản chỉ đạo của Bộ Chính trị Đảng Cộng sản Việt Nam về việc tổ chức Cuộc vận động “Học tập và làm theo tấm gương đạo đức Hồ Chí Minh”. Mục đích của cuộc vận động này là **phát huy giá trị to lớn của tư tưởng, đạo đức Hồ Chí Minh**, nhằm nâng cao nhận thức, rèn luyện đạo đức, lối sống cho cán bộ, đảng viên và toàn dân tộc.\n\n**Đáp án đúng: D. phát huy giá trị to lớn của tư tưởng, đạo đức Hồ Chí Minh**.",
+      "evidence": [
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_passage_0",
+          "score": 0.48607413660734766,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Ở châu Á, chiến tranh Triều Tiên (1950 – 1953), chiến tranh xâm lược Việt Nam của thực dân Pháp (1945 – 1954) và chiến tranh xâm lược Việt Nam của đế quốc Mỹ (1954 – 1975),… là những cuộc chiến tranh cục bộ tiêu biểu Ở khu vực Trung Đông, chiến tranh Trung Đông giữa I-xra-en và các ",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        },
+        {
+          "source": "Bộ Chính trị Đảng Cộng sản Việt Nam khoá X",
+          "chunk_id": "Bộ Chính trị Đảng Cộng sản Việt Nam khoá X_ft_1",
+          "score": 0.46044921875,
+          "provenance": "fulltext_search",
+          "text_preview": "Bộ Chính trị Đảng Cộng sản Việt Nam khoá X: Cơ quan lãnh đạo cao nhất của Đảng Cộng sản Việt Nam trong nhiệm kỳ Đại hội Đảng lần thứ X.",
+          "entity_id": "Bộ Chính trị Đảng Cộng sản Việt Nam khoá X"
+        },
+        {
+          "source": "Bộ Chính trị Trung ương Đảng",
+          "chunk_id": "Bộ Chính trị Trung ương Đảng_ft_0",
+          "score": 0.43798828125,
+          "provenance": "fulltext_search",
+          "text_preview": "Bộ Chính trị Trung ương Đảng: Cơ quan lãnh đạo cao nhất của Đảng Cộng sản Việt Nam.",
+          "entity_id": "Bộ Chính trị Trung ương Đảng"
+        }
+      ]
+    },
+    {
+      "question": "Xác định ý đúng về vai trò của chủ tịch Hồ Chí Minh đối với cách mạng Việt Nam giai đoạn 1941-1945:",
+      "correct_answer": "A",
+      "model_answer": "D",
+      "is_correct": false,
+      "entities_extracted": [
+        "Cách mạng tháng Tám",
+        "Hồ Chí Minh",
+        "Chủ tịch Hồ Chí Minh",
+        "Việt Nam",
+        "Pháp",
+        "Anh",
+        "Tuyên ngôn Độc lập",
+        "1941",
+        "1945",
+        "1941-1945"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, đặc biệt là đoạn mô tả về việc Hồ Chí Minh **soạn thảo Tuyên ngôn Độc lập** và **đọc Tuyên ngôn Độc lập** ngày 2-9-1945, cùng với vai trò **chủ trì Đại hội Quốc dân** và **cử ra Uỷ ban Dân tộc giải phóng Việt Nam**, ta thấy rằng trong giai đoạn 1941-1945, Hồ Chí Minh đã **khai sinh ra nước Việt Nam Dân chủ Cộng hòa** thông qua Tổng khởi nghĩa tháng Tám.\n\nĐáp án **D** nói về việc **dự đoán chính xác thời cơ, kịp thời lãnh đạo toàn",
+      "evidence": [
+        {
+          "source": "Việt Minh",
+          "chunk_id": "Việt Minh_passage_1",
+          "score": 0.6703366639102183,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 6/Bài 16] Cùng Ban Thường vụ Ban Chấp hành Trung ương Đảng triệu tập Hội nghị toàn quốc của Đảng Cộng sản Đông Dương (từ ngày 14 đến ngày 15 – 8 – 1945) thông qua kế hoạch lãnh đạo toàn dân tổng khởi nghĩa Chủ trì Đại hội Quốc dân (ngày 16, 17 – 8 – 1945) Đại hội tán thành chủ trương tổng kh",
+          "entity_id": "Việt Minh"
+        },
+        {
+          "source": "Chủ tịch Hồ Chí Minh",
+          "chunk_id": "Chủ tịch Hồ Chí Minh_passage_0",
+          "score": 0.49530146686389276,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 3/Bài 6] Trong Cách mạng tháng Tám, trước áp lực và hoạt động khôn khéo của lực lượng cách mạng, quân Nhật ở Hà Nội và các địa phương phải án binh bất động, không can thiệp vào tiến trình khởi nghĩa Nhờ đó, khởi nghĩa diễn ra nhanh chóng và ít đổ máu Ngày 2 – 9 – 1945, Chủ tịch Hồ Chí Minh t",
+          "entity_id": "Chủ tịch Hồ Chí Minh"
+        },
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_passage_0",
+          "score": 0.49449698816984766,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Ở châu Á, chiến tranh Triều Tiên (1950 – 1953), chiến tranh xâm lược Việt Nam của thực dân Pháp (1945 – 1954) và chiến tranh xâm lược Việt Nam của đế quốc Mỹ (1954 – 1975),… là những cuộc chiến tranh cục bộ tiêu biểu Ở khu vực Trung Đông, chiến tranh Trung Đông giữa I-xra-en và các ",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        }
+      ]
+    },
+    {
+      "question": "Xu thế hoà hoãn Đông-Tây xuất hiện có tác động như thế nào đến trật tự hai cực I-an-ta?",
+      "correct_answer": "C",
+      "model_answer": "C",
+      "is_correct": true,
+      "entities_extracted": [
+        "trật tự hai cực",
+        "xu thế hoà hoãn Đông-Tây"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, xu thế hoà hoãn Đông-Tây xuất hiện từ đầu những năm 70 của thế kỷ XX đã làm cho trật tự hai cực I-an-ta **suy yếu**. Điều này được thể hiện qua việc Liên Xô và Mỹ đạt được thoả thuận bước đầu về hạn chế vũ khí chiến lược, tiến hành cuộc gặp gỡ cấp cao đầu tiên (1972), và ký kết nhiều văn kiện quan trọng. Những diễn biến này cho thấy sự suy giảm ảnh hưởng của trật tự hai cực.\n\n**Đáp án đúng: C. Làm suy yếu trật tự hai cực**.",
+      "evidence": [
+        {
+          "source": "Trật tự hai cực I-an-ta",
+          "chunk_id": "Trật tự hai cực I-an-ta_passage_0",
+          "score": 0.4261312064773344,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Trật tự hai cực I-an-ta có biểu hiện suy yếu khi xu hướng hoà hoãn bắt đầu xuất hiện từ đầu những năm 70 của thế kỉ XX, với việc Liên Xô và Mỹ đạt được thoả thuận bước đầu về hạn chế vũ khí chiến lược, tiến hành cuộc gặp gỡ cấp cao đầu tiên (1972) Chuyến thăm chính thức đầu tiên của",
+          "entity_id": "Trật tự hai cực I-an-ta"
+        },
+        {
+          "source": "Trật tự hai cực I-an-ta",
+          "chunk_id": "Trật tự hai cực I-an-ta_rel_0",
+          "score": 0.40690594174436756,
+          "provenance": "relationship_context",
+          "text_preview": "Trật tự hai cực I-an-ta [LÀ_HỆ_THỐNG_SAU] Chiến tranh thế giới thứ hai: Cuộc chiến tranh toàn cầu kết thúc vào giai đoạn cuối có những chuyển biến quan trọng trên thế giới.",
+          "entity_id": "Trật tự hai cực I-an-ta"
+        },
+        {
+          "source": "Chiến tranh thế giới thứ hai",
+          "chunk_id": "Chiến tranh thế giới thứ hai_neighbor",
+          "score": 0.4035188953153841,
+          "provenance": "graph_neighbor",
+          "text_preview": "[KẾT_THÚC_VỚI_SỰ_HÌNH_THÀNH_CỦA] Chiến tranh thế giới thứ hai: Cuộc chiến tranh toàn cầu kết thúc vào giai đoạn cuối có những chuyển biến quan trọng trên thế giới.",
+          "entity_id": "Chiến tranh thế giới thứ hai"
+        }
+      ]
+    },
+    {
+      "question": "Chủ tịch Hồ Chí Minh có đóng góp nào sau đây đối với sự nghiệp chống Mỹ, cứu nước (1954 – 1975) của nhân dân Việt Nam?",
+      "correct_answer": "A",
+      "model_answer": "B",
+      "is_correct": false,
+      "entities_extracted": [
+        "Hồ Chí Minh",
+        "Chủ tịch Hồ Chí Minh",
+        "Việt Nam",
+        "Mỹ",
+        "Anh",
+        "1954",
+        "1975",
+        "1954 – 1975"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, câu hỏi yêu cầu chọn đóng góp cụ thể của Chủ tịch Hồ Chí Minh đối với sự nghiệp chống Mỹ, cứu nước (1954 – 1975). Trong các đáp án, **đáp án B** là đúng nhất.\n\n**Phân tích:**\n\n- **Đáp án A và D** đề cập đến việc \"tranh thủ sự ủng hộ và giúp đỡ của Quốc tế Cộng sản\" hoặc \"các quốc gia dân chủ\", nhưng đây là vai trò của Đảng và Nhà nước, không phải của Chủ tịch Hồ Chí Minh cá nhân.\n\n- **Đáp án C** nói về việc \"trực tiếp chỉ đạo các cuộc tổng tiến công và nổi",
+      "evidence": [
+        {
+          "source": "Đông – Xuân 1953 – 1954",
+          "chunk_id": "Đông – Xuân 1953 – 1954_rel_summary",
+          "score": 0.5434834806504756,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Đông – Xuân 1953 – 1954]\nĐông – Xuân 1953 – 1954 --[CHUẨN_BỊ_CHO]--> Chiến dịch Điện Biên Phủ: Chiến dịch quân sự quyết định của Việt Nam trong Chiến tranh Đông Dương lần thứ nhất, kết thúc thắng\nĐông – Xuân 1953 – 1954 --[LÀM_PHÁ_SẢN]--> Kế hoạch Na-va: Kế hoạch quân sự do thực dâ",
+          "entity_id": "Đông – Xuân 1953 – 1954"
+        },
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_passage_0",
+          "score": 0.47044913660734766,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Ở châu Á, chiến tranh Triều Tiên (1950 – 1953), chiến tranh xâm lược Việt Nam của thực dân Pháp (1945 – 1954) và chiến tranh xâm lược Việt Nam của đế quốc Mỹ (1954 – 1975),… là những cuộc chiến tranh cục bộ tiêu biểu Ở khu vực Trung Đông, chiến tranh Trung Đông giữa I-xra-en và các ",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        },
+        {
+          "source": "Xan Phran-xi-xcô",
+          "chunk_id": "Xan Phran-xi-xcô_rel_1",
+          "score": 0.45371984371009305,
+          "provenance": "relationship_context",
+          "text_preview": "Hiến chương Liên hợp quốc: Văn bản pháp lý nền tảng của Liên hợp quốc, được thông qua sau quyết định tại Hội nghị I-an-ta. [ĐƯỢC_THÔNG_QUA_BỞI] Xan Phran-xi-xcô",
+          "entity_id": "Xan Phran-xi-xcô"
+        }
+      ]
+    },
+    {
+      "question": "Một trong những nội dung của quyền dân tộc cơ bản là",
+      "correct_answer": "A",
+      "model_answer": "A",
+      "is_correct": true,
+      "entities_extracted": [
+        "quyền dân tộc cơ bản"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, **quyền dân tộc cơ bản** thường được hiểu là quyền của dân tộc để tự do quyết định vận mệnh mình, bao gồm **độc lập**, **tự do**, **thống nhất** đất nước. Trong các đáp án được đưa ra, **độc lập** là nội dung cơ bản và quan trọng nhất của quyền dân tộc.\n\n**Đáp án đúng: A. độc lập**.",
+      "evidence": [
+        {
+          "source": "Đại hội Quốc dân",
+          "chunk_id": "Đại hội Quốc dân_ft_0",
+          "score": 0.25000000000000006,
+          "provenance": "fulltext_search",
+          "text_preview": "Đại hội Quốc dân: Đại hội tán thành chủ trương Tổng khởi nghĩa của Đảng, thông qua 10 chính sách của Việt Minh, cử ra Uỷ ban Dân tộc giải phóng Việt Nam do Hồ Chí Minh làm Chủ tịch.",
+          "entity_id": "Đại hội Quốc dân"
+        },
+        {
+          "source": "Uỷ ban Dân tộc giải phóng Việt Nam",
+          "chunk_id": "Uỷ ban Dân tộc giải phóng Việt Nam_ft_1",
+          "score": 0.25000000000000006,
+          "provenance": "fulltext_search",
+          "text_preview": "Uỷ ban Dân tộc giải phóng Việt Nam: Tổ chức được cử ra từ Đại hội Quốc dân, do Hồ Chí Minh làm Chủ tịch.",
+          "entity_id": "Uỷ ban Dân tộc giải phóng Việt Nam"
+        },
+        {
+          "source": "Hồ Chí Minh",
+          "chunk_id": "Hồ Chí Minh_ft_2",
+          "score": 0.25000000000000006,
+          "provenance": "fulltext_search",
+          "text_preview": "Hồ Chí Minh: Chủ tịch Uỷ ban Dân tộc giải phóng Việt Nam.",
+          "entity_id": "Hồ Chí Minh"
+        }
+      ]
+    },
+    {
+      "question": "Đầu là nguyên nhân chủ yếu làm cho số lượng thành viên của Liên hợp quốc tăng nhanh trong giai đoạn 1945 - 2000\"",
+      "correct_answer": "C",
+      "model_answer": "A",
+      "is_correct": false,
+      "entities_extracted": [
+        "Chiến tranh lạnh",
+        "Liên hợp quốc",
+        "Anh",
+        "1945",
+        "2000",
+        "1945 - 2000"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, câu hỏi yêu cầu chọn nguyên nhân **chủ yếu** làm cho số lượng thành viên của Liên hợp quốc tăng nhanh trong giai đoạn 1945 - 2000.\n\nPhân tích các đáp án:\n\n- **A. Gia nhập Liên hợp quốc để nhận được viện trợ kinh tế**: Không phải là nguyên nhân chủ yếu, mà là một động lực cá nhân hoặc quốc gia cụ thể.\n- **B. Tác động của trật tự thế giới 2 cực và Chiến tranh lạnh**: Đây là yếu tố quan trọng, nhưng không trực tiếp liên quan đến việc tăng số thành viên Liên hợp quốc.\n- **C. G",
+      "evidence": [
+        {
+          "source": "Chiến tranh thế giới mới",
+          "chunk_id": "Chiến tranh thế giới mới_passage_0",
+          "score": 0.5711471311974028,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 1] 2 Vai trò của Liên hợp quốc\na) Duy trì hoà bình, an ninh quốc tế\nTrước hết, Liên hợp quốc góp phần ngăn ngừa không để xảy ra một cuộc chiến tranh thế giới mới kể từ năm 1945 đến nay Thứ hai, Liên hợp quốc triển khai hoạt động gìn giữ hoà bình ở nhiều khu vực trên thế giới, góp phần ",
+          "entity_id": "Chiến tranh thế giới mới"
+        },
+        {
+          "source": "Hiến chương Liên hợp quốc",
+          "chunk_id": "Hiến chương Liên hợp quốc_rel_summary",
+          "score": 0.5295163570471639,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Hiến chương Liên hợp quốc]\nHiến chương Liên hợp quốc --[ĐƯỢC_THÔNG_QUA_BỞI]--> Xan Phran-xi-xcô: Thành phố tại Mỹ, nơi diễn ra hội nghị thành lập Liên hợp quốc.\nHiến chương Liên hợp quốc --[ĐƯỢC_THÔNG_QUA_BỞI]--> Liên hợp quốc: Tổ chức quốc tế được mong muốn thiết lập để bảo vệ hòa",
+          "entity_id": "Hiến chương Liên hợp quốc"
+        },
+        {
+          "source": "Hiến chương Liên hợp quốc",
+          "chunk_id": "Hiến chương Liên hợp quốc_passage_0",
+          "score": 0.4290768224170519,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 1] Từ năm 1943, các nước đã thoả thuận được một số điểm cơ bản về cơ cấu Liên hợp quốc, Đại hội đồng, thành viên thường trực Hội đồng Bảo an, Tại Hội nghị Tê-hê-ran (I-ran, từ ngày 28 – 11 đến ngày 1 – 12 – 1943), ba nước Liên Xô, Mỹ, Anh khẳng định quyết tâm thành lập Liên hợp quốc Tạ",
+          "entity_id": "Hiến chương Liên hợp quốc"
+        }
+      ]
+    },
+    {
+      "question": "Nội dung hạn chế trong nguyên tắc hoạt động của Liên hợp quốc là",
+      "correct_answer": "B",
+      "model_answer": "B",
+      "is_correct": true,
+      "entities_extracted": [
+        "Liên hợp quốc",
+        "Anh"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, nguyên tắc hoạt động của Liên hợp quốc được nêu rõ trong Hiến chương Liên hợp quốc, trong đó có nguyên tắc **sự nhất trí của năm cường quốc** (về việc sử dụng vũ lực). Cụ thể, Hiến chương Liên hợp quốc quy định rằng **không được sử dụng vũ lực để đe dọa hoặc thực hiện việc xâm lược**, và **sự nhất trí của năm cường quốc** (với tư cách là các thành viên thường trực Hội đồng Bảo an) là điều kiện để sử dụng vũ lực trong trường hợp đặc biệt.\n\nTrong các đáp án, **B. sự nhất trí của năm cường quốc** là nội dung hạn",
+      "evidence": [
+        {
+          "source": "Chiến tranh thế giới mới",
+          "chunk_id": "Chiến tranh thế giới mới_passage_0",
+          "score": 0.5586959593224028,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 1] 2 Vai trò của Liên hợp quốc\na) Duy trì hoà bình, an ninh quốc tế\nTrước hết, Liên hợp quốc góp phần ngăn ngừa không để xảy ra một cuộc chiến tranh thế giới mới kể từ năm 1945 đến nay Thứ hai, Liên hợp quốc triển khai hoạt động gìn giữ hoà bình ở nhiều khu vực trên thế giới, góp phần ",
+          "entity_id": "Chiến tranh thế giới mới"
+        },
+        {
+          "source": "Hiến chương Liên hợp quốc",
+          "chunk_id": "Hiến chương Liên hợp quốc_rel_summary",
+          "score": 0.47580541954716393,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Hiến chương Liên hợp quốc]\nHiến chương Liên hợp quốc --[ĐƯỢC_THÔNG_QUA_BỞI]--> Xan Phran-xi-xcô: Thành phố tại Mỹ, nơi diễn ra hội nghị thành lập Liên hợp quốc.\nHiến chương Liên hợp quốc --[ĐƯỢC_THÔNG_QUA_BỞI]--> Liên hợp quốc: Tổ chức quốc tế được mong muốn thiết lập để bảo vệ hòa",
+          "entity_id": "Hiến chương Liên hợp quốc"
+        },
+        {
+          "source": "Chiến tranh thế giới mới",
+          "chunk_id": "Chiến tranh thế giới mới_rel_summary",
+          "score": 0.44212987964805217,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Chiến tranh thế giới mới]\nChiến tranh thế giới mới --[ĐƯỢC_NGĂN_CHẶN_BỞI]--> Liên hợp quốc: Tổ chức quốc tế được mong muốn thiết lập để bảo vệ hòa bình, an ninh thế giới thay thế cho Hội Quốc ",
+          "entity_id": "Chiến tranh thế giới mới"
+        }
+      ]
+    },
+    {
+      "question": "Sự kiện đánh dấu Chiến tranh lạnh bao trùm thế giới là",
+      "correct_answer": "D",
+      "model_answer": "D",
+      "is_correct": true,
+      "entities_extracted": [
+        "Chiến tranh lạnh",
+        "NATO",
+        "Liên Xô",
+        "Mỹ",
+        "Anh",
+        "1959",
+        "1949",
+        "1947",
+        "1955"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, sự kiện đánh dấu Chiến tranh lạnh bao trùm thế giới là **sự ra đời của NATO và Vác-sa-va** vào năm **1955**. Đây là dấu mốc quan trọng trong việc hình thành trật tự thế giới hai cực, với NATO do Mỹ lãnh đạo và Vác-sa-va do Liên Xô lãnh đạo.\n\n**Đáp án đúng: D. sự ra đời của NATO và Vác-sa-va (1955)**.",
+      "evidence": [
+        {
+          "source": "NATO",
+          "chunk_id": "NATO_passage_0",
+          "score": 0.5334002545055366,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Trong giai đoạn này, Trật tự thế giới hai cực I-an-ta được định hình với sự thiết lập các khối quân sự đối đầu nhau, tiêu biểu là: Tổ chức Hiệp ước Bắc Đại Tây Dương (NATO) do Mỹ và các nước phương Tây thành lập năm 1949, Tổ chức Hiệp ước Vác-sa-và do Liên Xô và các nước Đông Âu thà",
+          "entity_id": "NATO"
+        },
+        {
+          "source": "Đồng khởi",
+          "chunk_id": "Đồng khởi_rel_summary",
+          "score": 0.5082991844463748,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Đồng khởi]\nĐồng khởi --[LIÊN_QUAN_ĐẾN]--> Ngô Đình Diệm: Chính trị gia Việt Nam Cộng hòa, là tổng thống đầu tiên của Việt Nam Cộng hòa.\nĐồng khởi --[LIÊN_QUAN_ĐẾN]--> miền Nam: Khu vực miền Nam Việt Nam, tiếp tục cách mạng dân tộc dân chủ nhân dân và đấu tranh thống nhất đất n\nĐồng",
+          "entity_id": "Đồng khởi"
+        },
+        {
+          "source": "NATO",
+          "chunk_id": "NATO_rel_2",
+          "score": 0.4760952036044293,
+          "provenance": "relationship_context",
+          "text_preview": "Liên Xô: Một cường quốc xã hội chủ nghĩa, một trong các nước thắng trận trong Chiến tranh thế giới thứ hai. [TỔ_CHỨC] NATO",
+          "entity_id": "NATO"
+        }
+      ]
+    },
+    {
+      "question": "Đâu là nguyên nhân đã thúc đẩy Việt Nam gia nhập tổ chức ASEAN?",
+      "correct_answer": "A",
+      "model_answer": "A",
+      "is_correct": true,
+      "entities_extracted": [
+        "ASEAN",
+        "Việt Nam",
+        "Liên Xô",
+        "Đông Nam Á"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, câu hỏi yêu cầu chọn nguyên nhân thúc đẩy Việt Nam gia nhập ASEAN. Trong đó, thông tin liên quan đến việc Việt Nam trở thành thành viên thứ bảy của ASEAN được nêu rõ trong **[Chủ đề 2/Bài 4]**, nhấn mạnh rằng sự kiện này là **dấu mốc quan trọng trong sự phát triển của ASEAN** và là **sự tăng thêm về số lượng thành viên**, đồng thời **đẩy nhanh quá trình thực hiện mục tiêu xây dựng ASEAN trở thành \"ngôi nhà chung\"** của các quốc gia Đông Nam Á.\n\nTừ đó, nguyên nhân thúc đẩy Việt Nam gia",
+      "evidence": [
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_0",
+          "score": 0.5619530667752567,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 3] **\n\n**Thứ ba là vai trò ngày càng gia tăng của các trung tâm, tổ chức kinh tế, tài chính quốc tế, khu vực **\n\nSau Chiến tranh lạnh, các tổ chức kinh tế, tài chính khu vực, liên khu vực có vai trò ngày càng lớn đối với sự phát triển của thế giới, tiêu biểu là: Nhóm 20 nền kinh tế lớn",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_rel_summary",
+          "score": 0.5319750539876925,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of ASEAN]\nASEAN --[THÔNG_QUA]--> Tầm nhìn ASEAN 2020: Văn kiện định hướng cho sự phát triển trong tương lai của ASEAN, nêu rõ việc xây dựng Cộng đồng ASEA\nASEAN --[THÔNG_QUA]--> Tầm nhìn ASEAN 2020: Tầm nhìn về sự phát triển của ASEAN vào năm 2020.\nASEAN --[THÔNG_QUA]--> Kế hoạch Tổng",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_1",
+          "score": 0.4901757230252567,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 4] 3 Thúc đẩy sự cộng tác tích cực và giúp đỡ lẫn nhau trong các vấn đề cùng quan tâm trong các lĩnh vực kinh tế, xã hội, văn hoá, khoa học – kĩ thuật và hành chính, ASEAN được thành lập nhằm mục đích chính là tăng cường hợp tác kinh tế, văn hoá,xã hội, tạo điều kiện cho các nước thành",
+          "entity_id": "ASEAN"
+        }
+      ]
+    },
+    {
+      "question": "Cộng đồng ASEAN chính thức được xây dựng từ",
+      "correct_answer": "A",
+      "model_answer": "A",
+      "is_correct": true,
+      "entities_extracted": [
+        "ASEAN",
+        "Cộng đồng ASEAN",
+        "1997",
+        "2000",
+        "1998",
+        "1999"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, Cộng đồng ASEAN chính thức được xây dựng từ **ngày 31 - 12 - 2015**, khi các nhà lãnh đạo ASEAN ký **Tuyên bố Cu-a-la Lăm-pơ**. Tuy nhiên, trong các đáp án được đưa ra, **đáp án đúng nhất** là:\n\n**A. hội nghị cấp cao ASEAN không chính thức (1997)**\n\nLý do: Tại hội nghị cấp cao ASEAN không chính thức năm 1997 tại Ma-lai-xi-a, các nước thành viên đã thông qua **Văn kiện Tầm nhìn ASEAN 2020**, chính",
+      "evidence": [
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_1",
+          "score": 0.557746615631802,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 4] 3 Thúc đẩy sự cộng tác tích cực và giúp đỡ lẫn nhau trong các vấn đề cùng quan tâm trong các lĩnh vực kinh tế, xã hội, văn hoá, khoa học – kĩ thuật và hành chính, ASEAN được thành lập nhằm mục đích chính là tăng cường hợp tác kinh tế, văn hoá,xã hội, tạo điều kiện cho các nước thành",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_0",
+          "score": 0.546027865631802,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 3] **\n\n**Thứ ba là vai trò ngày càng gia tăng của các trung tâm, tổ chức kinh tế, tài chính quốc tế, khu vực **\n\nSau Chiến tranh lạnh, các tổ chức kinh tế, tài chính khu vực, liên khu vực có vai trò ngày càng lớn đối với sự phát triển của thế giới, tiêu biểu là: Nhóm 20 nền kinh tế lớn",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "Hội nghị cấp cao ASEAN không chính thức tại Ma-lai-xi-a (1997)",
+          "chunk_id": "Hội nghị cấp cao ASEAN không chính thức tại Ma-lai-xi-a (1997)_passage_0",
+          "score": 0.5376167461022276,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 5] BÀI 5\nCỘNG ĐỒNG ASEAN:TỪ Ý TƯỞNG ĐẾN HIỆN THỰC\n\n\n1 Ý tưởng, mục tiêu và kế hoạch xây dựng Cộng đồng ASEAN\n\na) Ý tưởng xây dựng Cộng đồng ASEAN\n\nÝ tưởng xây dựng Cộng đồng ASEAN đã khởi nguồn từ khi ASEAN thành lập Tuyên bố Băng Cốc (1967) đã nêu ra mục tiêu xây dựng một cộng đồng th",
+          "entity_id": "Hội nghị cấp cao ASEAN không chính thức tại Ma-lai-xi-a (1997)"
+        }
+      ]
+    },
+    {
+      "question": "Tháng 6 năm 1925 đánh dấu sự ra đời của tổ chức cách mạng nào ở Việt Nam?",
+      "correct_answer": "D",
+      "model_answer": "D",
+      "is_correct": true,
+      "entities_extracted": [
+        "Việt Nam",
+        "Anh",
+        "Đông Dương",
+        "1925"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, câu hỏi yêu cầu xác định tổ chức cách mạng ra đời vào tháng 6 năm 1925. Trong các đáp án, **Hội Việt Nam Cách mạng Thanh niên** là tổ chức cách mạng được thành lập vào tháng 6 năm 1925, dưới sự lãnh đạo của Nguyễn Ái Quốc. Các tổ chức khác như Tân Việt Cách mạng Đảng (1927), Việt Nam Quốc dân đảng (1925 nhưng không phải tháng 6), và Đông Dương Cộng sản đảng (sau 1930) không phù hợp với thời gian đề cập.\n\n**Đáp án đúng: D. Hội Việt Nam Cách mạng Th",
+      "evidence": [
+        {
+          "source": "Đông Dương",
+          "chunk_id": "Đông Dương_passage_2",
+          "score": 0.603037982906298,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 6/Bài 15] “Xứ Đông Dương bị chủ nghĩa tư bản Pháp bóc lột để làm giàu cho một số cá mập Người ta đưa người Đông Dương vào chỗ chết trong cuộc chém giết của bọn tư bản để bảo vệ những cái gì mà chính họ cũng không hề biết Người ta đầu độc họ bằng rượu cồn và thuốc phiện",
+          "entity_id": "Đông Dương"
+        },
+        {
+          "source": "Chiến tranh thế giới mới",
+          "chunk_id": "Chiến tranh thế giới mới_rel_summary",
+          "score": 0.5178134733980522,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Chiến tranh thế giới mới]\nChiến tranh thế giới mới --[ĐƯỢC_NGĂN_CHẶN_BỞI]--> Liên hợp quốc: Tổ chức quốc tế được mong muốn thiết lập để bảo vệ hòa bình, an ninh thế giới thay thế cho Hội Quốc ",
+          "entity_id": "Chiến tranh thế giới mới"
+        },
+        {
+          "source": "Đông Dương",
+          "chunk_id": "Đông Dương_passage_0",
+          "score": 0.43116298290629795,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 3/Bài 6] CHỦ ĐỀ 3: CÁCH MẠNG THÁNG TÁM NĂM 1945,CHIẾN TRANH GIẢI PHÓNG DÂN TỘC VÀ CHIẾN TRANH BẢO VỆ TỔ QUỐC TRONG LỊCH SỬ VIỆT NAM (TỪ THÁNG 8 NĂM 1945 ĐẾN NAY)\nBÀI 6 CÁCH MẠNG THÁNG TÁM NĂM 1945\n\n1 Bối cảnh lịch sử\nChiến tranh thế giới thứ hai bước vào giai đoạn kết thúc Từ ngày 17 – 7 – 1",
+          "entity_id": "Đông Dương"
+        }
+      ]
+    },
+    {
+      "question": "Tư tưởng cốt lõi của Cương lĩnh chính trị tháng 2 năm 1930 là",
+      "correct_answer": "B",
+      "model_answer": "A",
+      "is_correct": false,
+      "entities_extracted": [
+        "Cương lĩnh chính trị",
+        "1930",
+        "tháng 2 năm 1930"
+      ],
+      "raw_response": "Dựa vào thông tin tham khảo, **Cương lĩnh chính trị đầu tiên của Đảng Cộng sản Việt Nam** được thông qua vào tháng 2 năm 1930, thể hiện tư tưởng cốt lõi của Đảng. Trong đó, **độc lập dân tộc** là mục tiêu chính, được nêu rõ là \"độc lập dân tộc, tự do, dân sinh\". Tuy nhiên, trong các đáp án, **độc lập dân tộc** là đáp án **A**, trong khi **độc lập, tự do** là đáp án **B**.\n\nTuy nhiên, theo nội dung của Cương lĩnh chính trị tháng 2 năm 1930, **độc",
+      "evidence": [
+        {
+          "source": "Uỷ ban Khởi nghĩa toàn quốc",
+          "chunk_id": "Uỷ ban Khởi nghĩa toàn quốc_ft_2",
+          "score": 0.35595703125,
+          "provenance": "fulltext_search",
+          "text_preview": "Uỷ ban Khởi nghĩa toàn quốc: Tổ chức được thành lập vào ngày 13 tháng 8 năm 1945, ban bố Quân lệnh số 1, chính thức phát động Tổng khởi nghĩa.",
+          "entity_id": "Uỷ ban Khởi nghĩa toàn quốc"
+        },
+        {
+          "source": "Tổng khởi nghĩa",
+          "chunk_id": "Tổng khởi nghĩa_ft_1",
+          "score": 0.3333740234375,
+          "provenance": "fulltext_search",
+          "text_preview": "Tổng khởi nghĩa: Cuộc đấu tranh giành chính quyền diễn ra khi thời cơ đến, được phát động chính thức vào ngày 13 tháng 8 năm 1945.",
+          "entity_id": "Tổng khởi nghĩa"
+        },
+        {
+          "source": "Nhà mồ Ba Chúc",
+          "chunk_id": "Nhà mồ Ba Chúc_ft_2",
+          "score": 0.328369140625,
+          "provenance": "fulltext_search",
+          "text_preview": "Nhà mồ Ba Chúc: Khu di tích tưởng niệm và lưu giữ hài cốt của những người dân vô tội bị quân Pôn Pốt sát hại.",
+          "entity_id": "Nhà mồ Ba Chúc"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Với vai trò là tổ chức quốc tế lớn nhất, Liên hợp quốc đã góp phần giải quyết xung đột, tranh chấp ở nhiều khu vực, khôi phục hòa bình và hỗ trợ tái thiết ở nhiều quốc gia. Từ sau năm 1945 đến nay, Liên hợp quốc góp phần thúc đẩy quá trình phi thực dân hóa, xóa bỏ chủ nghĩa thực dân trên phạm vi toàn cầu, thủ tiêu các hình thức của chế độ phân biệt chúng tộc. Liên hợp quốc xây dựng được một hệ thống các công ước, hiệp ước quốc tế về quân bị cũng như ngăn chặn phổ biến vũ khí hủy diệt hàng loạt,...” Phát biểu sau: \"ABM, SALT 1, SALT 2 là các văn kiện nhằm giải trừ vũ khí hạt nhân của Liên hợp quốc\" là đúng hay sai",
+      "correct_answer": "Đúng",
+      "model_answer": "Sai",
+      "is_correct": false,
+      "entities_extracted": [
+        "Liên hợp quốc"
+      ],
+      "raw_response": "**Sai.**\n\n**Phân tích:** ABM (Anti-Ballistic Missile), SALT 1 và SALT 2 là các hiệp ước về giới hạn vũ khí đạn đạo, được ký kết giữa Mỹ và Liên Xô trong thời kỳ Cold War, không phải là các văn kiện của Liên Hợp Quốc nhằm giải trừ vũ khí hạt nhân. Những hiệp ước này thuộc về lĩnh vực an ninh quốc tế, nhưng không phải do Liên Hợp Quốc ban hành.",
+      "evidence": [
+        {
+          "source": "Hiến chương Liên hợp quốc",
+          "chunk_id": "Hiến chương Liên hợp quốc_passage_1",
+          "score": 0.4511715489795519,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 4] 2 Thúc đẩy hoà bình và ổn định khu vực bằng việc tôn trọng công lí và nguyên tắc luật pháp trong quan hệ giữa các quốc gia trong vùng và tuân thủ các nguyên tắc của Hiến chương Liên hợp quốc 3 Thúc đẩy sự cộng tác tích cực và giúp đỡ lẫn nhau trong các vấn đề cùng quan tâm trong các",
+          "entity_id": "Hiến chương Liên hợp quốc"
+        },
+        {
+          "source": "Hiến chương Liên hợp quốc",
+          "chunk_id": "Hiến chương Liên hợp quốc_passage_0",
+          "score": 0.3553463536670519,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 1] Từ năm 1943, các nước đã thoả thuận được một số điểm cơ bản về cơ cấu Liên hợp quốc, Đại hội đồng, thành viên thường trực Hội đồng Bảo an, Tại Hội nghị Tê-hê-ran (I-ran, từ ngày 28 – 11 đến ngày 1 – 12 – 1943), ba nước Liên Xô, Mỹ, Anh khẳng định quyết tâm thành lập Liên hợp quốc Tạ",
+          "entity_id": "Hiến chương Liên hợp quốc"
+        },
+        {
+          "source": "Chương trình nghị sự 2030 vì sự phát triển bền vững",
+          "chunk_id": "Chương trình nghị sự 2030 vì sự phát triển bền vững_ft_1",
+          "score": 0.326904296875,
+          "provenance": "fulltext_search",
+          "text_preview": "Chương trình nghị sự 2030 vì sự phát triển bền vững: Chương trình nghị sự toàn cầu do Liên hợp quốc thông qua, đặt ra 17 mục tiêu phát triển bền vững đến năm 2030.",
+          "entity_id": "Chương trình nghị sự 2030 vì sự phát triển bền vững"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Nhằm hội nhập sâu rộng với khu vực và thế giới, nâng cao vị thế đất nước, Việt Nam cam kết tham gia giải quyết các vấn đề toàn cầu, thúc đẩy gắn kết cộng đồng thông qua giao lưu văn hóa. Việt Nam tham gia đàm phán quốc tế về biến đổi khí hậu, ký kết Nghị định thư Ki-ô-tô, cam kết giảm lượng phát thải khí nhà kính. Việt Nam tích cực thúc đẩy giao lưu văn hóa với các quốc gia khác thông các lễ hội văn hóa, chương trình ngoại giao văn hóa và trao đổi giáo dục.” Phát biểu sau: \"Việt Nam coi trọng việc giao lưu văn hóa để gắn kết các cộng đồng khu vực, thế giới\" là đúng hay sai",
+      "correct_answer": "Đúng",
+      "model_answer": "Sai",
+      "is_correct": false,
+      "entities_extracted": [
+        "Việt Nam"
+      ],
+      "raw_response": "**Sai.**\n\nPhát biểu \"Việt Nam coi trọng việc giao lưu văn hóa để gắn kết các cộng đồng khu vực, thế giới\" **không được hỗ trợ trực tiếp từ các nguồn tham khảo đã cung cấp**. Các nguồn thông tin chủ yếu tập trung vào các sự kiện lịch sử như chiến tranh xâm lược Việt Nam, Chiến tranh Lạnh, Kế hoạch Na-va, và không đề cập đến việc Việt Nam coi trọng giao lưu văn hóa như một phương thức gắn kết cộng đồng. Do đó, phát biểu này **không thể xác định là đúng** dựa trên thông tin được cung cấp.",
+      "evidence": [
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_passage_0",
+          "score": 0.39647452723234766,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Ở châu Á, chiến tranh Triều Tiên (1950 – 1953), chiến tranh xâm lược Việt Nam của thực dân Pháp (1945 – 1954) và chiến tranh xâm lược Việt Nam của đế quốc Mỹ (1954 – 1975),… là những cuộc chiến tranh cục bộ tiêu biểu Ở khu vực Trung Đông, chiến tranh Trung Đông giữa I-xra-en và các ",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        },
+        {
+          "source": "Kế hoạch Na-va",
+          "chunk_id": "Kế hoạch Na-va_ft_4",
+          "score": 0.377197265625,
+          "provenance": "fulltext_search",
+          "text_preview": "Kế hoạch Na-va: Kế hoạch quân sự do thực dân Pháp đề ra tháng 7-1953 với mục tiêu kết thúc chiến tranh trong danh dự.",
+          "entity_id": "Kế hoạch Na-va"
+        },
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_desc",
+          "score": 0.37035148035734766,
+          "provenance": "entity_direct",
+          "text_preview": "chiến tranh xâm lược Việt Nam của thực dân Pháp: Cuộc chiến tranh xâm lược Việt Nam của thực dân Pháp.",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “ASEAN ra đời trong bối cảnh thế giới và khu vực Đông Nam Á có những chuyển biến quan trọng. Sau Chiến tranh thế giới thứ hai, xu hướng khu vực hóa trên thế giới bắt đầu xuất hiện và ngày càng trở nên phổ biến. Ở Đông Nam Á, các nước có nhu cầu hợp tác với nhau để cùng phát triển kinh tế, xã hội, đồng thời tạo ra sức mạnh tập thể trong việc ứng phó với sự tranh giành ảnh hưởng giữa các nước lớn đối với khu vực trong bối cảnh Chiến tranh lạnh.” Phát biểu sau: \"Cùng với Liên hợp quốc, ASEAN là tổ chức hợp tác khu vực ra đời sớm và thành công\" là đúng hay sai",
+      "correct_answer": "Sai",
+      "model_answer": "Sai",
+      "is_correct": true,
+      "entities_extracted": [
+        "Liên hợp quốc",
+        "ASEAN"
+      ],
+      "raw_response": "**Sai.**\n\n**Phân tích:**  \nPhát biểu \"Cùng với Liên hợp quốc, ASEAN là tổ chức hợp tác khu vực ra đời sớm và thành công\" **sai**.  \n\n- **Liên hợp quốc** được thành lập vào **tháng 24 năm 1945** (sau Hội nghị I-an-ta năm 1945), là một tổ chức quốc tế quan trọng trên thế giới.  \n- **ASEAN** được thành lập vào **tháng 8 năm 1967**, sau khi 5 quốc gia Đông Nam Á (Indonesia, Malaysia, Philippines, Singapore, Thái Lan) ký kết **Tuyên bố ASEAN**",
+      "evidence": [
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_rel_summary",
+          "score": 0.5844652883626925,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of ASEAN]\nASEAN --[THÔNG_QUA]--> Tầm nhìn ASEAN 2020: Văn kiện định hướng cho sự phát triển trong tương lai của ASEAN, nêu rõ việc xây dựng Cộng đồng ASEA\nASEAN --[THÔNG_QUA]--> Tầm nhìn ASEAN 2020: Tầm nhìn về sự phát triển của ASEAN vào năm 2020.\nASEAN --[THÔNG_QUA]--> Kế hoạch Tổng",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_1",
+          "score": 0.5621972074002567,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 4] 3 Thúc đẩy sự cộng tác tích cực và giúp đỡ lẫn nhau trong các vấn đề cùng quan tâm trong các lĩnh vực kinh tế, xã hội, văn hoá, khoa học – kĩ thuật và hành chính, ASEAN được thành lập nhằm mục đích chính là tăng cường hợp tác kinh tế, văn hoá,xã hội, tạo điều kiện cho các nước thành",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "Hiến chương Liên hợp quốc",
+          "chunk_id": "Hiến chương Liên hợp quốc_rel_summary",
+          "score": 0.5593015132971639,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Hiến chương Liên hợp quốc]\nHiến chương Liên hợp quốc --[ĐƯỢC_THÔNG_QUA_BỞI]--> Xan Phran-xi-xcô: Thành phố tại Mỹ, nơi diễn ra hội nghị thành lập Liên hợp quốc.\nHiến chương Liên hợp quốc --[ĐƯỢC_THÔNG_QUA_BỞI]--> Liên hợp quốc: Tổ chức quốc tế được mong muốn thiết lập để bảo vệ hòa",
+          "entity_id": "Hiến chương Liên hợp quốc"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Trung ương đã quyết định cần tích cực chuẩn bị cho cuộc hợp Hội nghị toàn quốc của Đảng và Quốc dân đại hội đại biểu. Bác giục chuẩn bị cho kịp họp hai hội nghị quan trọng này từ tháng 7... Giữa lúc công việc bộn bề như thế, Bác bỗng bị mệt... Lúc nào tỉnh, Bác chỉ nói chuyện tình hình: “Lúc này thời cơ thuận lợi đã tới, dù hy sinh tới đâu, đù phải đốt cháy cả dãy Trường Sơn cũng phải kiên quyết giành cho được độc lập.” Phát biểu sau: \"Hội nghị toàn quốc của Đảng đã thông qua quyết định phát động cao trào kháng Nhật\" là đúng hay sai",
+      "correct_answer": "Sai",
+      "model_answer": "Sai",
+      "is_correct": true,
+      "entities_extracted": [],
+      "raw_response": "**Sai.**\n\n**Phân tích:**  \nTheo thông tin tham khảo, Hội nghị toàn quốc của Đảng đã thông qua kế hoạch lãnh đạo toàn dân Tổng khởi nghĩa và quyết định các vấn đề quan trọng về chính sách đối nội, đối ngoại. Tuy nhiên, phát biểu nói rằng Hội nghị đã \"phát động cao trào kháng Nhật\" là **không chính xác**. Cao trào kháng Nhật xảy ra sau này, cụ thể là vào năm 1945, sau khi Nhật Bản đầu hàng. Hội nghị toàn quốc của Đảng diễn ra trước đó, vào năm 1941, khi Việt Minh còn đang chuẩn bị cho cuộc khởi nghĩa. Do đó, phát biểu",
+      "evidence": [
+        {
+          "source": "Tổng thống Mỹ Ních-xơn",
+          "chunk_id": "Tổng thống Mỹ Ních-xơn_ft_0",
+          "score": 0.25000000000000006,
+          "provenance": "fulltext_search",
+          "text_preview": "Tổng thống Mỹ Ních-xơn: Richard Nixon, Tổng thống thứ 37 của Hoa Kỳ, người đã có chuyến thăm chính thức tới Liên Xô.",
+          "entity_id": "Tổng thống Mỹ Ních-xơn"
+        },
+        {
+          "source": "chủ nghĩa xã hội",
+          "chunk_id": "chủ nghĩa xã hội_ft_1",
+          "score": 0.25000000000000006,
+          "provenance": "fulltext_search",
+          "text_preview": "chủ nghĩa xã hội: Chế độ chính trị - xã hội mà Việt Nam hướng tới sau Cách mạng tháng Tám.",
+          "entity_id": "chủ nghĩa xã hội"
+        },
+        {
+          "source": "Chương trình cứu nước của Việt Minh",
+          "chunk_id": "Chương trình cứu nước của Việt Minh_ft_2",
+          "score": 0.25000000000000006,
+          "provenance": "fulltext_search",
+          "text_preview": "Chương trình cứu nước của Việt Minh: Chương trình hướng tới mục tiêu độc lập dân tộc và hạnh phúc, tự do cho nhân dân.",
+          "entity_id": "Chương trình cứu nước của Việt Minh"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Sau khi đất nước thống nhất, năm 1976, Quốc hội khóa VI đã quyết định đổi tên thành phố Sài Gòn là Thành phố Hồ Chí Minh. Trong nghị quyết về việc đặt tên, Quốc hội đã nêu rõ: “Xét rằng, nhân dân thành phố Sài Gòn - Gia Định luôn luôn tỏ lòng kính yêu vô hạn đối với Chủ tịch Hồ Chí Minh và tha thiết với việc thành phố mang tên Người. Chủ tịch Hồ Chí Minh là hiện thân của sự kế thừa, kết tinh, phát triển và nâng cao các giá trị văn hóa dân tộc và nhân loại. Vì vậy, Chủ tịch Hồ Chí Minh đã trở thành nguồn cảm hứng sáng tác, đưa đến sự ra đời của nhiều tác phẩm âm nhạc, thơ ca, kịch, nhiêp ảnh, hội hoạ,... ở trong nước và trên thế giới. Phát biểu sau: \"Chủ tịch Hồ Chí Minh đã có nhiều sáng tác nghệ thuật ở trong nước và trên thế giới\" là đúng hay sai",
+      "correct_answer": "Sai",
+      "model_answer": "Sai",
+      "is_correct": true,
+      "entities_extracted": [
+        "Hồ Chí Minh",
+        "Chủ tịch Hồ Chí Minh"
+      ],
+      "raw_response": "**Sai.**\n\n**Phân tích:**  \nPhát biểu \"Chủ tịch Hồ Chí Minh đã có nhiều sáng tác nghệ thuật ở trong nước và trên thế giới\" **không đúng**. Dù Chủ tịch Hồ Chí Minh là người có nhiều đóng góp trong lĩnh vực văn học, báo chí, và tư tưởng, nhưng **ông không được biết đến như một nhà sáng tác nghệ thuật** (như thơ ca, nhạc, kịch...) nổi tiếng. Các tác phẩm tiêu biểu của ông chủ yếu là văn bản chính trị, tuyên truyền, văn kiện lịch sử (như Tuyên ngôn Độc lập, Bài diễn văn tại Đại hội II Đảng, v.v.), chứ không phải là các tác phẩm nghệ thuật truyền",
+      "evidence": [
+        {
+          "source": "Chủ tịch Hồ Chí Minh",
+          "chunk_id": "Chủ tịch Hồ Chí Minh_rel_summary",
+          "score": 0.5230019790541696,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Chủ tịch Hồ Chí Minh]\nChủ tịch Hồ Chí Minh --[ĐỀ_RA]--> kháng chiến toàn quốc chống thực dân Pháp: Cuộc chiến tranh kéo dài từ năm 1946 đến 1954 giữa Việt Nam và thực dân Pháp.\nChủ tịch Hồ Chí Minh --[ĐỀ_RA]--> kháng chiến toàn quốc chống thực dân Pháp: Đường lối và phương châm khá",
+          "entity_id": "Chủ tịch Hồ Chí Minh"
+        },
+        {
+          "source": "Đại hội Quốc dân",
+          "chunk_id": "Đại hội Quốc dân_rel_summary",
+          "score": 0.4080983505470507,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Đại hội Quốc dân]\nĐại hội Quốc dân --[THÔNG_QUA]--> Việt Minh: Tổ chức thông qua 10 chính sách và có vai trò quan trọng trong Cách mạng tháng Tám.\nĐại hội Quốc dân --[DIỄN_RA_TẠI]--> Tân Trào: Địa điểm diễn ra Hội nghị toàn quốc của Đảng từ ngày 14 đến 15 tháng 8 năm 1945.\nĐại hội ",
+          "entity_id": "Đại hội Quốc dân"
+        },
+        {
+          "source": "Chủ tịch Hồ Chí Minh",
+          "chunk_id": "Chủ tịch Hồ Chí Minh_rel_1",
+          "score": 0.4044052359911142,
+          "provenance": "relationship_context",
+          "text_preview": "Chủ tịch Hồ Chí Minh [ĐỀ_RA] kháng chiến toàn quốc chống thực dân Pháp: Đường lối và phương châm kháng chiến của Việt Nam giai đoạn 1946-1954.",
+          "entity_id": "Chủ tịch Hồ Chí Minh"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Việt Nam phối hợp với các nước xã hội chủ nghĩa trên diễn đàn quốc tế và đẩy mạnh hợp tác toàn diện, nhất là lĩnh vực kinh tế. Việt Nam luôn coi trọng quan hệ hợp tác chặt chẽ với Liên Xô và các nước xã hội chủ nghĩa. Nhiều hiệp ước trên các lĩnh vực chính trị, kinh tế, văn hóa và khoa học kỹ thuật đã được ký kết. Năm 1978, Việt Nam gia nhập Hội đồng tương trợ kinh tế (SBV). Đối với Trung Quốc, Việt Nam tiến hành đàm phán để giải quyết các xung đột về biên giới, lãnh thổ, lãnh hải, kiên quyết bảo vệ toàn vẹn chủ quyền quốc gia.” Phát biểu sau: \"Năm 1978, Việt Nam đã xây dựng quan hệ hợp tác toàn diện với Liên Xô, Trung Quốc\" là đúng hay sai",
+      "correct_answer": "Sai",
+      "model_answer": "Sai",
+      "is_correct": true,
+      "entities_extracted": [
+        "Việt Nam",
+        "Liên Xô",
+        "Trung Quốc",
+        "1978"
+      ],
+      "raw_response": "**Sai.**\n\nLý do: Phát biểu nói rằng \"Năm 1978, Việt Nam đã xây dựng quan hệ hợp tác toàn diện với Liên Xô, Trung Quốc\" **không chính xác**. Dựa vào thông tin tham khảo, năm 1978 là năm xảy ra **cuộc tấn công và đấu tranh bảo vệ Tổ quốc** ở vùng biên giới Tây Nam Việt Nam với Campuchia, không có thông tin nào cho thấy Việt Nam đã xây dựng quan hệ hợp tác toàn diện với Liên Xô hay Trung Quốc vào năm đó. Ngoài ra, trong bối cảnh Chiến tranh Lạnh, Việt Nam có xu hướng gần gũi với",
+      "evidence": [
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_passage_0",
+          "score": 0.41356437098234766,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Ở châu Á, chiến tranh Triều Tiên (1950 – 1953), chiến tranh xâm lược Việt Nam của thực dân Pháp (1945 – 1954) và chiến tranh xâm lược Việt Nam của đế quốc Mỹ (1954 – 1975),… là những cuộc chiến tranh cục bộ tiêu biểu Ở khu vực Trung Đông, chiến tranh Trung Đông giữa I-xra-en và các ",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        },
+        {
+          "source": "Trung Hoa Dân quốc",
+          "chunk_id": "Trung Hoa Dân quốc_rel_summary",
+          "score": 0.40308277270480225,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Trung Hoa Dân quốc]\nTrung Hoa Dân quốc --[TỒN_TẠI_TRONG]--> Chiến tranh thế giới thứ hai: Cuộc chiến tranh toàn cầu kết thúc vào giai đoạn cuối có những chuyển biến quan trọng trên thế giới.\nTrung Hoa Dân quốc --[THAM_GIA]--> Tuyên bố về Liên hợp quốc: Văn kiện lịch sử với sự tham ",
+          "entity_id": "Trung Hoa Dân quốc"
+        },
+        {
+          "source": "ngày 5 tháng 1 năm 1978",
+          "chunk_id": "ngày 5 tháng 1 năm 1978_rel_summary",
+          "score": 0.4028111898706337,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of ngày 5 tháng 1 năm 1978]\nngày 5 tháng 1 năm 1978 --[LIÊN_QUAN_ĐẾN]--> vùng biên giới Tây Nam: Khu vực biên giới giữa Việt Nam và Campuchia, nơi diễn ra các cuộc tấn công và đấu tranh bảo vệ Tổ q",
+          "entity_id": "ngày 5 tháng 1 năm 1978"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Đầu thế kỷ XX, trong công cuộc đấu tranh vì mục tiêu giải phóng dân tộc, một số nhà yêu nước Việt Nam đã có những hoạt động đối ngoại bước đầu, tiêu biểu là Phan Bội Châu, Phan Châu Trinh, Nguyễn Ái Quốc. Phát biểu sau: \"Nguyễn Ái Quốc đã lập Hội Liên hiệp thuộc địa, gắn cách mạng Việt Nam với thế giới\" là đúng hay sai",
+      "correct_answer": "Đúng",
+      "model_answer": "Sai",
+      "is_correct": false,
+      "entities_extracted": [
+        "Nguyễn Ái Quốc",
+        "Việt Nam"
+      ],
+      "raw_response": "**Sai.**\n\n**Phân tích:** Phát biểu \"Nguyễn Ái Quốc đã lập Hội Liên hiệp thuộc địa, gắn cách mạng Việt Nam với thế giới\" **sai** vì Hội Liên hiệp thuộc địa được thành lập vào năm 1920, do **Nguyễn Ái Quốc** (tức Nguyễn Tất Thành) thành lập, nhưng **không phải là Hội Liên hiệp thuộc địa** mà là **Hội Liên hiệp thuộc địa**. Tuy nhiên, phát biểu trên **không đề cập đến việc lập Hội Liên hiệp thuộc địa**, mà chỉ nói đến việc \"gắn cách mạng Việt Nam với thế giới\", điều này **không chính xác** vì việc gắn cách mạng Việt",
+      "evidence": [
+        {
+          "source": "Nguyễn Sinh Cung",
+          "chunk_id": "Nguyễn Sinh Cung_rel_1",
+          "score": 0.45177462796562573,
+          "provenance": "relationship_context",
+          "text_preview": "Nguyễn Sinh Sắc: Cha của Chủ tịch Hồ Chí Minh, một nhà nho mẫu mực. [LÀ_CHA_CỦA] Nguyễn Sinh Cung",
+          "entity_id": "Nguyễn Sinh Cung"
+        },
+        {
+          "source": "Nguyễn Sinh Cung",
+          "chunk_id": "Nguyễn Sinh Cung_passage_0",
+          "score": 0.4475796130820322,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 6/Bài 15] Trước lúc 5 tuổi, Nguyễn Sinh Cung sinh sống tại quê nhà Năm 1895, Nguyễn Sinh Cung theo cha mẹ vào sinh sống ở Huế Sau khi mẹ qua đời (1901), Nguyễn Sinh Cung theo cha về quê, lấy tên mới là Nguyễn Tất Thành, được theo học những thầy giáo giỏi ở địa phương [...] Trước lúc 5 tuổi, ",
+          "entity_id": "Nguyễn Sinh Cung"
+        },
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_passage_0",
+          "score": 0.42699210535734766,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Ở châu Á, chiến tranh Triều Tiên (1950 – 1953), chiến tranh xâm lược Việt Nam của thực dân Pháp (1945 – 1954) và chiến tranh xâm lược Việt Nam của đế quốc Mỹ (1954 – 1975),… là những cuộc chiến tranh cục bộ tiêu biểu Ở khu vực Trung Đông, chiến tranh Trung Đông giữa I-xra-en và các ",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Sau Chiến tranh thế giới thứ hai, xu hướng khu vực hóa trên thế giới bắt đầu xuất hiện và ngày càng trở nên phổ biến. Ở Đông Nam Á, các nước có nhu cầu hợp tác với nhau để cùng phát triển kinh tế, xã hội, đồng thời tạo ra sức mạnh tập thể trong việc ứng phó với sự tranh giành ảnh hưởng giữa các nước lớn đối với khu vực trong bối cảnh Chiến tranh lạnh. Đầu những năm 60 của thế kỷ XX, một số tổ chức khu vực được thành lập như: Hiệp hội Đông Nam Á (1961) gồm Ma-lai-xi-a, Phi-líp-pin và Thái Lan: Tổ chức MAPHILINDO (1963) gồm Ma-lai-xi-a, Phi-líp-pin, In-đô-nê-xi-a. Tuy nhiên, các tổ chức này chỉ tồn tại trong một thời gian ngắn, do những bất đồng trong quan hệ song phương giữa một số nước thành viên. Vào nửa sau những năm 60, các nước Đông Nam Á ngày càng nhận thức rõ về sự cần thiết của việc hợp tác khu vực, đồng thời quan hệ giữa các nước có những diễn biến thuận lợi cho việc thành lập một tổ chức khu vực.” Phát biểu sau: \"ASEAN thành lập trong bối cảnh các nước lớn tăng cường ảnh hưởng vào khu vực\" là đúng hay sai",
+      "correct_answer": "Sai",
+      "model_answer": "Đúng",
+      "is_correct": false,
+      "entities_extracted": [
+        "ASEAN"
+      ],
+      "raw_response": "**Đúng.**\n\n**Phân tích:**  \nPhát biểu \"ASEAN thành lập trong bối cảnh các nước lớn tăng cường ảnh hưởng vào khu vực\" là **đúng**.  \n\nTheo thông tin tham khảo, sau Chiến tranh lạnh, các tổ chức kinh tế, tài chính khu vực, liên khu vực như G20, ASEM đã có vai trò ngày càng lớn trong quan hệ quốc tế. Điều này cho thấy **các nước lớn** (như Mỹ, Trung Quốc) đang tăng cường ảnh hưởng vào khu vực Đông Nam Á. ASEAN được thành lập vào năm 1967, trong bối cảnh khu vực này cần một tổ chức để đối phó với",
+      "evidence": [
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_3",
+          "score": 0.6513085355252567,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 5] ”\n\nc) Kế hoạch xây dựng Cộng đồng ASEAN\n\nĐể thực hiện mục tiêu xây dựng Cộng đồng ASEAN, các nước thành viên đã thông qua kế hoạch triển khai cụ thể trên ba trụ cột: chính trị – an ninh, kinh tế,văn hoá – xã hội Kế hoạch được nêu rõ trong văn bản \"Lộ trình xây dựng Cộng đồng ASEAN (",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_0",
+          "score": 0.4667382230252567,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 3] **\n\n**Thứ ba là vai trò ngày càng gia tăng của các trung tâm, tổ chức kinh tế, tài chính quốc tế, khu vực **\n\nSau Chiến tranh lạnh, các tổ chức kinh tế, tài chính khu vực, liên khu vực có vai trò ngày càng lớn đối với sự phát triển của thế giới, tiêu biểu là: Nhóm 20 nền kinh tế lớn",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_2",
+          "score": 0.4599022855252567,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 4] **2015 đến nay:** Thành lập và xây dựng Cộng đồng ASEAN với ba trụ cột: chính trị – an ninh, kinh tế, văn hoá – xã hội; đẩy mạnh hợp tác bên trong giữa ASEAN và bên ngoài ASEAN với các đối tác đối thoại, nâng cao uy tín, vai trò của ASEAN ở khu vực và trên thế giới Ra Tuyên bố thành",
+          "entity_id": "ASEAN"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Chính sách ngoại giao của ta biểu hiện bản chất hòa bình của chế độ ta... Chúng ta phải có kế hoạch thiết thực để chấp hành chính sách ngoại giao đó làm cho vị trí của nước ta càng được nâng cao hơn nữa trên thế giới, làm cho Nhân dân ta có thể hoàn thành nhanh chóng sự nghiệp xây dựng một nước Việt Nam hòa bình, thống nhất, độc lập, dân chủ và giàu mạnh.” Phát biểu sau: \"Tư liệu trên nói về quan điểm nhất quán của chính sách ngoại giao Việt Nam\" là đúng hay sai",
+      "correct_answer": "Đúng",
+      "model_answer": "Sai",
+      "is_correct": false,
+      "entities_extracted": [
+        "Việt Nam"
+      ],
+      "raw_response": "**Sai.**\n\nPhát biểu nói rằng \"Tư liệu trên nói về quan điểm nhất quán của chính sách ngoại giao Việt Nam\" là **sai**. Các nguồn tư liệu cung cấp chủ yếu là thông tin về các cuộc chiến tranh (chiến tranh xâm lược Việt Nam của Pháp, Mỹ; chiến tranh Triều Tiên, chiến tranh lạnh, v.v.), các sự kiện lịch sử như Đại hội Quốc dân, Tân Trào, và một số tổ chức như Uỷ ban Dân tộc giải phóng Việt Nam. Tuy nhiên, không có thông tin nào trong các nguồn này phản ánh **quan điểm nhất quán của chính sách ngoại giao Việt Nam**. Nội dung chủ",
+      "evidence": [
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_passage_0",
+          "score": 0.44969718348234766,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Ở châu Á, chiến tranh Triều Tiên (1950 – 1953), chiến tranh xâm lược Việt Nam của thực dân Pháp (1945 – 1954) và chiến tranh xâm lược Việt Nam của đế quốc Mỹ (1954 – 1975),… là những cuộc chiến tranh cục bộ tiêu biểu Ở khu vực Trung Đông, chiến tranh Trung Đông giữa I-xra-en và các ",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        },
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_desc",
+          "score": 0.40318839441984766,
+          "provenance": "entity_direct",
+          "text_preview": "chiến tranh xâm lược Việt Nam của thực dân Pháp: Cuộc chiến tranh xâm lược Việt Nam của thực dân Pháp.",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        },
+        {
+          "source": "Uỷ ban Dân tộc giải phóng Việt Nam",
+          "chunk_id": "Uỷ ban Dân tộc giải phóng Việt Nam_ft_1",
+          "score": 0.384521484375,
+          "provenance": "fulltext_search",
+          "text_preview": "Uỷ ban Dân tộc giải phóng Việt Nam: Tổ chức được cử ra từ Đại hội Quốc dân, do Hồ Chí Minh làm Chủ tịch.",
+          "entity_id": "Uỷ ban Dân tộc giải phóng Việt Nam"
+        }
+      ]
+    },
+    {
+      "question": "Cho bảng niên biểu về một số sự kiện tiêu biểu liên quan đến chủ tịch Hồ Chí Minh với cuộc kháng chiến chống thực dân Pháp (1945- 1954), chọn đúng hoặc sai ở mỗi ý a,b,c,d | Thời gian | Nội dung sự kiện | | :--- | :--- | | 28- 2- 1946 | Theo Hiệp ước Hoa- Pháp, quân Pháp ra miền Bắc thay quân Trung Hoa Dân quốc làm nhiệm vụ giải giáp quân đội Nhật Bản | | 3- 3- 1946 | Cuộc họp của Ban thường vụ Trung ương Đảng Cộng sản Đông Dương, do Chủ tịch Hồ Chí Minh chủ trì, đã chọn giải pháp “hòa để tiến” | | 6- 3- 1946 | Tại Hà Nội, Thay mặt Chính phủ Việt Nam Dân chủ Cộng hòa, Chủ tịch Hồ Chí Minh kí với G. Xanh-tơ-ni – đại diện Chính phủ Pháp bản Hiệp định Sơ bộ. | | 14- 9- 1946 | Chủ tịch Hồ Chí Minh kí với đại diện Chính phủ Pháp bản Tạm ước, nhân nhượng cho Pháp một số quyền lợi về kinh tế, văn hóa ở Việt Nam. | | 19- 12- 1946 | Ra Lời kêu gọi toàn quốc kháng chiến chống thực dân Pháp | | 1947 - 1954 | Tham gia họp bàn và chỉ đạo nhiều chiến dịch quan trọng trong cuộc kháng chiến chống thực dân Pháp. | *a. Những hoạt động của Chủ tịch Hồ Chí Minh trong việc giải quyết quan hệ Việt- Pháp (từ đầu tháng 3 đến trước 19- 12-1946) đã tránh được cuộc xung đột quân sự với Pháp Phát biểu sau: \"Sự kiện Chủ tịch Hồ Chí Minh ra Lời kêu gọi toàn quốc kháng chiến đã kết thúc giai đoạn “hòa hoãn tạm thời” giữa nhân dân Việt Nam với thực dân Pháp\" là đúng hay sai",
+      "correct_answer": "Đúng",
+      "model_answer": "Sai",
+      "is_correct": false,
+      "entities_extracted": [
+        "Hồ Chí Minh",
+        "Chủ tịch Hồ Chí Minh",
+        "Việt Nam",
+        "Pháp"
+      ],
+      "raw_response": "**Sai.**\n\n**Phân tích:**  \nPhát biểu nói rằng \"Sự kiện Chủ tịch Hồ Chí Minh ra Lời kêu gọi toàn quốc kháng chiến đã kết thúc giai đoạn 'hòa hoãn tạm thời' giữa nhân dân Việt Nam với thực dân Pháp\" là **sai**.  \n\nLý do:  \n- **Lời kêu gọi toàn quốc kháng chiến** do Chủ tịch Hồ Chí Minh phát động vào **ngày 20-12-1946** (sau khi Pháp xâm lược Việt Nam sau chiến thắng Cách mạng tháng Tám 1945), là sự kiện **khởi đầu cho cuộc kháng chiến chống Pháp**.  \n- Gia",
+      "evidence": [
+        {
+          "source": "Chủ tịch Hồ Chí Minh",
+          "chunk_id": "Chủ tịch Hồ Chí Minh_passage_0",
+          "score": 0.5455944356138928,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 3/Bài 6] Trong Cách mạng tháng Tám, trước áp lực và hoạt động khôn khéo của lực lượng cách mạng, quân Nhật ở Hà Nội và các địa phương phải án binh bất động, không can thiệp vào tiến trình khởi nghĩa Nhờ đó, khởi nghĩa diễn ra nhanh chóng và ít đổ máu Ngày 2 – 9 – 1945, Chủ tịch Hồ Chí Minh t",
+          "entity_id": "Chủ tịch Hồ Chí Minh"
+        },
+        {
+          "source": "Hiến chương Liên hợp quốc",
+          "chunk_id": "Hiến chương Liên hợp quốc_passage_1",
+          "score": 0.4404572904830969,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 4] 2 Thúc đẩy hoà bình và ổn định khu vực bằng việc tôn trọng công lí và nguyên tắc luật pháp trong quan hệ giữa các quốc gia trong vùng và tuân thủ các nguyên tắc của Hiến chương Liên hợp quốc 3 Thúc đẩy sự cộng tác tích cực và giúp đỡ lẫn nhau trong các vấn đề cùng quan tâm trong các",
+          "entity_id": "Hiến chương Liên hợp quốc"
+        },
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_passage_0",
+          "score": 0.42088858973234766,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Ở châu Á, chiến tranh Triều Tiên (1950 – 1953), chiến tranh xâm lược Việt Nam của thực dân Pháp (1945 – 1954) và chiến tranh xâm lược Việt Nam của đế quốc Mỹ (1954 – 1975),… là những cuộc chiến tranh cục bộ tiêu biểu Ở khu vực Trung Đông, chiến tranh Trung Đông giữa I-xra-en và các ",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Cộng đồng Kinh tế ASEAN (AFC) hướng đến tạo dựng một khu vực kinh tế ASEAN ổn định, thịnh vượng và cạnh tranh cao, có sự di chuyển tự do của hàng hóa, dịch vụ và đầu tư, di chuyển tự do hơn của các luồng vốn, phát triển kinh tế đồng đều, giảm nghèo, thu hẹp khoảng cách về kinh tế - xã hội. Nội dung chính của AFC bao gồm: tạo ra một thị trường chung và cơ sở sản xuất thống nhất; xây dựng một khu vực có sức cạnh tranh, phát triển đồng đều; đưa Cộng đồng hội nhập vào nền kinh tế toàn cầu.” Phát biểu sau: \"Để xây dựng AFC, các nước ASEAN cần nhất thể hóa về kinh tế, tài chính\" là đúng hay sai",
+      "correct_answer": "Sai",
+      "model_answer": "Sai",
+      "is_correct": true,
+      "entities_extracted": [
+        "ASEAN"
+      ],
+      "raw_response": "**Sai.**\n\n**Phân tích:** Phát biểu nói rằng \"để xây dựng AFC, các nước ASEAN cần nhất thể hóa về kinh tế, tài chính\" là **sai**. \n\n- **AFC** (ASEAN Free Trade Area) là một tổ chức kinh tế khu vực do ASEAN thành lập, không phải là \"Cộng đồng ASEAN\" hay \"Cộng đồng Kinh tế ASEAN\" (AEC). \n- **Cộng đồng ASEAN** được thành lập vào năm 2015, với ba trụ cột: chính trị – an ninh, kinh tế, văn hóa – xã hội. \n- **AFC** là một phần của quá",
+      "evidence": [
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_rel_summary",
+          "score": 0.5266039602376925,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of ASEAN]\nASEAN --[THÔNG_QUA]--> Tầm nhìn ASEAN 2020: Văn kiện định hướng cho sự phát triển trong tương lai của ASEAN, nêu rõ việc xây dựng Cộng đồng ASEA\nASEAN --[THÔNG_QUA]--> Tầm nhìn ASEAN 2020: Tầm nhìn về sự phát triển của ASEAN vào năm 2020.\nASEAN --[THÔNG_QUA]--> Kế hoạch Tổng",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_desc",
+          "score": 0.5260643949002567,
+          "provenance": "entity_direct",
+          "text_preview": "ASEAN: Hiệp hội các quốc gia Đông Nam Á, một tổ chức khu vực thúc đẩy hợp tác kinh tế, chính trị, an ninh và văn hóa.",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_2",
+          "score": 0.5072655667752567,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 4] **2015 đến nay:** Thành lập và xây dựng Cộng đồng ASEAN với ba trụ cột: chính trị – an ninh, kinh tế, văn hoá – xã hội; đẩy mạnh hợp tác bên trong giữa ASEAN và bên ngoài ASEAN với các đối tác đối thoại, nâng cao uy tín, vai trò của ASEAN ở khu vực và trên thế giới Ra Tuyên bố thành",
+          "entity_id": "ASEAN"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Ngày 1-1-1942, đại diện 26 nước chống phát xít đã ký bản tuyên bố về Liên hợp quốc, kết thành lập một tổ chức quốc tế vì hoà bình và an ninh sau chiến tranh... Tại hội nghị Tê-hê-ran (Iran, từ 28-11 đến 1-12-1943), ba nước Liên Xô, Mỹ, Anh khẳng định quyết tâm thành lập Liên hợp quốc. Tại hội nghị I-an-ta (Liên Xô, tháng 2- 1945), ba nước Liên Xô, Mỹ, Anh đã ra quyết định về việc thành lập Liên hợp quốc và đồng ý triệu tập hội nghị để thông qua Hiến chương Liên hợp quốc. Từ ngày 25-4-1945 đến ngày 26-6-1945, một hội nghị quốc tế được tổ chức tại Xan Phran-xi-xcô (Mỹ) với sự tham gia của đại biểu 50 nước đã thông qua bản Hiến chương Liên hợp quốc.” Phát biểu sau: \"Tại hội nghị Xan Phran-xi-xcô, Hiến chương Liên Hợp quốc chính thức có hiệu lực\" là đúng hay sai",
+      "correct_answer": "Sai",
+      "model_answer": "Sai",
+      "is_correct": true,
+      "entities_extracted": [
+        "Liên hợp quốc",
+        "Hiến chương Liên hợp quốc",
+        "Hội nghị Xan Phran-xi-xcô"
+      ],
+      "raw_response": "**Sai.**\n\nGiải thích: Hiến chương Liên Hợp quốc được thông qua tại Hội nghị I-an-ta (tháng 2 – 1945), và chính thức có hiệu lực sau khi được thông qua tại Hội nghị Xan Phran-xi-xcô (tháng 24 – 1945). Tuy nhiên, phát biểu nói \"tại hội nghị Xan Phran-xi-xcô, Hiến chương Liên Hợp quốc chính thức có hiệu lực\" là **sai** vì Hiến chương đã được thông qua tại Hội nghị I-an-ta và có hiệu lực từ đó. Hội nghị Xan Phran-xi-xcô là",
+      "evidence": [
+        {
+          "source": "Hiến chương Liên hợp quốc",
+          "chunk_id": "Hiến chương Liên hợp quốc_passage_1",
+          "score": 0.45199296329645255,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 4] 2 Thúc đẩy hoà bình và ổn định khu vực bằng việc tôn trọng công lí và nguyên tắc luật pháp trong quan hệ giữa các quốc gia trong vùng và tuân thủ các nguyên tắc của Hiến chương Liên hợp quốc 3 Thúc đẩy sự cộng tác tích cực và giúp đỡ lẫn nhau trong các vấn đề cùng quan tâm trong các",
+          "entity_id": "Hiến chương Liên hợp quốc"
+        },
+        {
+          "source": "Hiến chương Liên hợp quốc",
+          "chunk_id": "Hiến chương Liên hợp quốc_passage_0",
+          "score": 0.44613358829645255,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 1] Từ năm 1943, các nước đã thoả thuận được một số điểm cơ bản về cơ cấu Liên hợp quốc, Đại hội đồng, thành viên thường trực Hội đồng Bảo an, Tại Hội nghị Tê-hê-ran (I-ran, từ ngày 28 – 11 đến ngày 1 – 12 – 1943), ba nước Liên Xô, Mỹ, Anh khẳng định quyết tâm thành lập Liên hợp quốc Tạ",
+          "entity_id": "Hiến chương Liên hợp quốc"
+        },
+        {
+          "source": "Hiến chương Liên hợp quốc",
+          "chunk_id": "Hiến chương Liên hợp quốc_desc",
+          "score": 0.41500565860895255,
+          "provenance": "entity_direct",
+          "text_preview": "Hiến chương Liên hợp quốc: Văn bản pháp lý nền tảng của Liên hợp quốc, được thông qua sau quyết định tại Hội nghị I-an-ta.",
+          "entity_id": "Hiến chương Liên hợp quốc"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: Tư liệu 1: “Bài học của thời kỳ Chiến tranh lạnh đã chứng tỏ phương thức quan hệ quốc tế lấy đối đầu chính trị - quân sự làm chủ yếu không còn phù hợp, phải chịu nhiều tổn thất hoặc thất bại như hai nước Xô - Mỹ và một bị thương, một bị mất. Trong khi đó, phương thức lấy hợp tác và cạnh tranh về kinh tế - chính trị là chính lại thu được nhiều tiến bộ, kết quả như các nước Đức, Nhật và NICs. Sự hưng thịnh hay suy vong của một quốc gia quyết định bởi sức mạnh tổng hợp của quốc gia đó, mà chủ yếu là thực lực kinh tế và khoa học - kỹ thuật.” Tư liệu 2: “Có nhiều tên gọi về trật tự thế giới mới sau Chiến tranh lạnh như trật tự đa cực, trật tự nhất siêu, nhiều cường; nhiều trung tâm,... Dù có những cách gọi khác nhau nhưng nhìn chung đều chỉ một trật tự thế giới mà ở đó các nước lớn, các trung tâm kinh tế, tài chính lớn của thế giới như Mỹ, Liên minh châu u, Nhật Bản, Trung Quốc, Liên bang Nga,... có vị trí, vai trò quan trọng đối với thế giới.” Phát biểu sau: \"Trong trật tự đa cực, các nước lớn, các liên minh lớn có vai trò chi phối toàn bộ thế giới\" là đúng hay sai",
+      "correct_answer": "Sai",
+      "model_answer": "Sai",
+      "is_correct": true,
+      "entities_extracted": [],
+      "raw_response": "**Sai.**\n\nPhát biểu trên nói rằng trong trật tự đa cực, các nước lớn và liên minh lớn có vai trò chi phối toàn bộ thế giới. Tuy nhiên, theo định nghĩa, **trật tự đa cực** là một trật tự thế giới trong đó **nhiều quốc gia hoặc liên minh có ảnh hưởng đáng kể**, chứ không phải một quốc gia hay liên minh duy nhất chi phối toàn bộ. Do đó, phát biểu này **sai** vì nó mô tả trật tự hai cực (đối đầu giữa hai siêu cường) thay vì trật tự đa cực.",
+      "evidence": [
+        {
+          "source": "Cộng đồng Văn hoá – Xã hội ASEAN",
+          "chunk_id": "Cộng đồng Văn hoá – Xã hội ASEAN_ft_2",
+          "score": 0.396728515625,
+          "provenance": "fulltext_search",
+          "text_preview": "Cộng đồng Văn hoá – Xã hội ASEAN: Một trong ba trụ cột của Cộng đồng ASEAN, tập trung vào việc tăng cường hợp tác văn hóa, xã hội và phát triển con người trong khu vực.",
+          "entity_id": "Cộng đồng Văn hoá – Xã hội ASEAN"
+        },
+        {
+          "source": "Trật tự hai cực I-an-ta",
+          "chunk_id": "Trật tự hai cực I-an-ta_ft_1",
+          "score": 0.3358154296875,
+          "provenance": "fulltext_search",
+          "text_preview": "Trật tự hai cực I-an-ta: Một trật tự thế giới sau Chiến tranh thế giới thứ hai, đặc trưng bởi sự đối đầu giữa hai siêu cường Hoa Kỳ và Liên Xô.",
+          "entity_id": "Trật tự hai cực I-an-ta"
+        },
+        {
+          "source": "Trật tự thế giới hai cực I-an-ta",
+          "chunk_id": "Trật tự thế giới hai cực I-an-ta_ft_0",
+          "score": 0.3350830078125,
+          "provenance": "fulltext_search",
+          "text_preview": "Trật tự thế giới hai cực I-an-ta: Hệ thống trật tự thế giới hình thành sau Chiến tranh thế giới thứ hai, với sự đối đầu giữa hai siêu cường Mỹ và Liên Xô.",
+          "entity_id": "Trật tự thế giới hai cực I-an-ta"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: Tư liệu 1: Lăng Chủ tịch Hồ Chí Minh, nơi gìn giữ thi hài lãnh tụ Hồ Chí Minh (khởi công ngày 02/9/1973, khánh thành ngày 29/8/1975) tại trung tâm Quảng trường Ba Đình lịch sử ở Thủ đô Hà Nội, nơi ngày 02/9/1945, Người đọc bản “Tuyên ngôn Độc lập”, khai sinh ra nước Việt Nam Dân chủ Cộng hòa.” Tư liệu 2: “Việt Nam ngày nay có hệ thống bảo tàng, khu di tích về Chủ tịch Hồ Chí Minh tại Thủ đô Hà Nội và trên nhiều địa phương. Cả nước có gần 700 di tích, nhà lưu niệm ờ các tỉnh, thành, ghi dấu cuộc đời và sự nghiệp của Người.” Phát biểu sau: \"Việt Nam là nơi có nhiều bảo tàng, di tích về Chủ tịch Hồ Chí Minh nhất trên thế giới\" là đúng hay sai",
+      "correct_answer": "Đúng",
+      "model_answer": "Sai",
+      "is_correct": false,
+      "entities_extracted": [
+        "Hồ Chí Minh",
+        "Chủ tịch Hồ Chí Minh",
+        "Việt Nam"
+      ],
+      "raw_response": "**Sai.**\n\nPhát biểu \"Việt Nam là nơi có nhiều bảo tàng, di tích về Chủ tịch Hồ Chí Minh nhất trên thế giới\" **không đúng**. Dù Việt Nam có nhiều di tích, bảo tàng liên quan đến Chủ tịch Hồ Chí Minh, nhưng không phải là nơi có **nhiều nhất** trên thế giới. Nhiều nước như Trung Quốc, Liên Xô, hay các nước khác cũng có nhiều bảo tàng, di tích về Hồ Chí Minh. Do đó, phát biểu này **sai**.",
+      "evidence": [
+        {
+          "source": "Đại hội Quốc dân",
+          "chunk_id": "Đại hội Quốc dân_passage_1",
+          "score": 0.4313707173960676,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 6/Bài 16] Cùng Ban Thường vụ Ban Chấp hành Trung ương Đảng triệu tập Hội nghị toàn quốc của Đảng Cộng sản Đông Dương (từ ngày 14 đến ngày 15 – 8 – 1945) thông qua kế hoạch lãnh đạo toàn dân tổng khởi nghĩa Chủ trì Đại hội Quốc dân (ngày 16, 17 – 8 – 1945) Đại hội tán thành chủ trương tổng kh",
+          "entity_id": "Đại hội Quốc dân"
+        },
+        {
+          "source": "Chủ tịch Hồ Chí Minh",
+          "chunk_id": "Chủ tịch Hồ Chí Minh_passage_0",
+          "score": 0.42877314655139276,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 3/Bài 6] Trong Cách mạng tháng Tám, trước áp lực và hoạt động khôn khéo của lực lượng cách mạng, quân Nhật ở Hà Nội và các địa phương phải án binh bất động, không can thiệp vào tiến trình khởi nghĩa Nhờ đó, khởi nghĩa diễn ra nhanh chóng và ít đổ máu Ngày 2 – 9 – 1945, Chủ tịch Hồ Chí Minh t",
+          "entity_id": "Chủ tịch Hồ Chí Minh"
+        },
+        {
+          "source": "Chủ tịch Hồ Chí Minh",
+          "chunk_id": "Chủ tịch Hồ Chí Minh_rel_1",
+          "score": 0.4138046500536142,
+          "provenance": "relationship_context",
+          "text_preview": "Chủ tịch Hồ Chí Minh [ĐỀ_RA] kháng chiến toàn quốc chống thực dân Pháp: Đường lối và phương châm kháng chiến của Việt Nam giai đoạn 1946-1954.",
+          "entity_id": "Chủ tịch Hồ Chí Minh"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Sang Nhật Bản, tiếp xúc với một số nhân vật như: Lương Khải Siêu, Khuyến Dương Nghị, Đại Ôi,..; tìm kiếm sự ủng hộ đối với công cuộc đấu tranh giành độc lập dân tộc của Việt Nam; tổ chức phong trào Đông du; tham gia thành lập Đông Á Đồng minh Hội và Điền - Quế - Việt liên minh. Tiếp xúc với nhiều người yêu nước Trung Quốc; thành lập và triển khai các hoạt động của Việt Nam Quang phục Hội, tham gia sáng lập Hội Chấn Hoa Hưng Á; cử người liên lạc với một số tổ chức, đại diện nước ngoài như: Công sứ Đức, Đại sứ quán Nga,... nhằm tranh thủ sự giúp đỡ đối với cách mạng Việt Nam.” Phát biểu sau: \"Tư liệu trên khẳng định những hoạt động đối ngoại bước đầu của Phan Bội Châu\" là đúng hay sai",
+      "correct_answer": "Sai",
+      "model_answer": "Sai",
+      "is_correct": true,
+      "entities_extracted": [],
+      "raw_response": "**Sai.**\n\nPhát biểu trên nói rằng các tư liệu khẳng định những hoạt động đối ngoại bước đầu của Phan Bội Châu. Tuy nhiên, theo thông tin tham khảo được cung cấp, các nguồn đề cập đến các nhân vật, sự kiện và địa danh khác như Trần Trọng Kim, En Xan-va-đo, Băng Cốc, quân Trung Hoa Dân quốc, Béc-lin, Hà Nội, Hội nghị toàn quốc của Đảng, chiến tranh xâm lược Việt Nam của thực dân Pháp, Hiến chương, Pa-ri – đều không liên quan đến Phan Bội Châu. Do đó, phát biểu này **không đúng**.",
+      "evidence": [
+        {
+          "source": "Trần Trọng Kim",
+          "chunk_id": "Trần Trọng Kim_ft_3",
+          "score": 0.398193359375,
+          "provenance": "fulltext_search",
+          "text_preview": "Trần Trọng Kim: Thủ tướng Chính phủ thân Nhật tại Đông Dương, rơi vào tình trạng hoang mang sau khi Nhật Bản tuyên bố đầu hàng.",
+          "entity_id": "Trần Trọng Kim"
+        },
+        {
+          "source": "En Xan-va-đo",
+          "chunk_id": "En Xan-va-đo_ft_4",
+          "score": 0.3094482421875,
+          "provenance": "fulltext_search",
+          "text_preview": "En Xan-va-đo: Một khu vực trên thế giới nơi Liên hợp quốc đã triển khai hoạt động gìn giữ hòa bình và góp phần chấm dứt xung đột.",
+          "entity_id": "En Xan-va-đo"
+        },
+        {
+          "source": "Băng Cốc",
+          "chunk_id": "Băng Cốc_ft_1",
+          "score": 0.3026123046875,
+          "provenance": "fulltext_search",
+          "text_preview": "Băng Cốc: Thủ đô của Thái Lan, nơi diễn ra lễ ký Tuyên bố ASEAN và thành lập tổ chức này.",
+          "entity_id": "Băng Cốc"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Mới từ 12 giờ trưa, những nẻo đường dẫn vào vườn hoa Ba Đình, nơi được chọn để cử hành lễ ngày độc lập đã thấy cuốn cuộn những dòng người chảy đến. Đủ mặt các giới, các đoàn thể... Tất cả, hôm đó, đều không còn giữ sự phân biệt của mọi ngày thường về đẳng cấp, về tín ngưỡng, về nam nữ, về thế hệ.... Đến đây, ai cũng chỉ còn là một người dân Việt Nam giữa những người dân Việt Nam khác đi đón nhận lời tuyên bố chính thức về nền độc lập của nước nhà...”. Phát biểu sau: \"Sự kiện trên diễn ra khi Cách mạng tháng Tám đã thành công trên phạm vi cả nước\" là đúng hay sai",
+      "correct_answer": "Đúng",
+      "model_answer": "Đúng",
+      "is_correct": true,
+      "entities_extracted": [
+        "Cách mạng tháng Tám"
+      ],
+      "raw_response": "**Đúng.**\n\nPhát biểu \"Sự kiện trên diễn ra khi Cách mạng tháng Tám đã thành công trên phạm vi cả nước\" là **đúng**. \n\nTheo thông tin tham khảo, sau Cách mạng tháng Tám năm 1945 thành công, nước Việt Nam Dân chủ Cộng hòa được khai sinh, và các sự kiện như Đại hội Quốc dân, việc thông qua 10 chính sách của Việt Minh, việc thành lập Uỷ ban Dân tộc giải phóng Việt Nam do Hồ Chí Minh làm Chủ tịch, cùng với việc lãnh đạo kháng chiến chống Pháp (1945–1954) đều diễn ra **sau khi Cách mạng tháng Tám đã thành",
+      "evidence": [
+        {
+          "source": "Việt Minh",
+          "chunk_id": "Việt Minh_passage_1",
+          "score": 0.6605710389102183,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 6/Bài 16] Cùng Ban Thường vụ Ban Chấp hành Trung ương Đảng triệu tập Hội nghị toàn quốc của Đảng Cộng sản Đông Dương (từ ngày 14 đến ngày 15 – 8 – 1945) thông qua kế hoạch lãnh đạo toàn dân tổng khởi nghĩa Chủ trì Đại hội Quốc dân (ngày 16, 17 – 8 – 1945) Đại hội tán thành chủ trương tổng kh",
+          "entity_id": "Việt Minh"
+        },
+        {
+          "source": "Việt Minh",
+          "chunk_id": "Việt Minh_rel_summary",
+          "score": 0.5221372635576637,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Việt Minh]\nViệt Minh --[THÀNH_LẬP]--> Uỷ ban hành chính Nam Bộ: Cơ quan hành chính tại Nam Bộ của Việt Nam Dân chủ Cộng hòa.\nViệt Minh --[CỬ_RA]--> Uỷ ban Dân tộc giải phóng Việt Nam: Tổ chức được cử ra từ Đại hội Quốc dân, do Hồ Chí Minh làm Chủ tịch.\nTiểu đội du kích thoát li đầu",
+          "entity_id": "Việt Minh"
+        },
+        {
+          "source": "Việt Minh",
+          "chunk_id": "Việt Minh_rel_1",
+          "score": 0.43081034675317464,
+          "provenance": "relationship_context",
+          "text_preview": "Việt Minh [CỬ_RA] Uỷ ban Dân tộc giải phóng Việt Nam: Tổ chức được cử ra từ Đại hội Quốc dân, do Hồ Chí Minh làm Chủ tịch.",
+          "entity_id": "Việt Minh"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Đa cực là một thuật ngữ trong quan hệ quốc tế dùng để chỉ một trật tự thế giới có sự tham gia của các quốc gia, các trung tâm khác nhau, trong đó không một quốc gia nào có quyền lực áp đảo đối với các quốc gia khác, cũng như chi phối sự phát triển của thế giới. Sự hình thành của trật tự thế giới đa cực là một tiến trình lịch sử khách quan quan với sự nôi lên của các cường quốc, sự gia tăng vai trò của các trung tâm, các tổ chức quốc tế, phản ánh tương quan so sánh lực lượng mới trong quan hệ quốc tế sau Chiến tranh lạnh”. Phát biểu sau: \"Trật tự đa cực hình thành là do ý muốn chủ quan của các cường quốc như Mỹ\" là đúng hay sai",
+      "correct_answer": "Sai",
+      "model_answer": "Sai",
+      "is_correct": true,
+      "entities_extracted": [
+        "Mỹ"
+      ],
+      "raw_response": "**Sai.**\n\nPhát biểu trên nói rằng \"Trật tự đa cực hình thành là do ý muốn chủ quan của các cường quốc như Mỹ\", nhưng theo thông tin tham khảo, trật tự đa cực (trong bối cảnh quốc tế sau Chiến tranh Thế giới thứ hai) chủ yếu hình thành do sự hợp tác và thỏa thuận giữa các cường quốc lớn như Mỹ, Anh, Pháp, Liên Xô, Trung Quốc, chứ không phải do ý muốn chủ quan của một quốc gia duy nhất như Mỹ. Trật tự này được thiết lập thông qua các hiệp ước, hội nghị quốc tế (như Hội nghị Yalta, Potsdam) và Hiến chương Liên H",
+      "evidence": [
+        {
+          "source": "Xan Phran-xi-xcô",
+          "chunk_id": "Xan Phran-xi-xcô_rel_2",
+          "score": 0.43174718746009305,
+          "provenance": "relationship_context",
+          "text_preview": "Liên hợp quốc: Tổ chức quốc tế được mong muốn thiết lập để bảo vệ hòa bình, an ninh thế giới thay thế cho Hội Quốc liên sau Chiến tranh thế giới thứ hai. [ĐƯỢC_THÔNG_QUA_TẠI] Xan Phran-xi-xcô",
+          "entity_id": "Xan Phran-xi-xcô"
+        },
+        {
+          "source": "Xan Phran-xi-xcô",
+          "chunk_id": "Xan Phran-xi-xcô_passage_0",
+          "score": 0.41210830073136634,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 1] Từ ngày 25 – 4 – 1945 đến ngày 26 – 6 – 1945, một hội nghị quốc tế được tổ chức tại Xan Phran-xi-xcô (Mỹ) với sự tham gia của đại biểu 50 nước đã thông qua bản Hiến chương Liên hợp quốc Hội Quốc liên là tổ chức quốc tế được thành lập năm 1920 nhằm duy trì trật tự thế giới mới sau Ch",
+          "entity_id": "Xan Phran-xi-xcô"
+        },
+        {
+          "source": "Xan Phran-xi-xcô",
+          "chunk_id": "Xan Phran-xi-xcô_rel_1",
+          "score": 0.39048742183509305,
+          "provenance": "relationship_context",
+          "text_preview": "Hiến chương Liên hợp quốc: Văn bản pháp lý nền tảng của Liên hợp quốc, được thông qua sau quyết định tại Hội nghị I-an-ta. [ĐƯỢC_THÔNG_QUA_BỞI] Xan Phran-xi-xcô",
+          "entity_id": "Xan Phran-xi-xcô"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Trong quá trình hình thành và phát triển, ASEAN có những đóng góp quan trọng trong việc tạo dựng một môi trường hòa bình, an ninh và ổn định ở khu vực Đông Nam Á và trong quan hệ giữa các nước thành viên với nhau. ASEAN được đánh giá là tổ chức khu vực thành công thứ hai trên thế giới chỉ sau EU. Đến năm 2022, đã có hơn 90 quốc gia ngoài ASEAN đã bổ nhiệm Đại sứ bên cạnh Ban Thư ký ASEAN; 54 Ủy ban ASEAN tại các nước và các tổ chức quốc tế được thành lập. Năm 2022, ASEAN có quan hệ với 11 đối tác đối thoại.” Phát biểu sau: \"ASEAN là tổ chức khu vực lớn thứ hai thế giới, chỉ sau Liên minh châu Âu (EU)\" là đúng hay sai",
+      "correct_answer": "Sai",
+      "model_answer": "Sai",
+      "is_correct": true,
+      "entities_extracted": [
+        "ASEAN"
+      ],
+      "raw_response": "**Sai.**\n\n**Phân tích:**  \nPhát biểu \"ASEAN là tổ chức khu vực lớn thứ hai thế giới, chỉ sau Liên minh châu Âu (EU)\" **không đúng**.  \nLiên minh châu Âu (EU) là tổ chức khu vực lớn nhất thế giới theo số lượng thành viên và quy mô kinh tế. ASEAN là một tổ chức khu vực quan trọng trong Đông Nam Á, nhưng không phải là tổ chức lớn thứ hai thế giới. Các tổ chức khu vực lớn khác như Liên Hợp Quốc (UN), Tổ chức Công ước Quốc tế về Môi trường (UNEP), hay các liên minh kinh tế như APEC, G20",
+      "evidence": [
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_4",
+          "score": 0.6359276761502567,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 5] Kế hoạch Tổng thể xây dựng Cộng đồng Văn hoá – Xã hội ASEAN (2009)\nxác định sáu nội dung chính bao gồm: Phát triển con người; Phúc lợi và bảo hiểm xã hội; Bình đẳng xã hội và các quyền; Bảo đảm bền vững về môi trường; Xây dựng bản sắc ASEAN; Thu hẹp khoảng cách phát triển Có nền tản",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_desc",
+          "score": 0.4647850980252567,
+          "provenance": "entity_direct",
+          "text_preview": "ASEAN: Hiệp hội các quốc gia Đông Nam Á, một tổ chức khu vực thúc đẩy hợp tác kinh tế, chính trị, an ninh và văn hóa.",
+          "entity_id": "ASEAN"
+        },
+        {
+          "source": "ASEAN",
+          "chunk_id": "ASEAN_passage_2",
+          "score": 0.4461083402127567,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 2/Bài 4] **2015 đến nay:** Thành lập và xây dựng Cộng đồng ASEAN với ba trụ cột: chính trị – an ninh, kinh tế, văn hoá – xã hội; đẩy mạnh hợp tác bên trong giữa ASEAN và bên ngoài ASEAN với các đối tác đối thoại, nâng cao uy tín, vai trò của ASEAN ở khu vực và trên thế giới Ra Tuyên bố thành",
+          "entity_id": "ASEAN"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: Tư liệu 1: “Một dân tộc đã gan góc chống ách nô lệ của Pháp hơn 80 năm nay, một dân tộc đã gan góc đứng về phe Đồng minh chống phát xít mấy năm nay, dân tộc đó phải được tự do! Dân tộc đó phải được độc lập!”  Tư liệu 2: “Chẳng những giai cấp lao động và nhân dân Việt Nam ta có thể tự hào mà giai cấp lao động và những dân tộc bị áp bức nơi khác cũng có thể tự hào rằng: Lần này là lần đầu tiên trong lịch sử cách mạng của các dân tộc thuộc địa và nửa thuộc địa, một Đảng mới 15 tuổi đã lãnh đạo cách mạng thành công, đã nắm chính quyền toàn quốc” Phát biểu sau: \"Tư liệu 1 khẳng định, Việt Nam độc lập tự do là do chiến thắng của Đồng minh\" là đúng hay sai",
+      "correct_answer": "Sai",
+      "model_answer": "Sai",
+      "is_correct": true,
+      "entities_extracted": [
+        "Việt Nam"
+      ],
+      "raw_response": "**Sai.**\n\n**Phân tích:**  \nPhát biểu nói rằng \"Việt Nam độc lập tự do là do chiến thắng của Đồng minh\" là **sai**. Theo lịch sử, Việt Nam giành được độc lập tự do sau chiến thắng của **Cách mạng tháng Tám năm 1945**, do sự lãnh đạo của **Đảng Cộng sản Đông Dương** và sự hỗ trợ của **Đồng minh chống phát xít** (chủ yếu là Anh, Pháp, Mỹ). Tuy nhiên, **chiến thắng của Đồng minh** không phải là nguyên nhân trực tiếp dẫn đến độc lập của Việt Nam, mà là một yếu tố hỗ trợ trong bối cảnh thế giới",
+      "evidence": [
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_passage_0",
+          "score": 0.42857901941984766,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 2] Ở châu Á, chiến tranh Triều Tiên (1950 – 1953), chiến tranh xâm lược Việt Nam của thực dân Pháp (1945 – 1954) và chiến tranh xâm lược Việt Nam của đế quốc Mỹ (1954 – 1975),… là những cuộc chiến tranh cục bộ tiêu biểu Ở khu vực Trung Đông, chiến tranh Trung Đông giữa I-xra-en và các ",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        },
+        {
+          "source": "chiến tranh xâm lược Việt Nam của thực dân Pháp",
+          "chunk_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp_desc",
+          "score": 0.40221183191984766,
+          "provenance": "entity_direct",
+          "text_preview": "chiến tranh xâm lược Việt Nam của thực dân Pháp: Cuộc chiến tranh xâm lược Việt Nam của thực dân Pháp.",
+          "entity_id": "chiến tranh xâm lược Việt Nam của thực dân Pháp"
+        },
+        {
+          "source": "Đảng Cộng sản Đông Dương",
+          "chunk_id": "Đảng Cộng sản Đông Dương_ft_0",
+          "score": 0.334228515625,
+          "provenance": "fulltext_search",
+          "text_preview": "Đảng Cộng sản Đông Dương: Đảng chính trị đã lãnh đạo Cách mạng tháng Tám năm 1945.",
+          "entity_id": "Đảng Cộng sản Đông Dương"
+        }
+      ]
+    },
+    {
+      "question": "Đọc đoạn tư liệu sau đây: “Trong thời kỳ Chiến tranh lạnh, thế giới đã xuất hiện nhiều cuộc chiến tranh cục bộ và xung đột: chiến tranh xâm lược Đông Dương của Pháp (1945 - 1954), chiến tranh Triều Tiên (1950 - 1953), chiến tranh xâm lược Việt Nam của Mỹ (1954 - 1975),...; khủng hoảng Xuy-ê (1956), khủng hoảng Béc-lin (1961), khủng hoảng tên lửa ở Cu-ba (1962),... Xung đột giữa hai bên dẫn đến nguy cơ bùng nổ chiến tranh hạt nhân”. Phát biểu sau: \"Chiến tranh lạnh là cuộc chiến tranh không có xung đột quân sự trực tiếp giữa Xô và Mỹ\" là đúng hay sai",
+      "correct_answer": "Đúng",
+      "model_answer": "Sai",
+      "is_correct": false,
+      "entities_extracted": [
+        "Chiến tranh lạnh",
+        "Mỹ",
+        "Anh"
+      ],
+      "raw_response": "**Sai.**\n\n**Phân tích:**  \nChiến tranh lạnh là cuộc đối đầu giữa Liên Xô (cường quốc xã hội chủ nghĩa) và Mỹ (cường quốc tư bản) trong giai đoạn sau Chiến tranh Thế giới thứ hai (1945–1991). Mặc dù hai nước không trực tiếp chiến tranh quân sự, nhưng chúng đã có nhiều xung đột quân sự gián tiếp, như cuộc chiến tranh Triều Tiên (1950–1953), cuộc chiến tranh Việt Nam (1955–1975), và các cuộc xung đột ở Đông Âu, Trung Đông, etc. Do đó, phát biểu",
+      "evidence": [
+        {
+          "source": "Hiến chương Liên hợp quốc",
+          "chunk_id": "Hiến chương Liên hợp quốc_rel_summary",
+          "score": 0.5031964100798122,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Hiến chương Liên hợp quốc]\nHiến chương Liên hợp quốc --[ĐƯỢC_THÔNG_QUA_BỞI]--> Xan Phran-xi-xcô: Thành phố tại Mỹ, nơi diễn ra hội nghị thành lập Liên hợp quốc.\nHiến chương Liên hợp quốc --[ĐƯỢC_THÔNG_QUA_BỞI]--> Liên hợp quốc: Tổ chức quốc tế được mong muốn thiết lập để bảo vệ hòa",
+          "entity_id": "Hiến chương Liên hợp quốc"
+        },
+        {
+          "source": "Xan Phran-xi-xcô",
+          "chunk_id": "Xan Phran-xi-xcô_rel_summary",
+          "score": 0.45425944820477476,
+          "provenance": "relationship_summary",
+          "text_preview": "[Relationships of Xan Phran-xi-xcô]\nXan Phran-xi-xcô --[DIỄN_RA_TẠI]--> Liên hợp quốc: Tổ chức quốc tế được mong muốn thiết lập để bảo vệ hòa bình, an ninh thế giới thay thế cho Hội Quốc \nHiến chương Liên hợp quốc: Văn bản pháp lý nền tảng của Liên hợp quốc, được thông qua sau quyết định tại Hội ngh",
+          "entity_id": "Xan Phran-xi-xcô"
+        },
+        {
+          "source": "Chiến tranh thế giới mới",
+          "chunk_id": "Chiến tranh thế giới mới_passage_0",
+          "score": 0.42283170150990285,
+          "provenance": "entity_passage",
+          "text_preview": "[Chủ đề 1/Bài 1] 2 Vai trò của Liên hợp quốc\na) Duy trì hoà bình, an ninh quốc tế\nTrước hết, Liên hợp quốc góp phần ngăn ngừa không để xảy ra một cuộc chiến tranh thế giới mới kể từ năm 1945 đến nay Thứ hai, Liên hợp quốc triển khai hoạt động gìn giữ hoà bình ở nhiều khu vực trên thế giới, góp phần ",
+          "entity_id": "Chiến tranh thế giới mới"
+        }
+      ]
+    }
+  ]
+}
