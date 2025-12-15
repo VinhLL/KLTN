@@ -54,7 +54,6 @@ class GraphRAGConfig:
     neo4j_uri: str = os.getenv("NEO4J_URI", "neo4j+s://5f398723.databases.neo4j.io")
     neo4j_user: str = os.getenv("NEO4J_USER", "neo4j")
     neo4j_password: str = get_secret("NEO4J_PASSWORD", "password")
-    allow_neo4j_fallback: bool = False  # If False, raise error when Neo4j connection fails
     
     # DeepSeek API Configuration
     # Note: For dual-mode (Qwen + DeepSeek), use DualAnswerGenerator instead
@@ -65,37 +64,23 @@ class GraphRAGConfig:
     
     # Models (used when use_deepseek_api = False)
     qwen_model: str = "Qwen/Qwen3-4B"  # For MCQ questions
-    tf_model: str = ""  # For T/F questions - set to "deepseek-ai/deepseek-llm-7b-chat" for 93.1% T/F accuracy
+    tf_model: str = "Qwen/Qwen3-4B"  # For T/F questions - set to "deepseek-ai/deepseek-llm-7b-chat" for 93.1% T/F accuracy
     tf_direct_mode: bool = False  # If True, T/F uses direct prompt without KG (faster, simpler)
     embedding_model: str = "Qwen/Qwen3-Embedding-0.6B"  # Separate embedding model
     reranker_model: str = "Qwen/Qwen3-Reranker-0.6B"    # Separate reranker model
     embedding_dim: int = 1024
     
-    # GraphRAG Steps Configuration
-    # Step 3: Graph Encoding
-    graph_encoding_dim: int = 512  # Dimension for graph encoding embeddings
-    use_graph_encoder: bool = True  # Enable Graph Encoder for sub-graph encoding
-    
-    # Step 4: Embedding Fusion
-    use_cross_attention: bool = True  # Enable CrossAttention fusion: h = CrossAttn(q, g)
-    fusion_heads: int = 4  # Number of attention heads for fusion
-    
-    # Step 6: Trust Score Configuration
-    enable_trust_score: bool = True  # Calculate trust score from centrality + confidence
-    trust_confidence_weight: float = 0.6  # Weight for LLM confidence in trust score
-    trust_centrality_weight: float = 0.4  # Weight for graph centrality in trust score
-    
     # Retrieval - significantly increased for better coverage
-    chunk_size: int = 1000
-    chunk_overlap: int = 150
-    top_k_retrieval: int = 30  # Increased from 20 for more candidates
-    top_k_rerank: int = 15     # Increased from 10 for more evidence
+    chunk_size: int = 1200
+    chunk_overlap: int = 250
+    top_k_retrieval: int = 40  # Increased from 20 for more candidates
+    top_k_rerank: int = 25     # Increased from 10 for more evidence
     
     # Scoring weights - adjusted to favor relationship context
-    entity_weight: float = 0.30  # Reduced from 0.35 to diversify
-    vector_weight: float = 0.25  # Slightly reduced
-    text_weight: float = 0.20
-    graph_weight: float = 0.25   # Increased from 0.15 for relationship context
+    entity_weight: float = 0.35  # Reduced from 0.35 to diversify
+    vector_weight: float = 0.30  # Slightly reduced
+    text_weight: float = 0.30
+    graph_weight: float = 0.25 # Increased from 0.15 for relationship context
     
     # Thresholds - lowered for better recall
     confidence_threshold: float = 0.4  # Lowered from 0.6
@@ -108,7 +93,7 @@ class GraphRAGConfig:
     timeout: int = 30
     
     # Files
-    questions_file: str = "/kaggle/input/historical/sample_20question.json"
+    questions_file: str = "/kaggle/input/historical/question_1000.json"
     entities_file: str = "/kaggle/input/historical/entities_v5.json"
     kg_file: str = "/kaggle/input/historical/knowledge_graph_historical_v5.json"
     output_file: str = "/kaggle/working/results_graphrag_neo4j.json"

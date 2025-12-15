@@ -30,8 +30,6 @@ from .retriever import (
 from .pipeline import (
     EntityExtractor,
     AnswerGenerator,
-    DualAnswerGenerator,
-    DeepSeekAPIClient,
     GraphRAGPipeline
 )
 
@@ -51,7 +49,5 @@ __all__ = [
     'ContextBuilder',
     'EntityExtractor',
     'AnswerGenerator',
-    'DualAnswerGenerator',
-    'DeepSeekAPIClient',
     'GraphRAGPipeline'
 ]

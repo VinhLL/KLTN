@@ -1,0 +1,135 @@
+{
+  "benchmark_info": {
+    "timestamp": "2025-12-12T05:45:22.787463",
+    "total_models_evaluated": 4,
+    "total_questions": 1000,
+    "mcq_questions": 512,
+    "tf_questions": 488,
+    "total_benchmark_time_minutes": 319.26,
+    "config": {
+      "max_input_length": 1024,
+      "max_new_tokens": 128,
+      "batch_size": 4
+    }
+  },
+  "model_comparison": [
+    {
+      "model_name": "Qwen/Qwen3-4B",
+      "model_type": "causal",
+      "overall_accuracy": 49.9,
+      "mcq_accuracy": 41.8,
+      "tf_accuracy": 58.4,
+      "null_prediction_rate": 0.0,
+      "avg_response_length": 438.68,
+      "questions_per_second": 0.2,
+      "total_time_seconds": 4943.72
+    },
+    {
+      "model_name": "Qwen/Qwen3-8B",
+      "model_type": "causal",
+      "overall_accuracy": 51.7,
+      "mcq_accuracy": 48.44,
+      "tf_accuracy": 55.12,
+      "null_prediction_rate": 0.0,
+      "avg_response_length": 440.69,
+      "questions_per_second": 0.14,
+      "total_time_seconds": 7080.67
+    },
+    {
+      "model_name": "deepseek-ai/deepseek-llm-7b-chat",
+      "model_type": "causal",
+      "overall_accuracy": 25.6,
+      "mcq_accuracy": 30.27,
+      "tf_accuracy": 20.7,
+      "null_prediction_rate": 32.4,
+      "avg_response_length": 134.34,
+      "questions_per_second": 0.14,
+      "total_time_seconds": 7074.43
+    },
+    {
+      "model_name": "keepitreal/vietnamese-sbert",
+      "model_type": "embed",
+      "overall_accuracy": 39.6,
+      "mcq_accuracy": 29.69,
+      "tf_accuracy": 50.0,
+      "null_prediction_rate": 0.0,
+      "avg_response_length": 0.0,
+      "questions_per_second": 45.42,
+      "total_time_seconds": 30.5
+    }
+  ],
+  "ranking": {
+    "by_overall_accuracy": [
+      [
+        "Qwen/Qwen3-8B",
+        51.7
+      ],
+      [
+        "Qwen/Qwen3-4B",
+        49.9
+      ],
+      [
+        "keepitreal/vietnamese-sbert",
+        39.6
+      ],
+      [
+        "deepseek-ai/deepseek-llm-7b-chat",
+        25.6
+      ]
+    ],
+    "by_mcq_accuracy": [
+      [
+        "Qwen/Qwen3-8B",
+        48.44
+      ],
+      [
+        "Qwen/Qwen3-4B",
+        41.8
+      ],
+      [
+        "deepseek-ai/deepseek-llm-7b-chat",
+        30.27
+      ],
+      [
+        "keepitreal/vietnamese-sbert",
+        29.69
+      ]
+    ],
+    "by_tf_accuracy": [
+      [
+        "Qwen/Qwen3-4B",
+        58.4
+      ],
+      [
+        "Qwen/Qwen3-8B",
+        55.12
+      ],
+      [
+        "keepitreal/vietnamese-sbert",
+        50.0
+      ],
+      [
+        "deepseek-ai/deepseek-llm-7b-chat",
+        20.7
+      ]
+    ],
+    "by_speed": [
+      [
+        "keepitreal/vietnamese-sbert",
+        45.42
+      ],
+      [
+        "Qwen/Qwen3-4B",
+        0.2
+      ],
+      [
+        "Qwen/Qwen3-8B",
+        0.14
+      ],
+      [
+        "deepseek-ai/deepseek-llm-7b-chat",
+        0.14
+      ]
+    ]
+  }
+}

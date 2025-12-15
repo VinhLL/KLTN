@@ -1,0 +1,2765 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html lang="vi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphRAG QA Report - Qwen Only</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 12px; margin-bottom: 25px; }
+        .header h1 { margin: 0 0 10px 0; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .stat-card.primary { border-top: 4px solid #3498db; }
+        .stat-card.success { border-top: 4px solid #27ae60; }
+        .stat-card.warning { border-top: 4px solid #f39c12; }
+        .stat-value { font-size: 32px; font-weight: bold; color: #2c3e50; }
+        .stat-label { color: #7f8c8d; margin-top: 5px; }
+        .question-card { background: white; padding: 20px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .question-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
+        .badges { display: flex; gap: 10px; }
+        .badge { padding: 5px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+        .badge.correct { background: #d5f4e6; color: #27ae60; }
+        .badge.wrong { background: #fadbd8; color: #e74c3c; }
+        .badge.mcq { background: #d6eaf8; color: #2980b9; }
+        .badge.tf { background: #e8daef; color: #8e44ad; }
+        .badge.high { background: #d5f4e6; color: #27ae60; }
+        .badge.medium { background: #fef9e7; color: #f39c12; }
+        .badge.low { background: #fadbd8; color: #e74c3c; }
+        .question-text { margin-bottom: 15px; line-height: 1.7; }
+        .answer-row { display: flex; gap: 20px; margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px; }
+        .answer-item { flex: 1; }
+        .answer-label { font-weight: bold; color: #7f8c8d; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>GraphRAG QA Evaluation Report</h1>
+        <p>Generated: 2025-12-12 07:01:33</p>
+        <p>Model: Qwen/Qwen3-4B | Device: auto</p>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card primary">
+            <div class="stat-value">63.0%</div>
+            <div class="stat-label">Overall Accuracy</div>
+        </div>
+        <div class="stat-card success">
+            <div class="stat-value">630/1000</div>
+            <div class="stat-label">Correct Answers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">299/507</div>
+            <div class="stat-label">MCQ Correct</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">331/493</div>
+            <div class="stat-label">T/F Correct</div>
+        </div>
+        <div class="stat-card warning">
+            <div class="stat-value">23.98s</div>
+            <div class="stat-label">Avg per Question</div>
+        </div>
+    </div>
+<h2>Question Details</h2>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q1</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Tổ chức quốc tế được xem như tiền thân của Liên hợp quốc là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Đại hội đồng, Hội Quốc liên</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>5547 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>34.76s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q2</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Đầu năm 1945, đâu là vấn đề cấp bách đặt ra cho các nước Đồng minh chống phát xít?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>None</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>1559 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>32.61s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q3</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Đâu là một trong những vai trò/mục tiêu của tổ chức Liên hợp quốc?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3028 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>34.58s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q4</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Ngày 1/1/1942, đại diện của 26 nước đã ký văn kiện nào sau đây?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh lạnh, Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>10835 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>37.28s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q5</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Năm 1945, bản Hiến chương Liên hợp quốc được thông qua tại</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Hiến chương Liên hợp quốc, Hội nghị Xan Phran-xi-xcô</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>4362 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>34.82s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q6</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Mục tiêu và nguyên tắc hoạt động của Liên hợp quốc được quy định bởi văn kiện quan trọng nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Pháp</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>9020 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>29.46s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q7</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Cơ quan nào của Liên hợp quốc chịu trách nhiệm chính trong việc duy trì hoà bình và an ninh thế giới?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Hội đồng Bảo an, Đại hội đồng</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>5509 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>33.14s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q8</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">D</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Một trong những cơ quan hành chính của Liên hợp quốc là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>2724 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>27.01s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q9</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">D</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Một trong những cơ quan chuyên môn của Liên hợp quốc là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Đại hội đồng</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>2505 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>32.95s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q10</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">D</span>
+                <span class="badge">Correct: D</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Đâu là một trong những nội dung của mục tiêu, hành động mang tính toàn cầu đến năm 2030 của Liên hợp quốc?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3810 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>35.19s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q11</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Mối quan hệ hợp tác của Liên hợp quốc với Việt Nam hiện nay là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Việt Nam</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>6239 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>33.36s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q12</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Một trong những điểm giống về mục tiêu của Liên hợp quốc so với các tổ chức quốc tế và khu vực khác là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3404 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>35.64s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q13</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Một trong những điểm giống về mục đích thành lập của Liên hợp quốc và Hội quốc liên là đều muốn</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Hội Quốc liên, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>6592 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>38.78s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q14</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Một trong những điểm giống nhau về nguyên tắc hoạt động giữa Liên hợp quốc và tổ chức ASEAN là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, ASEAN</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>13330 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>40.96s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q15</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">D</span>
+                <span class="badge">Correct: D</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Hội nghị I-an-ta (2-1945) đã thông qua quyết định nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Hội Quốc liên, Đông Dương, Hội nghị I-an-ta</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>12484 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>43.9s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q16</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">B</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Quyết định nro của hội nghị I-an-ta (2-1945) đã tạo điều kiện cho thực dân Pháp trở lại xâm lược Đông Dương?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Đông Nam Á, Đông Dương, Hội nghị I-an-ta, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>12870 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>55.75s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q17</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Nhận xét nào là đúng về việc thỏa thuận đóng quân và phân chia phạm vi ảnh hưởng giữa ba cường quốc trong Hội nghị I-an-ta (2-1945)?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Hội nghị I-an-ta, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>9486 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>39.2s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q18</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Sự kiện nào được xem là khởi đầu cho chính sách chống Liên Xô của Mỹ, gây nên cuộc Chiến tranh lạnh?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh lạnh, NATO, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>14889 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>44.87s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q19</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Hội nghị I-an-ta (2/1945) được tiến hành trong giai đoạn nào của Chiến tranh thế giới thứ hai?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh thế giới thứ hai, Hội nghị I-an-ta</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>11019 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>37.81s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q20</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">D</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Quyết định nào sau đây không phải là của Hội nghị I-an-ta (2/1945)?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Hội nghị I-an-ta, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>10898 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>43.29s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q21</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">D</span>
+                <span class="badge">Correct: D</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Mục tiêu chung được các cường quốc thỏa thuận trong hội nghị I-an-ta (2/1945) là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Hội nghị I-an-ta, Trung Quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>15395 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>40.87s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q22</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Để tiêu diệt chủ nghĩa quân phiệt Nhật Bản và nhanh chóng kết thúc chiến tranh, hội nghị I-an-ta đã quyết định</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Hội nghị I-an-ta, Liên Xô, Trung Quốc, Mỹ, Pháp</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>13000 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>50.67s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q23</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Một trong những khu vực được hội nghị I-an-ta (1945) quy định thuộc phạm vi ảnh hưởng của Liên Xô là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Đông Âu, Tây Âu, Hội nghị I-an-ta, Liên Xô</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>10490 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>44.01s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q24</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">C</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Một trong những khu vực được hội nghị I-an-ta (1945) quy định thuộc phạm vi ảnh hưởng của Mỹ là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Đông Âu, Tây Âu, Hội nghị I-an-ta, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>11307 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>39.85s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q25</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Đâu là ranh giới phân chia phạm vi chiếm đóng Triều Tiên của Mỹ và Liên Xô được Hội nghị I-an-ta (2/1945) quy định?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Hội nghị I-an-ta, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>9452 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>42.58s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q26</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">A</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Trật tự thế giới mới được hình thành sau chiến tranh thế giới thứ hai (1945) là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh thế giới thứ hai</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>5239 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>35.03s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q27</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">D</span>
+                <span class="badge">Correct: D</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Quốc gia đứng đầu khối xã hội chủ nghĩa sau chiến tranh thế giới hai (1945) là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Việt Nam, Liên Xô, Trung Quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>14580 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>45.79s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q28</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Những quốc gia nào sau đây tham dự hội nghị I-an-ta (2/1945)?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Hội nghị I-an-ta, Liên Xô, Trung Quốc, Mỹ, Pháp</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>14334 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>45.75s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q29</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">D</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Liên Xô và Mỹ đẩy mạnh đối thoại hợp tác từ:</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>9583 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>36.15s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q30</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Năm 1989, tại đảo Man-ta, Mỹ và Liên Xô đã có hành động nào sau đây?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh lạnh, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>15349 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>40.21s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q31</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Tổ chức quốc tế được xem như tiền thân của Liên hợp quốc là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Đại hội đồng, Hội Quốc liên</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>5547 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>22.34s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q32</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Phe nào nắm ưu thế trên chiến trường vào giai đoạn cuối Chiến tranh thế giới thứ hai, tạo bối cảnh cho việc thành lập Liên hợp quốc?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh thế giới thứ hai, Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>7495 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>38.54s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q33</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">C</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Bản Tuyên bố về Liên hợp quốc được đại diện 26 nước chống phát xít ký vào ngày nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3710 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>20.83s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q34</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Hội Quốc liên chính thức giải thể vào năm nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Hội Quốc liên</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>4937 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>21.17s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q35</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Hội nghị quốc tế thông qua Hiến chương Liên hợp quốc được tổ chức tại thành phố nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Hiến chương Liên hợp quốc, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>12331 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>34.63s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q36</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">B</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Ngày Liên hợp quốc chính thức được thành lập (24/10/1945) có số nước thành viên ban đầu là bao nhiêu?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>2991 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>24.7s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q37</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Mục tiêu nào của Liên hợp quốc được coi là cơ sở để thực hiện các mục tiêu khác?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3328 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>30.33s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q38</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Theo Hiến chương, một trong những mục tiêu của Liên hợp quốc là thúc đẩy quan hệ hữu nghị trên cơ sở tôn trọng điều gì?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3202 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>29.01s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q39</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">D</span>
+                <span class="badge">Correct: D</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Nguyên tắc hoạt động nào của Liên hợp quốc yêu cầu 'Từ bỏ đe doạ bằng vũ lực hoặc sử dụng vũ lực trong quan hệ quốc tế'?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Pháp</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>9198 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>39.21s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q40</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Nguyên tắc 'Không can thiệp vào công việc nội bộ các nước' thuộc cơ sở hoạt động của tổ chức nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Hội Quốc liên</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>6089 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>33.48s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q41</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Vai trò nào sau đây của Liên hợp quốc được nêu trong tài liệu?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>2343 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>29.83s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q42</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">B</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Liên hợp quốc đã triển khai hoạt động gìn giữ hoà bình ở những khu vực nào sau đây?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Việt Nam, Mỹ, Pháp</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>7973 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>42.27s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q43</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Hiệp ước cấm phổ biến vũ khí hạt nhân (NPT) được Liên hợp quốc xây dựng vào năm nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3656 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>23.79s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q44</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">D</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Công ước quốc tế nào về giải trừ quân bị được Liên hợp quốc thông qua vào năm 2017?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3638 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>35.37s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q45</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Số lượng thành viên của Liên hợp quốc tính đến thời điểm được nhắc trong tài liệu là bao nhiêu?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3065 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>23.72s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q46</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">D</span>
+                <span class="badge">Correct: D</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Tổ chức kinh tế, thương mại lớn nhất trực thuộc Liên hợp quốc là gì?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>2575 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>24.23s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q47</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Mục đích chính của UNCTAD là gì?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>None</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>819 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>22.01s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q48</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Liên hợp quốc thông qua Chương trình nghị sự 2030 vì sự phát triển bền vững vào năm nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3331 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>27.85s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q49</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Văn bản quốc tế quan trọng nào về quyền con người được Đại hội đồng Liên hợp quốc thông qua năm 1948?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Đại hội đồng, Hiến chương Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>4547 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>28.22s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q50</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Quỹ tài trợ quốc tế của Liên hợp quốc cho giáo dục có tên là gì?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3328 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>30.03s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q51</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">A</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Ý tưởng về một tổ chức quốc tế duy trì hoà bình trở nên rõ nét trong bối cảnh nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh thế giới thứ hai, Chiến tranh thế giới thứ nhất, Chiến tranh lạnh, Hội Quốc liên</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>9053 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>44.79s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q52</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">A</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Ba nước chủ chốt triển khai hoạt động để thành lập Liên hợp quốc là những nước nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Liên Xô, Trung Quốc, Mỹ, Pháp</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>10350 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>45.15s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q53</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Hội nghị nào đã ra quyết định về việc thành lập Liên hợp quốc và đồng ý triệu tập hội nghị thông qua Hiến chương?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Hội nghị I-an-ta, Hội nghị Xan Phran-xi-xcô</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>9628 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>38.38s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q54</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Từ năm nào, Đại hội đồng Liên hợp quốc đề ra các chiến lược phát triển cho từng thập kỉ?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Đại hội đồng</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3155 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>27.55s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q55</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">A</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Công ước cấm vũ khí hoá học được Liên hợp quốc xây dựng vào năm nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3717 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>35.53s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q56</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Một vai trò của Liên hợp quốc là góp phần vào các hoạt động chống lại điều gì?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3112 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>34.73s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q57</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">A</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Hội Quốc liên được thành lập vào năm nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Hội Quốc liên</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>4819 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>18.91s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q58</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Nguyên tắc 'Bình đẳng về chủ quyền quốc gia' được quy định trong văn bản nào của Liên hợp quốc?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Hiến chương Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>4500 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>30.8s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q59</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Theo tài liệu, Liên hợp quốc đã thành công trong việc thúc đẩy quá trình nào của các nước thuộc địa?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3790 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>32.08s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q60</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Các hoạt động của Liên hợp quốc được thực hiện dựa trên cơ sở nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Hội đồng Bảo an, Pháp</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>8853 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>36.57s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q61</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Mục tiêu của Liên hợp quốc bao gồm việc thúc đẩy hợp tác quốc tế để giải quyết các vấn đề nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3467 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>35.12s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q62</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Tuyên bố về Liên hợp quốc (1/1/1942) là cam kết thành lập một tổ chức quốc tế vì mục đích gì?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3664 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>32.48s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q63</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">D</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Việc tổ chức lại thế giới sau Chiến tranh thế giới thứ hai trở nên cấp bách trong bối cảnh nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh thế giới thứ hai, Chiến tranh lạnh, Hội Quốc liên</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>13524 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>40.61s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q64</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">A</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Ba nước Liên Xô, Mỹ, Anh khẳng định quyết tâm thành lập Liên hợp quốc tại Hội nghị nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>10622 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>36.24s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q65</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">A</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Hội nghị Xan Phran-xi-xcô (1945) thông qua Hiến chương Liên hợp quốc với sự tham gia của đại biểu bao nhiêu nước?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Hiến chương Liên hợp quốc, Hội nghị Xan Phran-xi-xcô</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>4176 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>37.1s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q66</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Mục tiêu nào sau đây KHÔNG phải là mục tiêu của Liên hợp quốc theo Hiến chương?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>2725 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>30.9s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q67</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Nguyên tắc 'Tôn trọng toàn vẹn lãnh thổ và độc lập chính trị quốc gia' nhằm mục đích gì?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>None</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>1686 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>29.08s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q68</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Vai trò của Liên hợp quốc trong lĩnh vực giải trừ quân bị là gì?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>2719 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>32.14s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q69</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Liên hợp quốc xem công cụ chủ yếu để phát triển kinh tế của các nước thành viên là gì?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>2838 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>26.66s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q70</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Liên hợp quốc ưu tiên tạo môi trường kinh tế, thương mại, tài chính quốc tế như thế nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3096 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>26.41s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q71</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Thông qua các tổ chức chuyên môn, Liên hợp quốc đóng vai trò quan trọng trong việc hỗ trợ công tác gì?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3620 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>32.55s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q72</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Liên hợp quốc nỗ lực đảm bảo các quyền cơ bản của con người cho mọi người không phân biệt yếu tố nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3519 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>29.67s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q73</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">A</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Khoảng bao nhiêu trẻ em ở khu vực khó khăn được tiếp cận giáo dục nhờ Quỹ Giáo dục không thể chờ đợi trong năm 2021?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>None</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>481 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>19.08s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q74</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Hội Quốc liên thất bại trong việc gì dẫn đến việc giải thể?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Hội Quốc liên</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>4919 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>35.17s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q75</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">A</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Các nguyên tắc hoạt động của Liên hợp quốc được quy định tại Điều nào của Hiến chương?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3242 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>25.62s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q76</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Một trong những ưu tiên của Liên hợp quốc trong phát triển kinh tế là tạo môi trường như thế nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3283 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>26.04s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q77</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Liên hợp quốc đã góp phần chấm dứt nhiều cuộc xung đột thông qua hoạt động nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3029 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>31.47s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q78</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Các nước Đồng minh chống phát xít mong muốn thiết lập Liên hợp quốc để thay thế cho tổ chức nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Hội đồng Bảo an, Hội Quốc liên</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>7344 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>28.28s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q79</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Từ năm 1943, các nước đã thoả thuận được một số điểm cơ bản về cơ cấu Liên hợp quốc, bao gồm những cơ quan nào?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Liên hợp quốc, Hội đồng Bảo an, Đại hội đồng</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>5281 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>32.33s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q80</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">B</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Sự kiện nào sau đây đánh dấu trật tự hai cực I-an-ta chấm dứt?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh lạnh, trật tự hai cực, Liên Xô</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>14441 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>44.04s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q81</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">D</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Sự kiện nào sau đây có ý nghĩa mở ra bước đột phá đầu tiên đối với trật tự thế giới hai cực I-an-ta?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Cách mạng tháng Tám, Việt Nam, Trung Quốc, Mỹ, Pháp</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>10443 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>50.41s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q82</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Nội dung tranh cãi gay gắt quyết liệt nhất trong hội nghị I-an-ta (2/1945) là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Hội nghị I-an-ta</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>7512 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>34.72s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q83</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Xu thế hoà hoãn Đông-Tây xuất hiện có tác động như thế nào đến trật tự hai cực I-an-ta?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>trật tự hai cực, xu thế hoà hoãn Đông-Tây</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>8225 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>35.76s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q84</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Một trong những biểu hiện của xu thế hoà hoãn Đông - Tây là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Trung Quốc, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>11733 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>35.43s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q85</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Một trong những mục đích của Mỹ khi triển khai thực hiện kế hoạch Mác-san (6/1947) đối với các nước Tây u là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3538 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>31.58s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q86</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">D</span>
+                <span class="badge">Correct: D</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Sự kiện đánh dấu Chiến tranh lạnh bao trùm thế giới là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh lạnh, NATO, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>12960 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>42.39s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q87</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Vì sao từ sau Chiến tranh thế giới thứ hai (1945), Mỹ và Liên Xô đối đầu gay gắt?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh thế giới thứ hai, Hội nghị I-an-ta, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>12332 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>44.36s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q88</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">B</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Năm 1947, Mỹ phát động Chiến tranh lạnh nhằm mục đích là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh lạnh, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>13255 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>33.96s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q89</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">B</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Một trong những mục đích của Tổng thống Ních-xơn khi tiến hành chuyến thăm chính thức đến Trung Quốc, Liên Xô năm 1972 là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Việt Nam, Liên Xô, Trung Quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>12938 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>43.9s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q90</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">A</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Cuộc chiến tranh cục bộ nào sau đây thể hiện rõ nét nhất mâu thuẫn hai cực, hai phe trong Chiến tranh lạnh (1945-1991)?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh lạnh, 1945-1991, 1950-1953, 1945-1975, Việt Nam</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>10744 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>41.4s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q91</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Mục đích chủ yếu của Mỹ khi triển khai chiến lược toàn cầu từ sau Chiến tranh thế giới thứ hai đến kết thúc Chiến tranh lạnh là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh thế giới thứ hai, Chiến tranh lạnh, Tây Âu, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>11292 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>40.84s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q92</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Trong Chiến tranh lạnh (1947-1989), vì sao Mỹ và Liên Xô tránh xung đột trực tiếp về quân sự?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh lạnh, 1947-1989, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>14217 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>40.97s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q93</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Đâu là một trong những nguyên nhân Mỹ và Liên Xô quyết định chấm dứt cuộc Chiến tranh lạnh (1947-1989)?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh lạnh, Tây Âu, 1947-1989, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>12045 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>45.1s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q94</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge wrong">D</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Đâu là biện pháp chủ yếu mà Mỹ và Liên Xô sử dụng để kết thúc các cuộc chiến tranh cục bộ trong Chiến tranh lạnh (1947-1989)?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh lạnh, 1947-1989, Liên Xô, Mỹ, Pháp</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>10733 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>41.41s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q95</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Nội dung nào không phản ánh đúng bản chất của Chiến tranh lạnh?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh lạnh, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>12538 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>41.07s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q96</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Nguyên nhân chủ yếu dẫn tới cục diện hai cực, hai phe sau Chiến tranh thế giới thứ hai là gì?</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh thế giới thứ hai, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>11989 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>42.54s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q97</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">D</span>
+                <span class="badge">Correct: D</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Sự ra đời của khối NATO (1949) và Tổ chức Hiệp ước Vác-sa-va (1955) dẫn đến hệ quả gì trong quan hệ quốc tế</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>NATO, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>3407 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>34.17s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q98</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">C</span>
+                <span class="badge">Correct: C</span>
+                <span class="badge medium">Trust: medium</span>
+            </div>
+        </div>
+        <div class="question-text">Dựa vào bảng dữ liệu sau, hãy lựa chọn phương án phù hợp về việc phân chia phạm vi ảnh hưởng giữa Mỹ và Liên Xô sau Chiến tranh thế giới thứ hai. Tên nước Nội dung thoả thuận 1. Liên Xô 2. Mỹ a) đóng quân ở Nhật Bản và miền phía Nam vĩ tuyến 38 của Triều Tiên. b) nắm giữ phạm vi ảnh hưởng ở Tây Âu. c) đóng quân ở Đông Đức, Đông Béc-lin; phía Bắc vĩ tuyến 38 của Triều Tiên d) nắm giữ phạm vi ảnh hư...</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh thế giới thứ hai, Đông Âu, Tây Âu, Liên Xô, Mỹ</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>9349 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>48.0s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q99</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">A</span>
+                <span class="badge">Correct: A</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Xu thế chủ đạo trong quan hệ giữa các cường quốc sau Chiến tranh lạnh là</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>Chiến tranh lạnh, Liên hợp quốc</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>10717 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>36.45s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-header">
+            <strong>Q100</strong>
+            <div class="badges">
+                <span class="badge mcq">MCQ</span>
+                <span class="badge correct">B</span>
+                <span class="badge">Correct: B</span>
+                <span class="badge low">Trust: low</span>
+            </div>
+        </div>
+        <div class="question-text">Nội dung căn bản trong quan hệ quốc tế hiện nay là về lĩnh vực</div>
+        <div class="answer-row">
+            <div class="answer-item">
+                <div class="answer-label">Entities Extracted</div>
+                <div>None</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Context Length</div>
+                <div>1156 chars</div>
+            </div>
+            <div class="answer-item">
+                <div class="answer-label">Processing Time</div>
+                <div>32.42s</div>
+            </div>
+        </div>
+    </div>
+</body></html>
