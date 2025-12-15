@@ -1,0 +1,53 @@
+
+\section{YOLO (You Only Look Once)}
+
+\subsection{Introduction}
+
+The You Only Look Once (YOLO) framework, pioneered by Redmon et al. \cite{redmon2016you}, stands as a seminal contribution to the field of computer vision, specifically targeting the task of object detection within both static images and dynamic video sequences. A defining characteristic of YOLO is its ability to perform object detection in a remarkably fast and efficient manner through an end-to-end, single-pass methodology. This integrated approach streamlines the entire detection pipeline, leading to a compelling combination of high processing speed and competitive performance accuracy. Unlike earlier multi-stage detectors, YOLO processes the entire image at once, enabling it to reason globally about the image context and thus reducing the occurrence of background false positives.
+
+The input to the YOLO model typically consists of an image or a frame extracted from a video stream, which is generally resized to a fixed, standardized dimension to ensure consistent processing. The output of the model is a comprehensive list of bounding boxes that precisely localize the detected objects within the input. For each identified bounding box, the model provides crucial information, including the coordinates of its center, its width and height, a confidence score reflecting the reliability of the detection, and the class label assigned to the detected object. This holistic output for each detected instance allows for a rich understanding of the objects present in the scene.
+
+\subsection{Operational Principles}
+
+YOLO employs a sophisticated approach based on mathematical principles and a deep convolutional neural network (CNN) architecture to achieve rapid and effective object detection in images. At the core of its operation, YOLO divides the entire input image into an $S \times S$ grid of equally sized cells. Each of these grid cells is tasked with the responsibility of predicting a fixed number, $B$, of bounding boxes and the associated object class probabilities for objects whose centers fall within that specific grid cell. This grid-based approach allows for simultaneous prediction across the entire image.
+
+Each predicted bounding box is parameterized by a vector that encapsulates its spatial attributes and confidence:
+$$
+(b_x, b_y, b_w, b_h, C)
+$$
+where:
+\begin{itemize}
+    \item $b_x, b_y$: Represent the coordinates of the center of the bounding box relative to the bounds of the grid cell. These values are normalized to fall within the range of 0 to 1. This normalization ensures that the center coordinates are always within the predicting grid cell.
+    \item $b_w, b_h$: Denote the width and height of the predicted bounding box, respectively. These dimensions are normalized by the overall width and height of the input image, ensuring scale invariance and allowing the model to predict boxes of varying sizes relative to the image.
+    \item $C$: Represents the confidence score of the bounding box. This score reflects the model's certainty that an object is present within the bounding box and the accuracy of the predicted box. Mathematically, the confidence score is calculated as the product of the probability of an object being present within the bounding box ($P_{object}$) and the Intersection over Union (IoU) between the predicted bounding box and the ground truth bounding box ($IoU_{pred, truth}$):
+    $$
+    C = P_{object} \times IoU_{pred, truth}
+    $$
+    where the Intersection over Union (IoU) is defined as:
+    $$
+    IoU = \frac{\text{Area of Overlap}}{\text{Area of Union}}
+    $$
+    Here,
+    \begin{itemize}
+        \item Area of Overlap: Is the area of the intersection between the predicted bounding box and the ground truth bounding box. A larger overlap indicates a more accurate prediction.
+        \item Area of Union: Is the total area encompassed by both the predicted and the ground truth bounding boxes, including the overlapping region. The IoU provides a normalized measure of the overlap, ranging from 0 (no overlap) to 1 (perfect overlap).
+    \end{itemize}
+\end{itemize}
+
+In addition to predicting bounding boxes, each grid cell also predicts a conditional class probability vector, $P(c \mid object)$, where $c$ represents the possible object classes that the model is trained to detect. This vector provides the probability that the detected object, if present within the grid cell, belongs to a specific class among the predefined set of classes. This conditional probability is specific to the presence of an object within the grid cell.
+
+The final class-specific confidence score for each bounding box is obtained by multiplying the individual bounding box confidence score, $C$, with the conditional class probability, $P(c \mid object)$:
+$$
+P(c) = P_{object} \times P(c \mid object)
+$$
+This score provides a comprehensive measure of the likelihood that a specific object of class $c$ is present within the bounding box and the model's overall confidence in this prediction.
+
+Following the prediction phase, YOLO employs a crucial post-processing step known as Non-Maximum Suppression (NMS). The NMS algorithm is applied to filter out redundant and low-confidence bounding boxes, ensuring that each distinct object in the image is represented by a single, high-confidence bounding box. This process involves the following steps:
+\begin{enumerate}
+    \item For each class, all predicted bounding boxes with a confidence score below a certain threshold are discarded.
+    \item The remaining bounding boxes are sorted in descending order based on their confidence scores.
+    \item The bounding box with the highest confidence score is selected as a final detection.
+    \item All other bounding boxes that have a significant overlap (above a predefined IoU threshold) with the selected box are suppressed (removed) to eliminate duplicates for the same object.
+    \item Steps 3 and 4 are repeated until no more bounding boxes remain for that class.
+\end{enumerate}
+This NMS procedure is essential for reducing the number of false positive detections and refining the output to provide a more accurate and concise set of detection results, ensuring that each detected object has a unique and highly confident bounding box.

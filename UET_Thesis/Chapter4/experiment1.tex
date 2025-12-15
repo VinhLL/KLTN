@@ -1,0 +1,95 @@
+\section{Thu thập dữ liệu Lịch sử và Xây dựng bộ câu hỏi Lịch sử}
+\subsection{Thiết kế thực nghiệm}
+\label{sec:exp_design}
+
+Để đánh giá hiệu quả của hệ thống GraphRAG, thí nghiệm được thiết kế với cơ sở tri thức và bộ câu hỏi kiểm thử được xây dựng từ nguồn dữ liệu chính thống.
+
+\textbf{Cơ sở tri thức:} được xây dựng từ bộ sách giáo khoa \textit{"Lịch sử 12 – Kết nối tri thức"}, đã được số hóa và cấu trúc hóa thành định dạng JSON phân cấp. Dữ liệu được tổ chức theo 4 cấp độ: Chủ đề (Topic), Bài học (Lesson), Đề mục (Section) và Tiểu mục (Subsection). Bảng \ref{tab:kb_structure} minh họa cấu trúc phân cấp của cơ sở tri thức.
+
+\begin{table}[H]
+\centering
+\caption{Cấu trúc phân cấp của Cơ sở tri thức Lịch sử}
+\begin{tabular}{|p{3cm}|p{4cm}|p{7cm}|}
+\hline
+\textbf{Cấp độ} & \textbf{Trường dữ liệu} & \textbf{Mô tả / Ví dụ} \\
+\hline
+Chủ đề & \texttt{topic\_id}, \texttt{topic\_description} & Chủ đề 1: Thế giới trong và sau Chiến tranh Lạnh \\
+\hline
+Bài học & \texttt{lesson\_id}, \texttt{lesson\_title} & Bài 1: Liên hợp quốc \\
+\hline
+Đề mục & \texttt{index}, \texttt{title} & 1. Một số vấn đề cơ bản về Liên hợp quốc \\
+\hline
+Tiểu mục & \texttt{label}, \texttt{title}, \texttt{content} & a. Bối cảnh lịch sử và quá trình hình thành \\
+\hline
+\end{tabular}
+\label{tab:kb_structure}
+\end{table}
+
+Cơ sở tri thức bao gồm 7 chủ đề lớn với 17 bài học, phủ toàn bộ nội dung chương trình Lịch sử lớp 12 theo chương trình giáo dục phổ thông mới.
+
+\textbf{Bộ câu hỏi kiểm thử:}
+Bộ câu hỏi được xây dựng từ ngân hàng đề thi chính thức của Bộ Giáo dục và Đào tạo, các sở giáo dục và trường đại học. Tổng cộng có 1000 câu hỏi, được phân chia như sau:
+
+\begin{table}[H]
+\centering
+\caption{Thống kê bộ câu hỏi kiểm thử}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Loại câu hỏi} & \textbf{Số lượng} & \textbf{Tỷ lệ} \\
+\hline
+Trắc nghiệm nhiều lựa chọn (MCQ) & 512 & 51,2\% \\
+\hline
+Câu hỏi Đúng/Sai (TF) & 488 & 48,8\% \\
+\hline
+\textbf{Tổng cộng} & \textbf{1000} & \textbf{100\%} \\
+\hline
+\end{tabular}
+\label{tab:question_stats}
+\end{table}
+
+\textbf{Cấu trúc câu hỏi MCQ:}
+Mỗi câu hỏi MCQ bao gồm một câu dẫn và 4 phương án lựa chọn (A, B, C, D), trong đó chỉ có 1 phương án đúng. Ví dụ:
+
+\begin{verbatim}
+{
+  "question": "Tổ chức Hiệp ước Bắc Đại Tây Dương (NATO) 
+               được thành lập vào năm nào?",
+  "options": [
+    {"answer": "1945", "isCorrect": false},
+    {"answer": "1949", "isCorrect": true},
+    {"answer": "1955", "isCorrect": false},
+    {"answer": "1991", "isCorrect": false}
+  ]
+}
+\end{verbatim}
+
+\textbf{Cấu trúc câu hỏi TF:}
+Câu hỏi Đúng/Sai thường có dạng đọc hiểu, bao gồm một đoạn tư liệu và một mệnh đề cần xác định tính đúng/sai. Ví dụ:
+
+\begin{verbatim}
+{
+  "question": "Đọc đoạn tư liệu sau đây: ... 
+    Phát biểu sau: \"Mục tiêu của APSC là tạo ra môi trường 
+    khu vực bình đẳng, dân chủ, hòa hợp\" là đúng hay sai",
+  "options": [
+    {"answer": "Đúng", "isCorrect": true},
+    {"answer": "Sai", "isCorrect": false}
+  ]
+}
+\end{verbatim}
+
+\subsection{Nhận xét và kết luận thực nghiệm}
+
+\textbf{Về cơ sở tri thức:}
+\begin{itemize}
+    \item Cấu trúc phân cấp 4 tầng Topic → Lesson → Section → Subsection cho phép truy xuất thông tin theo nhiều mức độ chi tiết, phù hợp với việc xây dựng đồ thị tri thức và thực hiện truy hồi ngữ cảnh.
+\end{itemize}
+\textbf{Về bộ câu hỏi:}
+\begin{itemize}
+    \item Bộ câu hỏi có tỷ lệ cân bằng giữa hai loại hình: MCQ (51,2\%) và TF (48,8\%), cho phép đánh giá khả năng suy luận của hệ thống trên nhiều dạng bài tập khác nhau.
+    \item Câu hỏi MCQ yêu cầu hệ thống có khả năng nhận diện và so sánh các phương án, lựa chọn đáp án chính xác nhất dựa trên tri thức được truy hồi. Đây là một dạng dễ khiến mô hình nhầm lẫn vì xuất hiện 4 mệnh đề khác nhau nhưng chỉ có 1 đáp án đúng.
+    \item Câu hỏi TF với dạng đọc hiểu tư liệu đòi hỏi khả năng suy luận phức tạp hơn: hệ thống phải đọc hiểu đoạn văn, trích xuất thông tin liên quan và đối chiếu với mệnh đề để đưa ra kết luận Đúng/Sai.
+    \item Độ khó của các câu hỏi đa dạng, từ câu hỏi về sự kiện, mốc thời gian cụ thể đến câu hỏi đòi hỏi phân tích, tổng hợp nhiều nguồn thông tin.
+\end{itemize}
+\textbf{Kết luận:}
+Bộ dữ liệu thực nghiệm được thiết kế đảm bảo tính đại diện và độ phức tạp phù hợp để đánh giá hiệu quả của hệ thống GraphRAG trong lĩnh vực trả lời câu hỏi Lịch sử. Việc sử dụng nguồn dữ liệu chính thống từ sách giáo khoa và đề thi của Bộ Giáo dục đảm bảo tính chính xác và độ tin cậy của kết quả đánh giá.

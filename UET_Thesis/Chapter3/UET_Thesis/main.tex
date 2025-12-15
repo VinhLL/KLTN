@@ -1,0 +1,293 @@
+\documentclass[oneside]{report}
+\usepackage[utf8]{inputenc}
+\usepackage
+[T5]{fontenc}
+\usepackage[vietnamese,english]{babel}
+\usepackage{graphicx}
+\usepackage{nameref}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{amsthm}
+\usepackage{listings}
+\usepackage{spverbatim}
+\usepackage[bottom]{footmisc}
+\usepackage{lscape}
+
+% Vinh Pham
+\usepackage{minted}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{listingsutf8}
+\lstdefinelanguage{json}{
+    morestring=[b]",
+    morecomment=[l]{//},
+    moredelim=**[is][\color{gray}]{@}{@},
+    stringstyle=\color{blue},
+    identifierstyle=\color{red},
+    keywordstyle=\color{teal},
+    morekeywords={true,false,null}
+}
+\lstdefinelanguage{yaml}{
+  morekeywords={true,false,null,y,n},
+  sensitive=false,
+  morecomment=[l]{\#},
+  morestring=[b]",
+  morestring=[b]'
+}
+
+%\usepackage{algorithmic}
+\bibliographystyle{unsrt}
+
+\algrenewcommand\algorithmicrequire{\textbf{Input:}}
+\algrenewcommand\algorithmicensure{\textbf{Output:}}
+
+% set font, font size and spacing
+\usepackage{times}
+\usepackage{scrextend}
+\changefontsizes{11pt}
+\renewcommand{\baselinestretch}{1.1}
+% section spacing
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{0.5\baselineskip}{0.2\baselineskip}
+\titlespacing*{\subsection}{0pt}{0.4\baselineskip}{0.2\baselineskip}
+
+% setup page layout
+\usepackage[a4paper,left=30mm,top=20mm,bottom=25mm,right=20mm,]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{decorations.pathmorphing}
+
+% Acronyms Auto
+\usepackage[nopostdot,toc,acronym,nomain,nonumberlist]{glossaries}
+\makeglossaries
+\setacronymstyle{long-short}
+\loadglsentries[acronym]{FrontMatter/Acronyms}
+\setlength{\glsdescwidth}{0.7\linewidth}
+
+% natbib
+% if use natbib, please comment out the cite
+% \usepackage[numbers, square, round]{natbib}
+
+\usepackage[
+    bibstyle=bwl-FU,
+    backend=biber,
+    doi=false,isbn=false,url=false,eprint=false,
+    citestyle=ieee,
+    style = numeric,
+    maxcitenames=2,
+    maxbibnames=3,
+]{biblatex}
+\addbibresource{references.bib}
+
+% Citation
+% \usepackage{cite}
+
+% % prevent text overflow
+% \usepackage{babel}
+% \newcommand\fh{\babelhyphen{hard}}
+
+% Change indent
+% \usepackage{indentfirst} % indent also after section titles
+\setlength{\parindent}{1cm}
+\usepackage{enumitem}
+\setlist{leftmargin=1cm}
+
+% paragraph spacing
+\setlength{\parskip}{0.5em}
+
+% Change enumerate label
+\usepackage{enumitem}
+
+% Page numbering at the center top of page
+% \usepackage{fancyhdr} % Custom headers and footers
+% \pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+% \fancyhead[L]{}% Empty left header
+% \fancyhead[C]{\thepage} % Page numbering for center header  
+% \fancyhead[R]{}% Empty right header
+% \fancyfoot[L]{}% Empty left footer
+% \fancyfoot[C]{}% Empty center footer
+% \fancyfoot[R]{}% Empty left footer
+
+% Math equation
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+% Table
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{bigstrut}
+
+% Cover
+\usepackage{pdfpages}
+
+% Subfigure
+\usepackage{caption}
+\usepackage{subcaption}
+
+% pstricks fig
+\usepackage{epsfig}
+
+% Table of Contents
+\usepackage[hidelinks]{hyperref}
+% Uncomment if you want leading dot for chapter
+\usepackage{tocloft}
+\renewcommand{\cftpartleader}{\cftdotfill{\cftdotsep}} % for parts
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}} % for chapters
+
+%preamble auto add toc
+\usepackage{tocbibind}
+
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\usepackage[export]{adjustbox}  % Put this in your preamble
+
+% table fixed width column
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\title{UET Thesis}
+\author{Bùi Quang Vinh}
+\date{May 2025}
+
+\begin{document}
+%---------------------------------------------
+% Front Matter
+%---------------------------------------------
+\begin{titlepage}
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw [line width=3pt]
+            ($ (current page.north west) + (2.0cm,-2.0cm) $)
+            rectangle
+            ($ (current page.south east) + (-1.5cm,1.8cm) $);
+        \draw [line width=1pt]
+            ($ (current page.north west) + (2.15cm,-2.15cm) $)
+            rectangle
+            ($ (current page.south east) + (-1.65cm,1.95cm) $); 
+    \end{tikzpicture}
+    
+    \begin{center}
+        \vspace*{1cm}
+        \large
+        \textbf{ĐẠI HỌC QUỐC GIA HÀ NỘI \\
+        TRƯỜNG ĐẠI HỌC CÔNG NGHỆ}
+
+        \vspace{1.5cm}
+        \includegraphics[width=0.3\textwidth]{FrontMatter/UET.png}
+            
+        \vspace{0.5cm}
+        \large
+        \textbf{BÙI QUANG VINH}
+            
+        \vspace{1.5cm}
+        \large
+        \textbf{SỬ MÔ HÌNH NGÔN NGỮ LỚN CHO CÂU HỎI LỊCH SỬ}
+            
+        \vspace{2.5cm}
+        \large
+        \textbf{KHÓA LUẬN TỐT NGHIỆP \\
+        Ngành}: Trí tuệ nhân tạo     
+
+        \vspace{1cm}
+        \textbf{Giảng viên hướng dẫn: TS. Nguyễn Tuấn Phong} 
+        
+        \vfill
+        \large
+        \textbf{HÀ NỘI - 2025}
+    \end{center}
+\end{titlepage}
+
+\begin{titlepage}
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw [line width=3pt]
+            ($ (current page.north west) + (2.0cm,-2.0cm) $)
+            rectangle
+            ($ (current page.south east) + (-1.5cm,1.8cm) $);
+        \draw [line width=1pt]
+            ($ (current page.north west) + (2.15cm,-2.15cm) $)
+            rectangle
+            ($ (current page.south east) + (-1.65cm,1.95cm) $); 
+    \end{tikzpicture}
+    
+    \begin{center}
+        \vspace*{1cm}
+        \large
+        \textbf{ĐẠI HỌC QUỐC GIA HÀ NỘI \\
+        TRƯỜNG ĐẠI HỌC CÔNG NGHỆ}
+
+        \vspace{3cm}
+        \large
+        \textbf{BÙI QUANG VINH}
+            
+        \vspace{1.5cm}
+        
+        \textbf{SỬ MÔ HÌNH NGÔN NGỮ CHO CÂU HỎI LỊCH SỬ}
+            
+        \vspace{2.5cm}
+        \large
+        \textbf{KHÓA LUẬN TỐT NGHIỆP \\
+        Ngành}: Trí tuệ nhân tạo   
+
+        \vspace{1cm}
+        \textbf{Giảng viên hướng dẫn: TS. Nguyễn Tuấn Phong}   
+            
+        \vfill
+        \large
+        \textbf{HÀ NỘI - 2025}
+    \end{center}
+\end{titlepage}
+
+\pagenumbering{roman}
+\setcounter{page}{1}
+\include{FrontMatter/Declaration}
+\include{FrontMatter/supervisor}
+% \include{FrontMatter/Publications}
+\include{FrontMatter/Acknowledgements}
+\include{FrontMatter/Abstract}
+
+% Show ToC and change title to Table of Contents
+\setcounter{secnumdepth}{3}
+\renewcommand{\contentsname}{Mục lục}
+\tableofcontents
+
+% Show Acronyms and add it to ToC
+\printglossary[title={Acronyms},type=acronym,style=long]
+\clearpage
+
+% Show list of 
+\listoffigures
+\clearpage
+\listoftables
+\clearpage
+
+% \include{FrontMatter/Abstract}
+
+%--------------------------------------------- 
+% Main content
+%---------------------------------------------
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\include{Chapter1/chapter1}
+\include{Chapter2/chapter2}
+\include{Chapter3/chapter3}
+\include{Chapter4/chapter4}
+\include{Chapter5/chapter5}
+
+
+%--------------------------------------------- 
+% References
+%---------------------------------------------
+% \bibliographystyle{IEEEtranSN}
+% \bibliographystyle{unsrt}
+\renewcommand\bibname{References}
+% \bibliography{references.bib} % Path to your references.bib file
+\printbibliography
+
+\end{document}

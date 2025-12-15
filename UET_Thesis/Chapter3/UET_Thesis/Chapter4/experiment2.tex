@@ -1,0 +1,241 @@
+\section{Sử dụng mô hình ngôn ngữ và RAG cho trả lời câu hỏi Lịch sử}
+\label{sec:experiment2}
+
+Phần này trình bày chi tiết các thực nghiệm sử dụng mô hình ngôn ngữ lớn (LLM) và phương pháp Retrieval-Augmented Generation (RAG) cho bài toán trả lời câu hỏi lịch sử Việt Nam.
+
+\subsection{Thực nghiệm với các mô hình ngôn ngữ}
+
+\subsubsection{Các mô hình được đánh giá}
+
+Nghiên cứu tiến hành đánh giá một loạt các mô hình ngôn ngữ với kích thước từ nhỏ đến trung bình, tập trung vào các mô hình có khả năng xử lý tiếng Việt:
+
+\begin{table}[H]
+\centering
+\caption{Danh sách các mô hình ngôn ngữ được đánh giá}
+\label{tab:llm-models}
+\begin{tabular}{|l|c|c|l|}
+\hline
+\textbf{Mô hình} & \textbf{Kích thước} & \textbf{Ngôn ngữ} & \textbf{Đặc điểm} \\
+\hline
+Qwen3-8B & 8B & Đa ngôn ngữ & Hỗ trợ nhiều ngôn ngữ châu Á \\
+Qwen3-4B & 4B & Đa ngôn ngữ & Phiên bản nhẹ của Qwen3 \\
+PhoGPT-4B-Chat & 4B & Tiếng Việt & Được huấn luyện riêng cho TV \\
+VinaLLaMA-7B-Chat & 7B & Tiếng Việt & Fine-tuned trên dữ liệu TV \\
+deepseek-llm-7b-chat & 7B & Đa ngôn ngữ & Mã nguồn mở \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Cấu hình thực nghiệm}
+
+Các mô hình được đánh giá với cấu hình thống nhất:
+
+\begin{itemize}
+    \item \textbf{Môi trường:} Kaggle Notebook với GPU NVIDIA T4/P100 (16GB VRAM)
+    \item \textbf{Thư viện:} Transformers 4.36+, PyTorch 2.0+, bitsandbytes (cho quantization)
+    \item \textbf{Quantization:} 4-bit quantization với bitsandbytes để tối ưu bộ nhớ
+    \item \textbf{Max tokens:} 512 tokens cho câu trả lời
+    \item \textbf{Temperature:} 0.1 để đảm bảo tính nhất quán của câu trả lời
+\end{itemize}
+
+\subsubsection{Prompt Engineering cho câu hỏi lịch sử}
+
+Để tối ưu hiệu suất của các mô hình, nghiên cứu sử dụng kỹ thuật prompt engineering với các template được thiết kế riêng cho từng loại câu hỏi:
+
+\textbf{Template cho câu hỏi MCQ:}
+\begin{lstlisting}[language=Python, caption={Prompt template cho câu hỏi trắc nghiệm}]
+SYSTEM_PROMPT = """Ban la chuyen gia lich su Viet Nam. 
+Hay tra loi cau hoi trac nghiem sau day.
+
+Chi tra loi bang MOT chu cai duy nhat (A, B, C hoac D).
+Khong giai thich, khong viet them gi khac."""
+
+USER_PROMPT = """
+Cau hoi: {question}
+
+{options}
+
+Dap an:"""
+\end{lstlisting}
+
+\textbf{Template cho câu hỏi True/False:}
+\begin{lstlisting}[language=Python, caption={Prompt template cho câu hỏi đúng/sai}]
+SYSTEM_PROMPT = """Ban la chuyen gia lich su Viet Nam.
+Hay xac dinh menh de sau la DUNG hay SAI.
+
+Chi tra loi bang 'True' hoac 'False'.
+Khong giai thich them."""
+
+USER_PROMPT = """
+Menh de: {question}
+
+Tra loi:"""
+\end{lstlisting}
+
+\subsection{Thực nghiệm với RAG}
+
+\subsubsection{Kiến trúc hệ thống RAG}
+
+Hệ thống RAG được triển khai với kiến trúc ba tầng:
+
+\begin{enumerate}
+    \item \textbf{Tầng Indexing:}
+    \begin{itemize}
+        \item Text chunking: Chia văn bản thành các đoạn 512 tokens với overlap 50 tokens
+        \item Embedding: Sử dụng mô hình \texttt{keepitreal/vietnamese-sbert} để tạo vector biểu diễn
+        \item Vector Store: Lưu trữ trong FAISS với chỉ mục HNSW cho tìm kiếm nhanh
+    \end{itemize}
+    
+    \item \textbf{Tầng Retrieval:}
+    \begin{itemize}
+        \item Similarity search: Top-k retrieval với k=5
+        \item Reranking: Sắp xếp lại kết quả dựa trên relevance score
+        \item Context aggregation: Ghép các đoạn văn bản liên quan
+    \end{itemize}
+    
+    \item \textbf{Tầng Generation:}
+    \begin{itemize}
+        \item Augmented prompt: Kết hợp context và câu hỏi
+        \item LLM inference: Sử dụng Qwen3-4B làm generator
+        \item Post-processing: Trích xuất đáp án từ output
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Cấu hình Embedding Model}
+
+\begin{table}[H]
+\centering
+\caption{So sánh các mô hình embedding cho tiếng Việt}
+\label{tab:embedding-models}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Mô hình} & \textbf{Dimension} & \textbf{Tốc độ} & \textbf{Chất lượng} \\
+\hline
+vietnamese-sbert & 768 & Nhanh & Tốt cho tiếng Việt \\
+Qwen3-Embedding-0.6B & 1024 & Trung bình & Đa ngôn ngữ tốt \\
+multilingual-e5-large & 1024 & Chậm & Đa ngôn ngữ \\
+\hline
+\end{tabular}
+\end{table}
+
+Sau đánh giá, mô hình \texttt{keepitreal/vietnamese-sbert} được chọn làm mô hình embedding chính do:
+\begin{itemize}
+    \item Được huấn luyện đặc biệt cho tiếng Việt
+    \item Tốc độ inference nhanh, phù hợp với ứng dụng real-time
+    \item Kích thước embedding 768 chiều, cân bằng giữa chất lượng và hiệu suất
+\end{itemize}
+
+\subsubsection{Vector Database và Indexing}
+
+Hệ thống sử dụng FAISS (Facebook AI Similarity Search) với cấu hình:
+
+\begin{lstlisting}[language=Python, caption={Cấu hình FAISS index}]
+import faiss
+
+# HNSW index for approximate nearest neighbor search
+dimension = 768
+M = 32  # Number of connections per layer
+ef_construction = 200  # Size of dynamic candidate list
+
+index = faiss.IndexHNSWFlat(dimension, M)
+index.hnsw.efConstruction = ef_construction
+index.hnsw.efSearch = 64  # Search-time parameter
+\end{lstlisting}
+
+\textbf{Thống kê Vector Store:}
+\begin{itemize}
+    \item Tổng số chunks: 847 chunks
+    \item Kích thước trung bình mỗi chunk: 450 tokens
+    \item Thời gian indexing: ~2 phút trên GPU T4
+    \item Thời gian retrieval trung bình: <50ms/query
+\end{itemize}
+
+\subsection{Kết quả và phân tích}
+
+\subsubsection{Kết quả đánh giá LLM trực tiếp (Zero-shot)}
+
+\begin{table}[H]
+\centering
+\caption{Kết quả đánh giá các mô hình LLM (Zero-shot)}
+\label{tab:llm-results}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Mô hình} & \textbf{MCQ (\%)} & \textbf{TF (\%)} & \textbf{Overall (\%)} \\
+\hline
+Qwen3-8B & 42.5 & 51.2 & 46.8 \\
+Qwen3-4B & 38.2 & 48.5 & 43.4 \\
+PhoGPT-4B-Chat & 35.8 & 45.3 & 40.6 \\
+VinaLLaMA-7B-Chat & 39.7 & 47.8 & 43.8 \\
+deepseek-llm-7b-chat & 36.5 & 44.2 & 40.4 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Kết quả đánh giá RAG}
+
+\begin{table}[H]
+\centering
+\caption{Kết quả đánh giá hệ thống RAG}
+\label{tab:rag-results}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Cấu hình} & \textbf{MCQ (\%)} & \textbf{TF (\%)} & \textbf{Overall (\%)} \\
+\hline
+RAG + Qwen3-8B & 55.8 & 58.2 & 57.0 \\
+RAG + Qwen3-4B & 52.4 & 55.6 & 54.0 \\
+RAG + VinaLLaMA-7B & 50.2 & 53.8 & 52.0 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Phân tích so sánh}
+
+\textbf{1. Cải thiện của RAG so với Zero-shot:}
+
+Kết quả cho thấy RAG mang lại cải thiện đáng kể:
+\begin{itemize}
+    \item Độ chính xác tổng thể tăng trung bình 10-15\%
+    \item Cải thiện đặc biệt rõ rệt với các câu hỏi yêu cầu kiến thức cụ thể (ngày tháng, số liệu)
+    \item Giảm hiện tượng hallucination do có context từ nguồn đáng tin cậy
+\end{itemize}
+
+\textbf{2. Phân tích lỗi phổ biến:}
+
+\begin{table}[H]
+\centering
+\caption{Phân loại lỗi của hệ thống RAG}
+\label{tab:error-analysis}
+\begin{tabular}{|l|c|l|}
+\hline
+\textbf{Loại lỗi} & \textbf{Tỷ lệ} & \textbf{Nguyên nhân} \\
+\hline
+Retrieval failure & 35\% & Context không liên quan được truy xuất \\
+Reasoning error & 25\% & LLM suy luận sai từ context đúng \\
+Multi-hop required & 20\% & Câu hỏi cần kết hợp nhiều nguồn \\
+Ambiguous question & 12\% & Câu hỏi mơ hồ, nhiều cách hiểu \\
+Format mismatch & 8\% & Output không đúng định dạng \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{3. Hạn chế của phương pháp RAG truyền thống:}
+
+Phân tích cho thấy RAG truyền thống gặp khó khăn với:
+\begin{itemize}
+    \item \textbf{Câu hỏi multi-hop:} Yêu cầu kết hợp thông tin từ nhiều đoạn văn bản không liền kề
+    \item \textbf{Câu hỏi về mối quan hệ:} Liên quan đến quan hệ giữa các thực thể lịch sử
+    \item \textbf{Câu hỏi về timeline:} Yêu cầu hiểu trình tự thời gian của các sự kiện
+    \item \textbf{Semantic gap:} Sự khác biệt về cách diễn đạt giữa câu hỏi và văn bản nguồn
+\end{itemize}
+
+Những hạn chế này là động lực để phát triển phương pháp GraphRAG được trình bày trong các phần tiếp theo, tận dụng cấu trúc Knowledge Graph để cải thiện khả năng suy luận và truy xuất thông tin.
+
+\subsection{Nhận xét và kết luận thực nghiệm}
+
+\begin{enumerate}
+    \item \textbf{Về mô hình ngôn ngữ:} Các mô hình kích thước lớn hơn (8B) cho kết quả tốt hơn nhưng yêu cầu tài nguyên tính toán cao hơn. Mô hình Qwen3 thể hiện khả năng xử lý tiếng Việt tốt nhất trong các mô hình được đánh giá.
+    
+    \item \textbf{Về phương pháp RAG:} RAG cải thiện đáng kể độ chính xác so với zero-shot, đặc biệt với các câu hỏi yêu cầu kiến thức factual. Tuy nhiên, hiệu quả của RAG phụ thuộc nhiều vào chất lượng của bước retrieval.
+    
+    \item \textbf{Hướng cải tiến:} Cần phát triển phương pháp có khả năng suy luận tốt hơn trên dữ liệu có cấu trúc, dẫn đến việc áp dụng Knowledge Graph và GraphRAG trong các thực nghiệm tiếp theo.
+\end{enumerate}

@@ -1,0 +1,46 @@
+\section{Retrieval-Augmented Generation (RAG)}
+
+\subsection{Tổng quan về RAG}
+
+Sự phát triển của các mô hình ngôn ngữ lớn như GPT, BART, hay T5 đã đạt được những thành tựu đáng kể trong việc lưu trữ và xử lý tri thức thông qua hàng tỷ tham số. Tuy nhiên, các mô hình này đối mặt với hai hạn chế cốt lõi: (1) tính "tĩnh" của tri thức, dẫn đến việc không thể cập nhật thông tin mới sau thời điểm huấn luyện (temporal cutoff), và (2) hiện tượng "ảo giác" (hallucination), nơi mô hình sinh ra thông tin sai lệch nhưng với độ tin cậy giả tạo \cite{https://arxiv.org/pdf/2507.18910v1}. Những hạn chế này làm giảm hiệu suất của LLMs trong các tác vụ đòi hỏi tri thức chuyên sâu hoặc dữ liệu thời gian thực.
+
+RAG được đề xuất như một phương pháp tiếp cận lai, kết hợp sức mạnh sinh ngữ nghĩa của LLMs (bộ nhớ tham số) với khả năng truy xuất chính xác từ một kho dữ liệu bên ngoài (bộ nhớ phi tham số) \cite{lewis2020rag, guu2020realm}. Cơ chế vận hành nền tảng của RAG bao gồm việc truy xuất các đoạn văn bản liên quan từ một kho ngữ liệu quy mô lớn để làm ngữ cảnh bổ sung cho mô-đun sinh, qua đó giảm thiểu ảo giác và cho phép cập nhật tri thức mà không cần tái huấn luyện mô hình.
+
+Các nghiên cứu tiên phong như RAG \cite{lewis2020rag} và REALM \cite{guu2020realm} đã minh chứng hiệu quả của phương pháp này trên các tác vụ Open-domain QA. Tiếp nối hướng đi này, các kiến trúc như RETRO \cite{borgeaud2022retro} hay Fusion-in-Decoder (FiD) \cite{izacard2021fid} đã khẳng định rằng việc tích hợp cơ chế retrieval vào quá trình generation cho phép cải thiện đáng kể độ chính xác và khả năng mở rộng quy mô tri thức mà không làm tăng chi phí tính toán tương ứng của mô hình.
+
+\subsection{Kiến trúc và cơ chế hoạt động của RAG}
+\label{sec:rag_arch}
+
+Kiến trúc RAG tiêu chuẩn bao gồm hai thành phần chính hoạt động tuần tự: \textbf{Retriever} và \textbf{Generator}. Quy trình xử lý thông tin diễn ra theo ba bước: (1) Mã hóa truy vấn và truy xuất $k$ tài liệu liên quan; (2) Kết hợp tài liệu truy xuất với truy vấn gốc; (3) Sinh câu trả lời dựa trên ngữ cảnh tổng hợp.
+
+\paragraph{Retriever ($p_\eta(z|x)$):} 
+Thành phần này đảm nhận chức năng định vị các đoạn văn bản phù hợp nhất từ kho dữ liệu. Các hệ thống hiện đại chủ yếu sử dụng kiến trúc \textit{Dense Retrieval} với mô hình Bi-Encoder. Cụ thể, truy vấn $x$ và tài liệu $z$ được mã hóa thành các vector trong không gian nhiều chiều:
+\begin{equation}
+    sim(x, z) = E_Q(x)^T E_D(z)
+\end{equation}
+Trong đó $E_Q$ và $E_D$ là các bộ mã hóa (thường là BERT-based). Việc tìm kiếm các vector tương đồng nhất được thực hiện thông qua thuật toán MNS (Maximum Inner Product Search) sử dụng các thư viện như FAISS \cite{karpukhin2020dpr}, giúp vượt trội hơn so với các phương pháp khớp từ khóa truyền thống (như BM25) về mặt ngữ nghĩa.
+
+\paragraph{Generator ($p_\theta(y|x, z)$):} 
+Đây thường là một mô hình seq2seq (như BART, T5) nhận đầu vào là chuỗi kết hợp giữa truy vấn và các đoạn văn bản đã truy xuất để sinh ra câu trả lời $y$. Có hai chiến lược fusion chính:
+\begin{itemize}
+    \item \textbf{Late Fusion (RAG-Token):} Mô hình tính toán xác suất phân phối từ vựng trên từng tài liệu truy xuất và sau đó thực hiện biên duyên hóa (marginalization) để tổng hợp kết quả \cite{lewis2020rag}.
+    \item \textbf{Early Fusion (Fusion-in-Decoder - FiD):} Các đoạn văn bản được xử lý độc lập ở encoder nhưng được đưa đồng thời vào decoder, cho phép cơ chế Attention của mô hình bao quát toàn bộ ngữ cảnh cùng lúc \cite{izacard2021fid}.
+\end{itemize}
+
+\paragraph{Indexing:} 
+Một ưu điểm của RAG là khả năng cập nhật tri thức linh hoạt. Dữ liệu nguồn được chunking thành các đoạn văn (ví dụ: 100--300 tokens) và được vector hóa. Khi có tri thức mới, hệ thống chỉ cần cập nhật lại chỉ mục vector (re-indexing) mà không cần can thiệp vào trọng số của mô hình sinh.
+
+\subsection{Thách thức của RAG}
+Mặc dù RAG mang lại bước tiến lớn so với LLMs truyền thống, việc áp dụng kiến trúc này vào các bài toán phức tạp (như hỏi đáp lịch sử hay pháp lý) vẫn tồn tại nhiều thách thức:
+
+\begin{itemize}
+    \item \textbf{Sai số truy xuất:} Độ chính xác của câu trả lời phụ thuộc chặt chẽ vào chất lượng của các đoạn văn bản được truy xuất. Trong các trường hợp truy vấn mơ hồ hoặc yêu cầu khớp ngữ nghĩa tinh tế, Retriever có thể trả về thông tin nhiễu, dẫn đến sai lệch ở đầu ra \cite{karpukhin2020dpr}.
+    
+    \item \textbf{Mất ngữ cảnh toàn cục:} Quá trình chunking tài liệu vô tình cắt đứt sự liên kết mạch lạc của văn bản gốc. Điều này đặc biệt nghiêm trọng đối với các dữ liệu lịch sử, nơi chuỗi sự kiện và bối cảnh rộng đóng vai trò then chốt.
+    
+    \item \textbf{Hạn chế trong suy luận đa bước:} Các câu hỏi phức tạp thường yêu cầu tổng hợp thông tin từ nhiều nguồn rời rạc (ví dụ: A dẫn đến B, B dẫn đến C). Kiến trúc RAG cơ bản thường gặp khó khăn trong việc kết nối các "mảnh ghép" logic này nếu chúng không xuất hiện cùng nhau trong một đoạn văn \cite{izacard2021fid}.
+    
+    \item \textbf{Tính minh bạch trong RAG:} Mặc dù RAG cung cấp nguồn dẫn, việc xác thực độ tin cậy của từng nguồn và giải thích quy trình tổng hợp thông tin của Generator vẫn là một bài toán mở.
+\end{itemize}
+
+Những hạn chế nêu trên, đặc biệt là khả năng suy luận cấu trúc và kết nối tri thức, là động lực thúc đẩy sự phát triển của các hướng tiếp cận mới như \textbf{GraphRAG} — nơi Knowledge Graph được tích hợp để nâng cao khả năng biểu diễn và truy xuất thông tin phức tạp.

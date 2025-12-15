@@ -1,0 +1,71 @@
+\section{Graph-based Retrieval-Augmented Generation}
+
+\subsection{Tổng quan về GraphRAG}
+
+GraphRAG đại diện cho một bước tiến hóa quan trọng trong kiến trúc RAG truyền thống. Thay vì dựa chủ yếu vào các chỉ mục vector của các đoạn văn bản rời rạc, GraphRAG tổ chức tri thức phi tham số thành một cấu trúc Đồ thị Tri thức có quan hệ rõ ràng \cite{lewis2020rag}. Mục tiêu cốt lõi của phương pháp này là khắc phục những hạn chế cơ bản của RAG dựa trên vector thuần túy, đặc biệt trong các tác vụ đòi hỏi hiểu biết sâu về cấu trúc quan hệ, bối cảnh thời gian, dòng sự kiện và nhu cầu truy xuất nguồn gốc một cách minh bạch.
+
+Bằng cách mã hóa tri thức thành một mạng lưới các entities được kết nối bởi các relations và edges, GraphRAG tạo ra một không gian tri thức vừa giàu ngữ nghĩa vừa có cấu trúc chặt chẽ. Cách tiếp cận này mang lại một số lợi thế nổi bật so với kiến trúc truyền thống:
+
+\begin{itemize}
+    \item \textbf{Truy xuất theo Cấu trúc và Ngữ nghĩa:} Hệ thống không chỉ tìm kiếm dựa trên semantic similarity mà còn có khả năng thực hiện các phép graph traversal và so khớp dựa trên topological matching. Điều này cho phép định vị chính xác hơn các mảnh thông tin có liên quan về mặt logic, ngay cả khi biểu đạt ngôn ngữ bề mặt khác biệt.
+
+    \item \textbf{Khả năng Lập luận Đa bước:} Kiến trúc đồ thị cho phép hệ thống lần theo các chuỗi quan hệ để kết nối những thông tin tưởng chừng rời rạc trong các đoạn văn bản khác nhau. Đặc tính này là chìa khóa để giải quyết các câu hỏi phức tạp yêu cầu suy diễn nguyên nhân - hệ quả, phân tích ảnh hưởng, hoặc tổng hợp thông tin từ nhiều nguồn.
+
+    \item \textbf{Tính Minh bạch và Khả năng Giải thích Cao:} Mỗi phản hồi trong câu trả lời cuối cùng có thể được truy ngược về một hoặc một chuỗi các edges cụ thể trong đồ thị. Điều này cung cấp một cơ chế kiểm chứng mạnh mẽ, cho phép người dùng và nhà phát triển truy vết nguồn gốc của thông tin, đánh giá độ tin cậy và hiểu được quy trình suy luận đằng sau câu trả lời.
+\end{itemize}
+
+Các nghiên cứu khảo sát gần đây \cite{turn0search2, turn0search1} đã chỉ ra rằng GraphRAG đặc biệt phù hợp cho các lĩnh vực mà dữ liệu có tính liên kết nội tại cao, chẳng hạn như phân tích tài liệu lịch sử, y sinh học, hay mạng lưới tài chính, nơi mà các mối quan hệ giữa các thực thể đóng vai trò then chốt.
+
+\subsection{Kiến trúc và cơ chế hoạt động của hệ thống GraphRAG}
+
+Kiến trúc của hệ thống GraphRAG được thiết kế theo một pipeline tuần tự nhằm chuyển hóa tri thức từ dữ liệu đồ thị thành câu trả lời văn bản có khả năng giải thích cao. Kiến trúc này có thể được khái quát thành sáu giai đoạn xử lý chính, từ việc xây dựng nền tảng tri thức cho đến việc sinh và xác thực câu trả lời cuối cùng.
+
+\begin{enumerate}
+    \item \textbf{Xây dựng Đồ thị Tri thức:} \\
+    Đầu tiên, dữ liệu được trích xuất từ dữ liệu văn bản phi cấu trúc để xây dựng một KG có cấu trúc. Quá trình này bao gồm:
+    \begin{itemize}
+        \item \textit{Named Entity Recognition:} Xác định các thực thể chính như nhân vật, sự kiện, địa điểm, và tổ chức.
+        \item \textit{Relation Extraction:} Phát hiện các mối quan hệ ngữ nghĩa có ý nghĩa giữa các thực thể đã được nhận diện.
+        \item \textit{Entity Linking:} Hợp nhất các tham chiếu khác nhau chỉ đến cùng một thực thể trong thế giới thực thành một nút duy nhất trên đồ thị, đảm bảo tính nhất quán và toàn vẹn của tri thức \cite{turn0search1}.
+    \end{itemize}
+    Kết quả của giai đoạn này là một KG trong đó các nodes đại diện cho thực thể và các edges đại diện cho quan hệ giữa chúng.
+
+    \item \textbf{Hybrid Indexing:} \\
+    Để hỗ trợ cả tìm kiếm ngữ nghĩa lẫn truy vấn cấu trúc, hệ thống duy trì song song hai cơ chế lập chỉ mục:
+    \begin{itemize}
+        \item \textbf{Vector Index:} Lưu trữ các embedding ngữ nghĩa của các nút và/hoặc đoạn văn bản, cho phép tìm kiếm nhanh dựa trên độ tương đồng ngữ nghĩa.
+        \item \textbf{Graph Index:} Lưu trữ cấu trúc liền kề và các thuộc tính của đồ thị, cho phép thực hiện hiệu quả các phép duyệt đồ thị và truy vấn quan hệ.
+    \end{itemize}
+
+    \item \textbf{Query Parsing \& Entity Linking:} \\
+    Khi nhận được một truy vấn tự nhiên từ người dùng, hệ thống sẽ:
+    \begin{itemize}
+        \item Phân tích cú pháp và ngữ nghĩa của truy vấn để hiểu ý định.
+        \item Nhận diện các thực thể có trong truy vấn.
+        \item Thực hiện liên kết các thực thể này với các nút tương ứng trong KG, từ đó xác định được các "nút gốc" (seed nodes) cho bước truy xuất tiếp theo.
+    \end{itemize}
+
+    \item \textbf{Subgraph Retrieval:} \\
+    Từ các nút gốc đã xác định, hệ thống tiến hành mở rộng để truy xuất một phần đồ thị con có liên quan trực tiếp đến câu hỏi. Các chiến lược truy xuất phổ biến bao gồm:
+    \begin{itemize}
+        \item \textit{K-hop Traversal:} Thu thập tất cả các nút nằm trong phạm vi K bước quan hệ từ nút gốc.
+        \item \textit{Random Walk:} Mô phỏng các đường đi ngẫu nhiên trên đồ thị để lấy mẫu các nút và cạnh có liên quan về mặt cấu trúc.
+    \end{itemize}
+    Đồ thị con này chứa tập hợp thông tin được cho là cần thiết để trả lời câu hỏi.
+
+    \item \textbf{Linearization \& Prompt Engineering:} \\
+    Để LLM có thể xử lý được cấu trúc đồ thị, đồ thị con cần được "làm phẳng" thành một biểu diễn văn bản tuần tự. Quá trình này, gọi là tuyến tính hóa, có thể thực hiện bằng cách:
+    \begin{itemize}
+        \item Chuyển đổi các bộ ba (subject, predicate, object) trong đồ thị con thành các câu văn tự nhiên hoặc danh sách có cấu trúc.
+        \item Nhúng biểu diễn văn bản này vào một khuôn mẫu prompt cùng với truy vấn gốc, cung cấp ngữ cảnh rõ ràng và hướng dẫn cụ thể cho LLM về nhiệm vụ cần thực hiện.
+    \end{itemize}
+
+    \item \textbf{Answer Generation \& Verification:} \\
+    Prompt đã được tăng cường thông tin được đưa vào LLM để sinh ra câu trả lời dạng văn bản. Để nâng cao độ tin cậy, hệ thống có thể bao gồm một bước post-hoc verification:
+    \begin{itemize}
+        \item So sánh ngược các tuyên bố trong câu trả lời với các sự kiện trong đồ thị tri thức gốc.
+        \item Xác nhận hoặc cảnh báo về những thông tin có thể không được hỗ trợ đầy đủ bởi nguồn dữ liệu, từ đó tăng cường khả năng giải thích và độ tin cậy của toàn hệ thống.
+    \end{itemize}
+\end{enumerate}
+
+Kiến trúc sáu bước trên tạo thành một hệ thống khép kín, cho phép GraphRAG kết hợp hiệu quả sức mạnh của biểu diễn tri thức có cấu trúc với khả năng sinh ngôn ngữ linh hoạt của LLM, đặc biệt phù hợp cho các tác vụ hỏi đáp yêu cầu suy luận đa bước và truy xuất nguồn gốc rõ ràng.

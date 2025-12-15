@@ -1,0 +1,387 @@
+\section{Thực nghiệm hệ thống GraphRAG}
+\label{sec:experiment4}
+
+Phần này trình bày chi tiết việc triển khai và đánh giá hệ thống GraphRAG cho bài toán trả lời câu hỏi lịch sử Việt Nam, tận dụng Knowledge Graph đã xây dựng kết hợp với mô hình ngôn ngữ lớn.
+
+\subsection{Thiết lập thực nghiệm}
+
+\textbf{Cấu hình mô hình và hệ thống}
+
+\begin{table}[H]
+\centering
+\caption{Cấu hình thực nghiệm hệ thống GraphRAG}
+\label{tab:graphrag-config}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Thành phần} & \textbf{Cấu hình} \\
+\hline
+Mô hình sinh câu trả lời & Qwen/Qwen3-4B \\
+Mô hình embedding & Qwen/Qwen3-Embedding-0.6B \\
+Mô hình reranking & Qwen/Qwen3-Reranker-0.6B \\
+Knowledge Graph & Neo4j Aura Cloud \\
+GPU & NVIDIA Tesla T4 (16GB) \\
+Max context tokens & 5000 \\
+Top-K retrieval & 10 candidates \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Bộ dữ liệu đánh giá}
+Thực nghiệm được thực hiện trên toàn bộ 1000 câu hỏi đã được tạo trước đó.
+
+\subsection{Kiến trúc hệ thống GraphRAG}
+\label{subsec:graphrag-architecture}
+
+\textbf{Bước 1: Nhận dạng loại câu hỏi}
+Lớp \texttt{QuestionClassifier} phân loại câu hỏi thành MCQ hoặc True/False dựa trên:
+\begin{itemize}
+    \item \textbf{Cấu trúc options:} Phát hiện pattern \texttt{[A/B/C/D]} trong câu hỏi
+    \item \textbf{Từ khóa đặc trưng:} Nhận diện các cụm từ như ``đúng hay sai'', ``phát biểu...đúng'', ``khẳng định nào đúng''
+    \item \textbf{Format đặc thù:} Câu hỏi True/False thường có hai phần: phát biểu và tư liệu tham chiếu
+\end{itemize}
+
+\textbf{Bước 2: Trích xuất thực thể}
+Lớp \texttt{EntityExtractor} thực hiện trích xuất entity từ câu hỏi qua ba phương pháp:
+
+\begin{table}[H]
+\centering
+\caption{Các phương pháp trích xuất thực thể trong GraphRAG}
+\label{tab:entity-extraction-methods}
+\begin{tabular}{|l|p{9cm}|}
+\hline
+\textbf{Phương pháp} & \textbf{Mô tả} \\
+\hline
+Từ khóa predefined & Sử dụng danh sách từ khóa lịch sử đã được phân tích để nhận diện các entity phổ biến \\
+\hline
+Regex patterns & Nhận diện tên riêng, năm tháng, tổ chức, hiệp định thông qua các biểu thức chính quy \\
+\hline
+LLM-based extraction & Sử dụng Qwen3-4B với prompt chuyên biệt để nhận diện entity khi các phương pháp trên không đủ \\
+\hline
+\end{tabular}
+\end{table}
+
+Đối với câu hỏi True/False, hệ thống tách riêng phần ``phát biểu'' cần đánh giá và ``tư liệu'' đính kèm (nếu có) để xử lý riêng biệt.
+
+\textbf{Bước 3: Truy vấn Knowledge Graph}
+Lớp \texttt{GraphRetriever} thực hiện truy vấn Neo4j qua các bước:
+
+\begin{enumerate}
+    \item \textbf{Entity matching:} Tìm kiếm các node trong KG khớp với entity đã trích xuất
+    \item \textbf{Graph traversal:} Duyệt đồ thị từ các node đã tìm được để thu thập sub-graph liên quan
+    \item \textbf{Kết hợp full-text search:} Sử dụng full-text index của Neo4j để tìm các đoạn văn bản liên quan
+    \item \textbf{Giới hạn kích thước:} Chỉ lấy tối đa 50 nodes để đảm bảo context không quá lớn
+\end{enumerate}
+
+\textbf{Bước 4: Xây dựng context}
+Lớp \texttt{ContextBuilder} kết hợp thông tin từ nhiều nguồn với token budget 5000 tokens:
+
+\begin{itemize}
+    \item \textbf{Entity descriptions:} Mô tả trực tiếp của các entity từ KG
+    \item \textbf{Relationship contexts:} Thông tin về các mối quan hệ giữa entity
+    \item \textbf{Relevant passages:} Các đoạn văn bản liên quan từ tài liệu gốc
+    \item \textbf{Trust Score calculation:} Tính điểm tin cậy dựa trên độ tương đồng của top-3 candidates
+\end{itemize}
+
+\textbf{Bước 5: Sinh câu trả lời}
+Lớp \texttt{AnswerGenerator} sử dụng Qwen3-4B với prompt template chuyên biệt:
+
+\paragraph{Prompt cho câu hỏi MCQ:}
+\begin{lstlisting}[language=Python, basicstyle=\small, breaklines=true]
+Ban la chuyen gia lich su Viet Nam. Dua tren ngu canh duoi day, hay phan tich tung lua chon A, B, C, D va chon dap an dung nhat.
+
+NGU CANH: {context}
+
+CAU HOI: {question}
+
+CAC LUA CHON:
+A. {option_a}
+B. {option_b}
+C. {option_c}
+D. {option_d}
+
+Hay phan tich ngan gon tung lua chon, sau do dua ra dap an cuoi cung voi dinh dang: DAP AN: [A/B/C/D]
+\end{lstlisting}
+
+\paragraph{Prompt cho câu hỏi TF:}
+\begin{lstlisting}[language=Python, basicstyle=\small, breaklines=true]
+Ban la chuyen gia lich su Viet Nam. Danh gia phat bieu duoi day dua tren tu lieu nguon (neu co) va ngu canh duoc cung cap.
+
+TU LIEU NGUON (neu co): {source_text}
+
+NGU CANH: {context}
+
+PHAT BIEU CAN DANH GIA: {statement}
+
+Hay so sanh chinh xac phat bieu voi tu lieu nguon va ngu canh, sau do dua ra ket luan voi dinh dang: KET LUAN: DUNG/SAI
+\end{lstlisting}
+
+\textbf{Bước 6: Chuẩn hóa kết quả}
+Lớp \texttt{AnswerFormatter} trích xuất câu trả lời cuối cùng từ raw response của LLM bằng multiple regex patterns:
+
+\begin{itemize}
+    \item \textbf{Pattern MCQ:} \texttt{(ĐÁP ÁN|Đáp án|Kết quả|Kết luận)[:\s]*([A-D])}
+    \item \textbf{Pattern True/False:} \texttt{(KẾT LUẬN|Kết luận|Đáp án)[:\s]*(ĐÚNG|SAI|Đúng|Sai)}
+    \item \textbf{Fallback strategy:} Nếu không khớp pattern, sử dụng heuristic rules dựa trên từ khóa trong response
+\end{itemize}
+
+\subsection{Kết quả thực nghiệm}
+
+\textbf{Kết quả tổng quan}
+Sau khi xử lý toàn bộ 1000 câu hỏi trong thời gian 6.66 giờ, hệ thống đạt được kết quả như Bảng \ref{tab:graphrag-main-results}.
+
+\begin{table}[H]
+\centering
+\caption{Kết quả đánh giá hệ thống GraphRAG trên 1000 câu hỏi}
+\label{tab:graphrag-main-results}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Loại câu hỏi} & \textbf{Tổng số} & \textbf{Đúng} & \textbf{Độ chính xác} \\
+\hline
+Trắc nghiệm (MCQ) & 507 & 299 & 58.97\% \\
+Đúng/Sai (True/False) & 493 & 331 & 67.14\% \\
+\hline
+\textbf{Tổng cộng} & \textbf{1000} & \textbf{630} & \textbf{63.00\%} \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Phân tích hiệu suất theo độ tin cậy}
+Hệ thống tính toán Trust Score dựa trên điểm trung bình của top-3 candidates được retrieve. Phân bố kết quả theo mức độ tin cậy được trình bày trong Bảng \ref{tab:trust-distribution}.
+
+\begin{table}[H]
+\centering
+\caption{Phân bố kết quả theo mức độ tin cậy (Trust Level)}
+\label{tab:trust-distribution}
+\begin{tabular}{|l|c|c|p{7cm}|}
+\hline
+\textbf{Trust Level} & \textbf{Score range} & \textbf{Số câu} & \textbf{Đặc điểm và nguyên nhân} \\
+\hline
+High & $>$ 0.7 & 45 (4.5\%) & Context có độ liên quan cao với câu hỏi, entity được nhận dạng chính xác \\
+\hline
+Medium & 0.5 -- 0.7 & 287 (28.7\%) & Context có độ liên quan trung bình, một số entity không khớp hoàn toàn \\
+\hline
+Low & $<$ 0.5 & 668 (66.8\%) & Context có độ liên quan thấp, entity không được nhận dạng hoặc không có trong KG \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Thống kê thời gian xử lý}
+Thời gian trung bình xử lý mỗi câu hỏi là 23.98 giây, với phân bố chi tiết như Bảng \ref{tab:processing-time}.
+
+\begin{table}[H]
+\centering
+\caption{Thời gian xử lý trung bình cho từng bước}
+\label{tab:processing-time}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Bước xử lý} & \textbf{Thời gian (giây)} \\
+\hline
+Nhận dạng loại câu hỏi & 0.15 \\
+Trích xuất thực thể & 1.23 \\
+Truy vấn Knowledge Graph & 2.45 \\
+Xây dựng context & 1.67 \\
+Sinh câu trả lời với Qwen3-4B & 17.32 \\
+Chuẩn hóa kết quả & 1.16 \\
+\hline
+\textbf{Tổng cộng} & \textbf{23.98} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Phân tích lỗi chi tiết}
+
+Từ 370 câu trả lời sai, phân tích chi tiết cho thấy các nguyên nhân chính như Bảng \ref{tab:error-analysis}.
+
+\begin{table}[H]
+\centering
+\caption{Phân tích lỗi của hệ thống GraphRAG (370 câu sai)}
+\label{tab:error-analysis}
+\begin{tabular}{|l|c|c|p{7cm}|}
+\hline
+\textbf{Nguyên nhân lỗi} & \textbf{MCQ} & \textbf{TF} & \textbf{Mô tả chi tiết và ví dụ} \\
+\hline
+Entity không được nhận dạng & 78 & 45 & Các entity trong câu hỏi không khớp với KG, đặc biệt là tên sự kiện phức tạp (``Cương lĩnh chính trị tháng 2/1930'') \\
+\hline
+Context không đầy đủ & 65 & 52 & Sub-graph từ KG thiếu thông tin cần thiết để trả lời, thường do giới hạn 50 nodes \\
+\hline
+Suy luận sai từ context đúng & 42 & 38 & LLM hiểu sai mối quan hệ trong context, ví dụ: nhầm ``tiền thân'' với ``thành viên'' \\
+\hline
+Nhầm lẫn thời gian/sự kiện & 23 & 27 & Các sự kiện có năm gần nhau bị nhầm lẫn (1919 vs 1920, 1954 vs 1975) \\
+\hline
+\textbf{Tổng} & \textbf{208} & \textbf{162} & \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Case study 1: Lỗi nhận dạng cơ quan Liên hợp quốc}
+
+\begin{itemize}
+    \item \textbf{Câu hỏi:} ``Một trong những cơ quan hành chính của Liên hợp quốc là''
+    \item \textbf{Options:} 
+    \begin{itemize}
+        \item A. Đại hội đồng
+        \item B. Hội đồng Bảo an
+        \item C. Ban thư ký
+        \item D. Quỹ nhi đồng
+    \end{itemize}
+    \item \textbf{Đáp án đúng:} C. Ban thư ký
+    \item \textbf{Model trả lời:} D. Quỹ nhi đồng
+    \item \textbf{Nguyên nhân:} Mô hình nhầm lẫn giữa ``cơ quan hành chính'' và ``cơ quan chuyên môn'', trong khi context từ KG không cung cấp đủ thông tin phân biệt rõ ràng hai loại cơ quan này.
+\end{itemize}
+
+\textbf{Case study 2: Lỗi về năm thành lập Hội Quốc liên}
+
+\begin{itemize}
+    \item \textbf{Câu hỏi:} ``Hội Quốc liên được thành lập vào năm nào?''
+    \item \textbf{Options:}
+    \begin{itemize}
+        \item A. 1919
+        \item B. 1920
+        \item C. 1921
+        \item D. 1918
+    \end{itemize}
+    \item \textbf{Đáp án đúng:} B. 1920
+    \item \textbf{Model trả lời:} A. 1919
+    \item \textbf{Nguyên nhân:} Hội nghị Paris diễn ra năm 1919, nhưng Hội Quốc liên chính thức thành lập năm 1920. Context từ KG có đề cập đến ``sau Chiến tranh thế giới thứ nhất'' và ``Hội nghị Paris 1919'' khiến model suy luận sai.
+\end{itemize}
+
+\textbf{Case study 3: Lỗi đánh giá câu hỏi True/False với tư liệu}
+
+Với câu hỏi TF dạng tư liệu, model thường gặp khó khăn trong việc phân biệt giữa ``nội dung tư liệu nói gì'' và ``phát biểu đánh giá về tư liệu có đúng không'':
+
+\begin{itemize}
+    \item \textbf{Tư liệu:} ``Hiệp định Giơ-ne-vơ năm 1954 về Đông Dương là văn bản pháp lý quốc tế ghi nhận các quyền dân tộc cơ bản của ba nước Đông Dương...''
+    \item \textbf{Phát biểu:} ``Hiệp định Giơ-ne-vơ đã tạo ra cơ sở pháp lý để Việt Nam đấu tranh thống nhất đất nước''
+    \item \textbf{Đáp án đúng:} Sai (phát biểu dùng từ ``tạo ra'' thay vì ``tạo cơ sở'' như tư liệu, sự khác biệt về ngữ nghĩa)
+    \item \textbf{Model trả lời:} Đúng
+    \item \textbf{Nguyên nhân:} Model đánh giá theo ý nghĩa tổng quát thay vì so khớp chính xác với ngôn ngữ tư liệu. Model không nhận ra sự khác biệt tinh tế giữa ``ghi nhận các quyền'' (trong tư liệu) và ``tạo ra cơ sở pháp lý'' (trong phát biểu).
+\end{itemize}
+
+\subsection{Phân tích vai trò của Knowledge Graph}
+
+\textbf{Đóng góp của các nguồn evidence}
+Hệ thống thu thập evidence từ 4 nguồn chính trong Knowledge Graph, với phân bố như Bảng \ref{tab:evidence-sources}.
+
+\begin{table}[H]
+\centering
+\caption{Phân bố nguồn evidence trong các câu trả lời đúng}
+\label{tab:evidence-sources}
+\begin{tabular}{|l|c|p{7cm}|}
+\hline
+\textbf{Nguồn evidence} & \textbf{Tỷ lệ} & \textbf{Mô tả chi tiết và ví dụ} \\
+\hline
+entity\_direct & 35\% & Mô tả trực tiếp của entity trong KG, ví dụ: mô tả về ``Hội Quốc liên'' từ node property \\
+\hline
+entity\_passage & 28\% & Đoạn văn liên quan đến entity được trích từ tài liệu gốc, cung cấp ngữ cảnh chi tiết \\
+\hline
+relationship\_context & 22\% & Thông tin từ các mối quan hệ giữa entity, ví dụ: quan hệ ``tiền thân của'' giữa Hội Quốc liên và Liên hợp quốc \\
+\hline
+fulltext\_search & 15\% & Kết quả tìm kiếm toàn văn từ Neo4j, bổ sung thông tin khi các phương pháp trên không đủ \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Ví dụ về evidence hiệu quả}
+Với câu hỏi ``Tổ chức quốc tế được xem như tiền thân của Liên hợp quốc là'', hệ thống retrieve được evidence chất lượng cao từ KG:
+
+\begin{lstlisting}[language=Python, caption={Ví dụ evidence từ Knowledge Graph cho câu hỏi về Hội Quốc liên}, label={lst:evidence-example}, basicstyle=\footnotesize, breaklines=true]
+{
+  "source": "Hoi_Quoc_lien",
+  "score": 0.4663,
+  "provenance": "entity_direct",
+  "text_preview": "Hoi Quoc lien: To chuc quoc te tien than cua Lien hop quoc, duoc thanh lap nam 1920 sau Chien tranh the gioi thu nhat, co nhiem vu duy tri hoa binh va an ninh the gioi.",
+  "entity_type": "Organization",
+  "relationships": [
+    {
+      "type": "TIEN_THAN_CUA",
+      "target": "Lien_hop_quoc",
+      "properties": {"description": "To chuc tien than truc tiep"}
+    }
+  ]
+}
+\end{lstlisting}
+
+Evidence này trực tiếp cung cấp thông tin chính xác để model trả lời đúng ``A. Hội Quốc liên'' mà không cần suy luận phức tạp.
+
+\subsection{So sánh với các phương pháp khác}
+
+Kết quả so sánh hiệu suất giữa GraphRAG và các phương pháp baseline được trình bày trong Bảng \ref{tab:method-comparison-full}.
+
+\begin{table}[H]
+\centering
+\caption{So sánh hiệu suất các phương pháp QA trên bộ 1000 câu hỏi}
+\label{tab:method-comparison-full}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Phương pháp} & \textbf{MCQ Acc.} & \textbf{T/F Acc.} & \textbf{Overall Acc.} & \textbf{Avg Time (s)} \\
+\hline
+LLM Zero-shot (Qwen3-4B) & 41.8\% & 58.4\% & 49.9\% & 5.2 \\
+RAG + FAISS (Traditional) & 62.9\% & 52.9\% & 58.0\% & 12.1 \\
+\hline
+\textbf{GraphRAG (Ours)} & \textbf{58.97\%} & \textbf{67.14\%} & \textbf{63.0\%} & 23.98 \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Phân tích so sánh}
+\begin{itemize}
+    \item \textbf{So với LLM Zero-shot:} GraphRAG cải thiện +13.1\% độ chính xác tổng thể, chứng tỏ việc bổ sung context từ KG giúp LLM đưa ra câu trả lời chính xác hơn so với việc chỉ dựa vào kiến thức có sẵn trong mô hình.
+    \item \textbf{So với RAG truyền thống:} GraphRAG hơn +5\% độ chính xác tổng thể. Đặc biệt, với câu hỏi True/False, GraphRAG đạt hiệu suất cao hơn đáng kể (+14.24\%), cho thấy knowledge graph với cấu trúc quan hệ giúp hệ thống đánh giá tính đúng/sai của phát biểu lịch sử tốt hơn so với RAG dựa trên vector thuần túy. Nhưng đối với câu hỏi MCQ lại thấp hơn khá nhiều. Lý do bởi vì việc truy xuất entity đôi khi không đưa được chính xác về vị trí xuất hiện context.
+    \item \textbf{Đánh đổi thời gian xử lý:} GraphRAG có thời gian xử lý trung bình cao hơn (23.98s so với 12.1s của RAG truyền thống), chủ yếu do chi phí truy vấn đồ thị và xử lý cấu trúc phức tạp của KG.
+\end{itemize}
+
+\subsection{Hạn chế và hướng phát triển}
+
+\textbf{Hạn chế về nhận dạng và truy xuất}
+\begin{itemize}
+    \item \textbf{Khó khăn với entity phức hợp:} Các entity phức tạp như ``Cương lĩnh chính trị tháng 2/1930'', ``Chính sách Kinh tế mới thời kỳ Đổi mới'' thường không được trích xuất chính xác bằng phương pháp regex đơn giản.
+    \item \textbf{Giới hạn kích thước sub-graph:} Giới hạn 50 nodes cho mỗi truy vấn đôi khi không đủ để thu thập toàn bộ context cần thiết cho các câu hỏi phức tạp.
+    \item \textbf{KG chưa thật sự tốt:} Việc truy xuất không tìm ra entity hay không chính xác một phần đến từ dữ liệu KG hoặc từ dữ liệu gốc không đủ. Vì đây là câu hỏi khi thi THPT nên đôi khi sẽ xuất hiện những câu hỏi không có kiến thức trong SGK mà là kiến thức thực tế.
+\end{itemize}
+
+\textbf{Hạn chế về suy luận}
+\begin{itemize}
+    \item \textbf{Khó so khớp ngôn ngữ chính xác:} Model gặp khó khăn với câu hỏi True/False yêu cầu so sánh chính xác ngôn ngữ trong tư liệu nguồn, thường đánh giá theo ý nghĩa tổng quát thay vì từ ngữ cụ thể.
+    \item \textbf{Nhầm lẫn thời gian gần nhau:} Các câu hỏi về thời gian gần nhau (1919 vs 1920, 1954 vs 1975) dễ gây nhầm lẫn do context từ KG có thể đề cập đến cả hai sự kiện.
+    \item \textbf{Thiếu khả năng suy luận đa bước:} Model chưa xử lý tốt các câu hỏi yêu cầu suy luận qua nhiều bước dựa trên các quan hệ trong KG.
+\end{itemize}
+\\
+
+\textbf{Hướng phát triển tương lai}
+\begin{enumerate}
+    \item \textbf{Mở rộng và tối ưu Knowledge Graph:}
+    \begin{itemize}
+        \item Bổ sung thêm entity và relationship từ nhiều nguồn tài liệu lịch sử đa dạng
+        \item Tối ưu hóa schema để hỗ trợ truy vấn hiệu quả hơn
+        \item Thêm các loại relationship đặc thù cho lịch sử (``dẫn đến'', ``là nguyên nhân của'', ``là kết quả của'')
+    \end{itemize}
+    
+    \item \textbf{Cải thiện khả năng trích xuất entity:}
+    \begin{itemize}
+        \item Fine-tune mô hình NER chuyên biệt cho domain lịch sử Việt Nam
+        \item Kết hợp multiple extraction methods với voting mechanism
+        \item Áp dụng entity linking để ánh xạ entity từ câu hỏi sang KG chính xác hơn
+    \end{itemize}
+    
+    \item \textbf{Nâng cao khả năng suy luận:}
+    \begin{itemize}
+        \item Áp dụng chain-of-thought prompting để cải thiện suy luận đa bước
+        \item Thêm bước verification để kiểm tra tính nhất quán của câu trả lời
+        \item Sử dụng graph reasoning algorithms để khai thác KG hiệu quả hơn
+    \end{itemize}
+    
+    \item \textbf{Tối ưu hóa hiệu suất hệ thống:}
+    \begin{itemize}
+        \item Batch inference cho xử lý hàng loạt câu hỏi
+        \item Caching kết quả truy vấn KG cho các entity phổ biến
+        \item Tối ưu hóa prompt để giảm thời gian sinh câu trả lời
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Kết luận thực nghiệm}
+
+Thực nghiệm với 1000 câu hỏi lịch sử Việt Nam cho thấy hệ thống GraphRAG đạt độ chính xác 63\%, vượt trội so với phương pháp LLM zero-shot và RAG truyền thống. Kiến trúc 6 bước xử lý của hệ thống đã chứng minh hiệu quả trong việc kết hợp Knowledge Graph có cấu trúc với khả năng sinh ngôn ngữ của LLM.
+
+Knowledge Graph đóng vai trò quan trọng trong việc cung cấp context có cấu trúc, đặc biệt hữu ích cho các câu hỏi True/False đạt 67.14\% độ chính xác. Tuy nhiên, các thách thức về nhận dạng entity và suy luận với câu hỏi phức tạp vẫn cần được giải quyết trong các nghiên cứu tiếp theo.
+
+Hướng phát triển tập trung vào mở rộng KG, cải thiện khả năng trích xuất entity chuyên biệt cho lịch sử Việt Nam, và nâng cao khả năng suy luận đa bước, hứa hẹn nâng cao hơn nữa hiệu suất của hệ thống GraphRAG trong tương lai.

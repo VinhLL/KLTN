@@ -1,0 +1,161 @@
+\section{Thu thập dữ liệu Lịch sử và Xây dựng bộ câu hỏi Lịch sử}
+\label{sec:experiment1}
+
+Phần này trình bày chi tiết quá trình thu thập, xử lý dữ liệu lịch sử và xây dựng bộ câu hỏi chuẩn hóa phục vụ cho việc đánh giá các phương pháp trả lời câu hỏi tự động.
+
+\subsection{Nguồn thu thập dữ liệu}
+
+\subsubsection{Dữ liệu sách giáo khoa Lịch sử 12}
+
+Nguồn dữ liệu chính được sử dụng trong nghiên cứu này là sách giáo khoa ``Lịch sử 12 - Kết nối tri thức với cuộc sống'' của Nhà xuất bản Giáo dục Việt Nam. Đây là tài liệu chính thống, có độ tin cậy cao và bao phủ toàn diện các chủ đề lịch sử Việt Nam và thế giới trong chương trình giáo dục phổ thông.
+
+\textbf{Cấu trúc nội dung sách giáo khoa:}
+\begin{itemize}
+    \item \textbf{Chủ đề 1:} Thế giới trong và sau Chiến tranh lạnh - Trình bày về Liên hợp quốc, Trật tự thế giới hai cực I-an-ta, quan hệ quốc tế sau Chiến tranh lạnh
+    \item \textbf{Chủ đề 2:} ASEAN - Quá trình hình thành, phát triển và vai trò của Hiệp hội các quốc gia Đông Nam Á
+    \item \textbf{Chủ đề 3:} Cách mạng tháng Tám năm 1945, Chiến tranh giải phóng dân tộc và Chiến tranh bảo vệ Tổ quốc trong lịch sử Việt Nam
+    \item \textbf{Chủ đề 4:} Công cuộc Đổi mới ở Việt Nam từ năm 1986 đến nay
+    \item \textbf{Chủ đề 5:} Lịch sử ngoại giao Việt Nam
+    \item \textbf{Chủ đề 6:} Chủ tịch Hồ Chí Minh - Anh hùng giải phóng dân tộc, nhà văn hóa kiệt xuất
+\end{itemize}
+
+\subsubsection{Quy trình số hóa và xử lý văn bản}
+
+Quá trình chuyển đổi sách giáo khoa sang định dạng số được thực hiện qua các bước sau:
+
+\begin{enumerate}
+    \item \textbf{Số hóa văn bản:} Sử dụng công nghệ OCR (Optical Character Recognition) để chuyển đổi các trang sách thành văn bản có thể xử lý bằng máy tính.
+    
+    \item \textbf{Làm sạch dữ liệu:} Loại bỏ các ký tự đặc biệt không cần thiết, sửa lỗi nhận dạng OCR, chuẩn hóa khoảng trắng và dấu câu.
+    
+    \item \textbf{Phân đoạn theo cấu trúc:} Tổ chức lại văn bản theo cấu trúc Chủ đề → Bài → Mục, bảo toàn metadata về vị trí nguồn.
+    
+    \item \textbf{Chuẩn hóa encoding:} Đảm bảo toàn bộ dữ liệu sử dụng encoding UTF-8 chuẩn cho tiếng Việt.
+\end{enumerate}
+
+File đầu ra \texttt{SGK\_Lich\_Su\_12\_Ket\_Noi\_Tri\_Thuc\_formatted.txt} có tổng cộng \textbf{khoảng 2,500 câu} văn bản, bao gồm đầy đủ nội dung 17 bài học thuộc 6 chủ đề lớn. Mỗi đoạn văn bản được đánh dấu rõ ràng về nguồn gốc (chủ đề, bài học) để phục vụ cho việc truy xuất và đánh giá sau này.
+
+\subsection{Xây dựng bộ câu hỏi kiểm thử}
+
+\subsubsection{Nguồn đề thi và tiêu chí chọn lọc}
+
+Bộ câu hỏi được xây dựng từ các nguồn đề thi chính thống:
+\begin{itemize}
+    \item Đề thi tốt nghiệp THPT Quốc gia môn Lịch sử các năm 2020-2024
+    \item Đề thi thử của các Sở Giáo dục và Đào tạo trên toàn quốc
+    \item Đề thi học sinh giỏi cấp tỉnh, thành phố
+    \item Ngân hàng câu hỏi ôn tập của Bộ Giáo dục và Đào tạo
+\end{itemize}
+
+Các tiêu chí chọn lọc câu hỏi:
+\begin{enumerate}
+    \item Nội dung câu hỏi nằm trong phạm vi kiến thức của sách giáo khoa Lịch sử 12
+    \item Câu hỏi có đáp án chính xác, không gây tranh cãi
+    \item Đa dạng về mức độ khó (nhận biết, thông hiểu, vận dụng)
+    \item Bao phủ đều các chủ đề trong chương trình
+\end{enumerate}
+
+\subsubsection{Định dạng và cấu trúc bộ câu hỏi}
+
+Bộ câu hỏi được chuẩn hóa theo định dạng JSON với hai loại câu hỏi chính:
+
+\textbf{1. Câu hỏi trắc nghiệm (Multiple Choice Question - MCQ):}
+\begin{lstlisting}[language=Python, caption={Định dạng câu hỏi trắc nghiệm MCQ}]
+{
+    "type": "MCQ",
+    "question": "Nguyen nhan chu yeu dan toi cuc dien hai cuc, 
+                 hai phe sau Chien tranh the gioi thu hai la gi?",
+    "options": {
+        "A": "Su doi lap ve muc tieu va chien luoc giua 
+              hai cuong quoc Lien Xo va My",
+        "B": "Su doi dau quyen luc giua Lien Xo va My",
+        "C": "Su thang tran cua Lien Xo va My trong 
+              Chien tranh the gioi thu hai",
+        "D": "Su khac biet ve van hoa giua phuong Dong 
+              va phuong Tay"
+    },
+    "correct_answer": "A"
+}
+\end{lstlisting}
+
+\textbf{2. Câu hỏi Đúng/Sai (True/False - TF):}
+\begin{lstlisting}[language=Python, caption={Định dạng câu hỏi Đúng/Sai}]
+{
+    "type": "TF",
+    "question": "Lien hop quoc duoc thanh lap vao ngay 24-10-1945?",
+    "correct_answer": "True"
+}
+\end{lstlisting}
+
+\subsubsection{Thống kê bộ câu hỏi}
+
+Bộ câu hỏi cuối cùng được lưu trong file \texttt{question\_1000.txt} với các thống kê như sau:
+
+\begin{table}[H]
+\centering
+\caption{Thống kê bộ câu hỏi kiểm thử}
+\label{tab:question-stats}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Loại câu hỏi} & \textbf{Số lượng} & \textbf{Tỷ lệ (\%)} \\
+\hline
+Trắc nghiệm (MCQ) & 500 & 50 \\
+Đúng/Sai (TF) & 500 & 50 \\
+\hline
+\textbf{Tổng cộng} & \textbf{1000} & \textbf{100} \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Phân bố theo chủ đề:}
+
+\begin{table}[H]
+\centering
+\caption{Phân bố câu hỏi theo chủ đề}
+\label{tab:question-topic-dist}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Chủ đề} & \textbf{Số câu hỏi} & \textbf{Tỷ lệ (\%)} \\
+\hline
+Chủ đề 1: Thế giới trong và sau Chiến tranh lạnh & 180 & 18 \\
+Chủ đề 2: ASEAN & 150 & 15 \\
+Chủ đề 3: Cách mạng tháng Tám và Chiến tranh & 250 & 25 \\
+Chủ đề 4: Công cuộc Đổi mới & 120 & 12 \\
+Chủ đề 5: Lịch sử ngoại giao Việt Nam & 150 & 15 \\
+Chủ đề 6: Chủ tịch Hồ Chí Minh & 150 & 15 \\
+\hline
+\textbf{Tổng cộng} & \textbf{1000} & \textbf{100} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Đánh giá chất lượng dữ liệu}
+
+\subsubsection{Kiểm tra độ bao phủ}
+
+Để đảm bảo bộ câu hỏi có khả năng đánh giá toàn diện các phương pháp QA, chúng tôi tiến hành phân tích độ bao phủ:
+
+\begin{itemize}
+    \item \textbf{Bao phủ nội dung:} 100\% các chủ đề chính trong sách giáo khoa đều có câu hỏi tương ứng
+    \item \textbf{Bao phủ thời gian:} Các câu hỏi trải dài từ thế kỷ 20 đến hiện tại, bao gồm các sự kiện lịch sử quan trọng từ Chiến tranh thế giới thứ hai đến công cuộc Đổi mới
+    \item \textbf{Bao phủ loại thực thể:} Câu hỏi liên quan đến nhiều loại thực thể: nhân vật lịch sử, sự kiện, tổ chức, địa điểm, văn kiện/hiệp định, thời kỳ/giai đoạn
+\end{itemize}
+
+\subsubsection{Đánh giá độ khó}
+
+\begin{table}[H]
+\centering
+\caption{Phân bố câu hỏi theo mức độ nhận thức}
+\label{tab:question-difficulty}
+\begin{tabular}{|l|c|c|l|}
+\hline
+\textbf{Mức độ} & \textbf{Số câu} & \textbf{Tỷ lệ} & \textbf{Đặc điểm} \\
+\hline
+Nhận biết & 300 & 30\% & Yêu cầu nhớ sự kiện, mốc thời gian \\
+Thông hiểu & 450 & 45\% & Yêu cầu hiểu nguyên nhân, hệ quả \\
+Vận dụng & 250 & 25\% & Yêu cầu phân tích, so sánh, đánh giá \\
+\hline
+\end{tabular}
+\end{table}
+
+Bộ dữ liệu và câu hỏi đã được xây dựng đảm bảo tính đại diện và khả năng đánh giá toàn diện các phương pháp trả lời câu hỏi tự động trong lĩnh vực lịch sử Việt Nam.

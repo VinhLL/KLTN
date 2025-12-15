@@ -1,0 +1,36 @@
+\section{Những thách thức trong việc triển khai GraphRAG}
+
+Việc chuyển đổi từ RAG truyền thống sang GraphRAG mang lại lợi ích về khả năng suy luận, nhưng cũng đặt ra những rào cản kỹ thuật đáng kể. Các thách thức chính có thể được phân loại thành: độ phức tạp trong trích xuất tri thức, hiệu năng thời gian thực, và khả năng thích ứng với dữ liệu động.
+
+\subsection{Độ phức tạp và Chi phí xây dựng Đồ thị}
+Quá trình khởi tạo Knowledge Graph từ dữ liệu văn bản thô là giai đoạn tốn kém tài nguyên nhất. Các vấn đề cụ thể bao gồm:
+
+\begin{itemize}
+    \item \textbf{Chi phí trích xuất tri thức}: Việc sử dụng LLM để xác định các Entities và Relations đòi hỏi khối lượng tính toán lớn. So với việc chỉ tạo vector embeddings, việc yêu cầu LLM phân tích ngữ pháp và ngữ nghĩa để trích xuất bộ ba (subject, predicate, object) tiêu tốn nhiều token và thời gian hơn đáng kể. Theo các nghiên cứu thực nghiệm, chi phí xây dựng chỉ mục (indexing) cho GraphRAG có thể cao gấp 10-20 lần so với RAG thông thường \cite{edge2024graphrag}.
+    
+    \item \textbf{Giải quyết Entity Resolution}: Một thách thức lớn là việc hợp nhất các thực thể cùng chỉ một đối tượng nhưng có cách viết khác nhau (ví dụ: "Nguyễn Ái Quốc", "Bác Hồ", "Hồ Chí Minh"). Nếu không có cơ chế Entity Resolution hiệu quả, đồ thị sẽ bị phân mảnh, dẫn đến việc đứt gãy các đường dẫn suy luận. Việc này đòi hỏi các thuật toán clustering phức tạp hoặc mô hình học máy chuyên biệt để gom nhóm chính xác \cite{pan2024unifying}.
+    
+    \item \textbf{Nhiễu dữ liệu)}: Trong quá trình trích xuất, LLM có thể sinh ra các quan hệ không tồn tại hoặc sai lệch so với văn bản gốc (Hallucination). Việc đưa các cạnh sai vào đồ thị không chỉ làm tăng kích thước lưu trữ mà còn dẫn hướng sai cho quá trình suy luận sau này, làm giảm độ tin cậy của hệ thống.
+\end{itemize}
+
+\subsection{Độ trễ truy vấn và Hiệu suất}
+Khác với việc tìm kiếm vector vốn đã được tối ưu hóa rất tốt, việc duyệt đồ thị để trả lời câu hỏi gặp nhiều trở ngại về hiệu năng:
+
+\begin{itemize}
+    \item \textbf{Độ trễ suy luận}: Các truy vấn yêu cầu multi-hop reasoning buộc hệ thống phải duyệt qua nhiều node và edge trung gian. Khi kích thước đồ thị lớn, các thuật toán tìm đường ngắn nhất hoặc lan truyền thông tin có độ phức tạp tính toán cao, gây ra độ trễ đáng kể so với yêu cầu thời gian thực \cite{shao2023enhancing}.
+    
+    \item \textbf{Tối ưu hóa Context Pruning}: Một vấn đề nan giải là xác định bao nhiêu phần của sub-graph nên được đưa vào context của LLM. Nếu lấy quá ít, LLM thiếu thông tin để trả lời. Nếu lấy quá nhiều bao gồm cả các node hàng xóm không liên quan, sẽ gây nhiễu và lãng phí token window, đồng thời làm giảm khả năng tập trung của mô hình vào thông tin trọng tâm.
+    
+    \item \textbf{Sự cân bằng giữa Global và Local}: GraphRAG mạnh ở việc trả lời các câu hỏi tổng hợp bằng cách tóm tắt các Communities. Tuy nhiên, việc sinh ra các Community Summaries là một quá trình tốn kém và cần được thực hiện trước. Cân bằng giữa độ chi tiết của tóm tắt và chi phí lưu trữ là bài toán tối ưu hóa chưa có lời giải chuẩn.
+\end{itemize}
+
+\subsection{Khả năng mở rộng và Cập nhật dữ liệu}
+Duy trì tính nhất quán của Knowledge Graph khi dữ liệu thay đổi theo thời gian là một thách thức lớn về mặt vận hành:
+
+\begin{itemize}
+    \item \textbf{Cập nhật tri thức động}: Trong RAG truyền thống, khi có tài liệu mới, ta chỉ cần thêm vector vào cơ sở dữ liệu. Với GraphRAG, việc thêm một tài liệu mới đòi hỏi phải xác định xem các thực thể mới có liên kết với các thực thể cũ hay không. Quá trình này đòi hỏi phải cập nhật lại cấu trúc đồ thị và có thể phải chạy lại các thuật toán community detection, gây tốn kém tài nguyên tính toán \cite{gao2023retrieval}.
+    
+    \item \textbf{Độ cứng nhắc của Schema}: Việc xác định trước một ontology giúp đồ thị sạch hơn nhưng lại thiếu linh hoạt với dữ liệu mới lạ. Ngược lại, Open Information Extraction giúp linh hoạt nhưng lại tạo ra đồ thị thưa thớt và khó truy vấn. Tìm điểm cân bằng cho thiết kế Schema là một thách thức lớn, đặc biệt với các ngôn ngữ có cấu trúc phức tạp.
+    
+    \item \textbf{Thiếu hụt bộ dữ liệu chuẩn}: Hiện tại, cộng đồng nghiên cứu vẫn thiếu các bộ dữ liệu chuẩn để đánh giá hiệu quả của GraphRAG, đặc biệt là cho các ngôn ngữ tài nguyên thấp. Điều này gây khó khăn cho việc so sánh, đánh giá và tối ưu hóa các kiến trúc pipeline khác nhau.
+\end{itemize}

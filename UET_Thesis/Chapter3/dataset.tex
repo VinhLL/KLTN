@@ -1,0 +1,59 @@
+\section{Thu thập dữ liệu lịch sử và xây dựng bộ câu hỏi}
+\label{sec:data_collection}
+\subsection{Thu thập và xử lý dữ liệu sách giáo khoa}
+Để đảm bảo cơ sở tri thức của hệ thống có độ chính xác cao và bám sát chương trình giáo dục phổ thông, tôi lựa chọn bộ sách giáo khoa \textit{"Lịch sử 12 - Kết nối tri thức"} làm nguồn dữ liệu chính. Quy trình chuyển đổi từ tài liệu thô sang dữ liệu máy có thể đọc hiểu bao gồm các bước sau:
+\begin{enumerate}
+    \item \textbf{Số hóa và Nhận dạng quang học:}
+    Tài liệu gốc dưới định dạng PDF được xử lý thông qua công cụ OCR để trích xuất văn bản. Do đặc thù của sách giáo khoa chứa nhiều thành phần đa phương tiện, chúng tôi thiết lập các bộ lọc tiền xử lý nhằm loại bỏ các dữ liệu nhiễu:
+    \begin{itemize}
+        \item Loại bỏ hoàn toàn hình ảnh minh họa, đánh số trang, bản đồ và các chú thích không chứa kiến thức sự kiện.
+        \item Lược bỏ các phần bổ trợ không nằm trong phạm vi thi cử như: \textit{"Em có biết"}, \textit{"Câu hỏi gợi mở"}, \textit{"Luyện tập - Vận dụng"}.
+    \end{itemize}
+    
+    \item \textbf{Làm sạch và Chuẩn hóa văn bản:}
+    Dữ liệu sau khi OCR thường chứa các lỗi nhận dạng đặc trưng của tiếng Việt. Áp dụng quy trình làm sạch tự động kết hợp rà soát bán tự động:
+    \begin{itemize}
+        \item \textbf{Sửa lỗi chính tả tự động:} Sử dụng biểu thức chính quy để xử lý các lỗi như dính từ (thiếu khoảng trắng), sai ký tự dấu, và các lỗi font Unicode dựng sẵn/tổ hợp.
+        \item \textbf{Tái cấu trúc dòng:} Nối các dòng bị ngắt quãng vô nghĩa thành câu hoàn chỉnh, đảm bảo tính liền mạch về mặt ngữ pháp cho quá trình trích xuất thực thể sau này.
+        \item \textbf{Rà soát bằng tay:} Sau khi tự động làm sạch và chuẩn hóa tự động, vẫn cần tự kiểm tra lại các phần dữ liệu bằng tay. Đảm bảo dữ liệu sau cùng không còn những lỗi nhỏ.
+    \end{itemize}
+    \item \textbf{Chuẩn hóa cấu trúc dữ liệu JSON phân cấp:}
+    Sau khi hoàn thành bước làm sạch văn bản, dữ liệu SGK được chuyển đổi sang định dạng JSON có cấu trúc phân cấp thay vì lưu trữ dạng văn bản thuần. Cấu trúc này phản ánh chính xác cách tổ chức nội dung trong sách giáo khoa theo 4 cấp độ:
+    \begin{itemize}
+        \item \textbf{Cấp 1 - Chủ đề (Topic):} Mỗi chủ đề được định danh bằng \texttt{topic\_id} và mô tả \\ (\texttt{topic\_description}), ví dụ: \textit{"Chủ đề 1: Thế giới trong và sau Chiến tranh Lạnh"}.
+        \item \textbf{Cấp 2 - Bài (Lesson):} Trong mỗi chủ đề chứa nhiều bài học với \texttt{lesson\_id} và \texttt{lesson\_title}, ví dụ: \textit{"Bài 1: Liên hợp quốc"}.
+        \item \textbf{Cấp 3 - Đề mục (Section):} Mỗi mục lớn trong bài được chia thành các đề mục với \texttt{index} (1,2,3,...) là chỉ mục và \texttt{title}, đại diện cho các nội dung chính của mục.
+        \item \textbf{Cấp 4 - Tiểu mục (Subsection):} Đề mục được chia nhỏ thành các tiểu mục với \texttt{label} (a, b, c,...), \texttt{title} và mảng \texttt{content} chứa các đoạn văn bản.
+    \end{itemize}
+    
+    \textbf{Lý do cần chuyển đổi sang cấu trúc phân cấp:}
+    \begin{itemize}
+        \item \textbf{Bảo toàn ngữ cảnh:} Cấu trúc phân cấp giúp mỗi đoạn văn bản duy trì được thông tin về vị trí nằm trong sách. Điều này giúp cho việc phân tích theo ngữ cảnh cho trích xuất thực thể và quan hệ tốt hơn khi có thể quản lý được nội dung chính của phần đang thực hiện.
+        \item \textbf{Hỗ trợ trích xuất quan hệ:} Khi xây dựng Knowledge Graph, việc biết được hai thực thể nằm trong cùng một tiểu mục, đề mục hay bài học giúp xác định mức độ liên quan giữa chúng. Các thực thể xuất hiện trong cùng một \texttt{subsection} thường có quan hệ chặt chẽ hơn so với những thực thể nằm ở các bài khác nhau.
+        \item \textbf{Tối ưu hóa truy vấn RAG:} Cấu trúc JSON cho phép thực hiện truy vấn có chọn lọc theo chủ đề hoặc bài học cụ thể, giúp giảm không gian tìm kiếm và tăng độ chính xác của kết quả truy xuất. Pipeline GraphRAG có thể ưu tiên trả về các \texttt{chunk} thuộc cùng ngữ cảnh với câu hỏi.
+        \item \textbf{Dễ dàng mở rộng và bảo trì:} Định dạng JSON có cấu trúc rõ ràng giúp việc cập nhật, thêm mới hoặc sửa đổi nội dung trở nên dễ dàng hơn so với việc làm việc với văn bản thuần không có cấu trúc.
+    \end{itemize}
+    
+    Kết quả của bước này là file \texttt{SGK\_Lich\_Su\_12\_Ket\_Noi\_Tri\_Thuc.json} chứa toàn bộ nội dung sách giáo khoa đã được chuẩn hóa, bao gồm 6 chủ đề với tổng cộng 17 bài.
+\end{enumerate}
+
+\subsection{Xây dựng bộ câu hỏi kiểm thử chuẩn}
+Để đánh giá khách quan năng lực của hệ thống, bộ câu hỏi kiểm thử được xây dựng dựa trên ngân hàng đề thi chính thức của Bộ Giáo dục và Đào tạo, các sở giáo dục và trường đại học với giới hạn kiến thức nằm ở chương trình lớp 12. Chúng tôi tập trung vào hai định dạng câu hỏi trắc nghiệm khách quan phổ biến nhất, với quy trình xử lý chuyên biệt cho từng loại:
+
+\textbf{Xử lý câu hỏi trắc nghiệm nhiều lựa chọn (Multiple Choice - MCQ).}
+Dạng câu hỏi truyền thống gồm 1 câu dẫn và 4 phương án lựa chọn (A, B, C, D), trong đó chỉ có 1 phương án đúng. Dữ liệu này được giữ nguyên cấu trúc logic. Quy trình xử lý bao gồm OCR đề thi gốc, tách câu hỏi và đáp án, sau đó tự động gán nhãn đúng/sai (\texttt{isCorrect}) dựa trên bảng đáp án. Đây là dạng câu hỏi cơ bản, xuất hiện xuyên suốt các kỳ thi từ lớn đến nhỏ. Tuy là dạng cơ bản nhưng lại khá khó để thực hiện trả lời vì mang đến 4 mệnh đề cần xử lý.
+
+\textbf{Xử lý câu hỏi Đúng/Sai (True/False - TF).}
+Đây là định dạng trắc nghiệm mới áp dụng từ năm 2025, trong đó một câu hỏi lớn được đưa sẵn một số thông tin, phần đáp án bao gồm 4 mệnh đề con, và thí sinh phải xác định tính Đúng/Sai của từng mệnh đề độc lập. Dù đây là dạng câu hỏi mới nhưng lại là một dạng khá dễ xử lý khi mỗi mệnh đề đều độc lập các mệnh đề còn lại.
+
+\textbf{Phương pháp chia nhỏ:}
+Để đánh giá chính xác khả năng suy luận của mô hình đối với từng đơn vị kiến thức nhỏ, có thể không giữ nguyên cấu trúc TF phức hợp mà tách một câu hỏi TF gốc thành 4 câu hỏi độc lập. Khi đó, từ 1 câu hỏi với 4 mệnh đề độc lập sẽ trở thành 4 câu hỏi với chỉ 2 đáp án đúng và sai.
+\textit{Ví dụ:} Từ câu hỏi gốc "Nhận định nào sau đây đúng về chiến dịch Điện Biên Phủ", chúng tôi tách thành 4 câu hỏi dạng: "Mệnh đề: 'Chiến dịch diễn ra năm 1954' là Đúng hay Sai?".
+
+\textbf{Chuẩn hóa định dạng JSON.}
+Toàn bộ câu hỏi sau khi xử lý được chuyển đổi sang định dạng JSON thống nhất để nạp vào pipeline đánh giá tự động.
+\begin{itemize}
+    \item File \texttt{questions\_500.txt}: Chứa danh sách câu hỏi MCQ, TF đã được làm sạch, loại bỏ các câu hỏi thiếu đáp án hoặc lỗi hiển thị.
+    \item File \texttt{question\_1000.txt}: Chứa danh sách câu hỏi MCQ và TF nhưng đã được chia nhỏ thành các cặp câu hỏi - đáp án nhị phân.
+\end{itemize}
+Sau khi đưa tất cả về dạng json, tiến hành lọc những câu hỏi thiếu đáp án. Khi này chỉ còn dạng câu hỏi MCQ có tình trạng này do vấn đề OCR. Quy trình làm sạch cuối cùng bao gồm việc rà soát thủ công các lỗi cú pháp JSON, loại bỏ các ký tự điều khiển lạ và đảm bảo tính nhất quán của tiếng Việt.

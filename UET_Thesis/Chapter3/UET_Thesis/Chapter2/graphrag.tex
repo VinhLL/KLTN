@@ -1,0 +1,158 @@
+\section{Graph-based Retrieval-Augmented Generation (GraphRAG)}
+
+\subsection{Tổng quan về GraphRAG}
+GraphRAG là bước tiến hóa của kiến trúc RAG truyền thống, trong đó nguồn tri thức phi tham số (non-parametric memory) được tổ chức dưới dạng Knowledge Graph thay vì kết hợp với các chỉ mục vector đơn thuần \cite{lewis2020rag}. Mục tiêu cốt lõi của GraphRAG là giải quyết các hạn chế của phương pháp dựa trên vector (Vector-based RAG) trong các tác vụ đòi hỏi sự hiểu biết về cấu trúc, bối cảnh thời gian và khả năng truy vết nguồn gốc.
+
+Thông qua việc lưu trữ các thực thể (entities), quan hệ (relations) và sự kiện (events) trong một cấu trúc đồ thị có hướng, GraphRAG mang lại ba lợi thế chính:
+\begin{enumerate}
+    \item \textbf{Truy xuất dựa trên cấu trúc:} Khả năng tìm kiếm dựa trên sự topological matching và graph traversal, thay vì phụ thuộc hoàn toàn vào sự tương đồng ngữ nghĩa cục bộ.
+    \item \textbf{Multi-hop Reasoning:} Cho phép hệ thống điều hướng qua các chuỗi quan hệ để kết nối các thông tin rời rạc, hỗ trợ giải quyết các câu hỏi phức tạp về nguyên nhân - kết quả.
+    \item \textbf{Explainability:} Cung cấp khả năng kiểm chứng cao thông qua việc trích xuất minh bạch các nút, cạnh và tài liệu nguồn tham chiếu.
+\end{enumerate}
+
+
+
+Các nghiên cứu tổng quan gần đây \cite{graphrag_survey_2024, microsoft_graphrag} đã chỉ ra rằng GraphRAG đặc biệt hiệu quả đối với các miền dữ liệu giàu tính kết nối như lịch sử, nơi việc nắm bắt dòng thời gian và mối quan hệ giữa các nhân vật, sự kiện là yếu tố tiên quyết.
+
+\subsection{Kiến trúc và cơ chế hoạt động của GraphRAG}
+Phần này trình bày kiến trúc tham chiếu cho một hệ thống GraphRAG xây dựng trên KG tự phát triển, được thiết kế theo hướng mô-đun hóa để phù hợp với cơ sở lý thuyết và định hướng thiết kế hệ thống thực nghiệm.
+Hệ thống được tổ chức thành quy trình khép kín từ thu thập dữ liệu đến sinh câu trả lời và cập nhật tri thức.
+
+\begin{figure}[H]
+    \centering
+    % Placeholder cho hình ảnh kiến trúc. 
+    % Trong thực tế, bạn sẽ thay thế bằng lệnh \includegraphics
+    \fbox{
+        \parbox{0.95\linewidth}{
+            \centering
+            \textbf{Pipeline xử lý dữ liệu GraphRAG:}\\
+            Data Ingestion $\rightarrow$ KG Construction $\rightarrow$ Hybrid Indexing \\
+            $\downarrow$ \\
+            \textbf{Pipeline xử lý truy vấn:}\\
+            Query Analysis $\rightarrow$ Entity Linking $\rightarrow$ Subgraph Extraction \\
+            $\rightarrow$ Linearization $\rightarrow$ LLM Generation $\rightarrow$ Provenance Tracking
+        }
+    }
+    \caption{Sơ đồ kiến trúc tham chiếu cho hệ thống GraphRAG.}
+    \label{fig:graphrag_arch}
+\end{figure}
+
+
+
+\subsubsection{Các thành phần chức năng chi tiết}
+
+\paragraph{Mô-đun 1: Thu thập và Xây dựng KG)}
+Đây là giai đoạn chuyển đổi dữ liệu phi cấu trúc thành tri thức có cấu trúc:
+\begin{itemize}
+    \item \textbf{Nguồn dữ liệu:} Tập trung vào văn bản lịch sử (tài liệu lịch sử, sách giáo khoa), kết hợp với metadata (thời gian, địa điểm). Đặc thù lịch sử Việt Nam yêu cầu xử lý các tài liệu Hán-Nôm hoặc bản dịch tương ứng.
+    \item \textbf{Trích xuất thông tin:} Sử dụng pipeline gồm:
+    \begin{itemize}
+        \item \textit{Named Entity Recognition (NER):} Nhận diện nhân vật, địa danh, thời kỳ.
+        \item \textit{Relation Extraction (RE):} Xác định quan hệ (ví dụ: \texttt{chỉ\_huy}, \texttt{kế\_tục}).
+        \item \textit{Event Extraction:} Mô hình hóa sự kiện theo cấu trúc (Chủ thể, Hành động, Thời gian, Không gian).
+    \end{itemize}
+    \item \textbf{Hợp nhất thực thể (Canonicalization):} Xử lý vấn đề đồng danh và đồng tham chiếu (coreference resolution), gán định danh duy nhất (URI) cho mỗi thực thể.
+    \item \textbf{Lưu trữ Triple:} Dữ liệu được lưu dưới dạng $(h, r, t)$ kèm theo metadata về nguồn gốc để phục vụ truy vết.
+\end{itemize}
+
+\paragraph{Mô-đun 2: Hybrid Indexing}
+Hệ thống duy trì song song hai loại Index:
+\begin{itemize}
+    \item \textbf{Vector Index:} Lưu trữ embedding của mô tả thực thể và các đoạn văn bản, hỗ trợ tìm kiếm mờ (fuzzy search) dựa trên ngữ nghĩa.
+    \item \textbf{Graph Index:} Lưu trữ adjacency list trong Graph Database (như Neo4j) để phục vụ các thuật toán duyệt tìm đường đi ngắn nhất hoặc community detection.
+\end{itemize}
+
+\paragraph{Mô-đun 3: Xử lý truy vấn và Liên kết thực thể}
+\begin{itemize}
+    \item \textbf{Phân tích truy vấn:} Xác định ý định, yếu tố thời gian và phạm vi câu hỏi.
+    \item \textbf{Entity Linking:} Ánh xạ các thực thể trong câu hỏi vào các nodes trong KG. Quá trình này bao gồm bước tạo candidate và ranking dựa trên độ tương đồng ngữ cảnh.
+\end{itemize}
+
+\paragraph{Mô-đun 4: Duyệt đồ thị và Trích xuất đồ thị con}
+Từ các seed nodes đã xác định, hệ thống thực hiện mở rộng:
+\begin{itemize}
+    \item \textbf{Chiến lược duyệt:} Sử dụng $k$-hop traversal hoặc confidence propagation để tìm các nút lân cận có liên quan.
+    \item \textbf{Lựa chọn đồ thị con:} Tối ưu hóa việc chọn các nút/cạnh để tối đa hóa information coverage trong khi giảm thiểu sự trùng lặp, đảm bảo kích thước phù hợp với giới hạn ngữ cảnh của LLM.
+\end{itemize}
+
+\paragraph{Mô-đun 5: Linearization và Tạo Prompt}
+Để LLM có thể hiểu được cấu trúc đồ thị, đồ thị con cần được chuyển đổi thành văn bản:
+\begin{itemize}
+    \item \textbf{Cấu trúc hóa dữ liệu:} Chuyển các triples thành chuỗi văn bản tự nhiên hoặc định dạng cấu trúc (như JSON/YAML).
+    \begin{lstlisting}[language=json, caption={Ví dụ định dạng JSON cho một Triple lịch sử}]
+{
+  "triple_id": "T12345",
+  "head": {"id": "E123", "label": "Lý Thường Kiệt"},
+  "relation": "chỉ_huy",
+  "tail": {"id": "E456", "label": "Trận Như Nguyệt"},
+  "meta": {"year": 1075, "source": "Đại Việt Sử Ký Toàn Thư"}
+}
+    \end{lstlisting}
+    \item \textbf{Prompt Engineering:} Xây dựng prompt bao gồm: Câu hỏi người dùng + Đồ thị con đã tuyến tính hóa + Hướng dẫn sinh văn bản (yêu cầu trích dẫn nguồn).
+\end{itemize}
+
+\paragraph{Mô-đun 6: Xếp hạng và Kiểm chứng}
+\begin{itemize}
+    \item \textbf{Re-ranking:} Sử dụng mô hình Cross-Encoder để đánh giá lại mức độ liên quan của các đồ thị con được trích xuất.
+    \item \textbf{Post-hoc Grounding:} Sau khi LLM sinh câu trả lời, hệ thống kiểm tra ngược lại xem các claims có khớp với các cạnh trong KG hay không để cảnh báo thông tin chưa được kiểm chứng.
+\end{itemize}
+
+\subsection{So sánh GraphRAG và RAG truyền thống}
+
+Dựa trên các nghiên cứu gần đây về tối ưu hóa truy xuất thông tin \cite{lewis2020retrieval, edge2024graphrag}, Bảng \ref{tab:detailed_comparison} trình bày sự so sánh toàn diện giữa hai phương pháp tiếp cận: RAG truyền thống (Baseline RAG) và GraphRAG.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}p{6cm}|>{\raggedright\arraybackslash}p{6cm}|}
+\caption{So sánh chi tiết kỹ thuật và hiệu năng giữa Vector RAG và GraphRAG}
+\label{tab:detailed_comparison} \\
+\hline
+\textbf{Tiêu chí} & \textbf{Vector RAG} & \textbf{GraphRAG} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Tiêu chí} & \textbf{Vector RAG} & \textbf{GraphRAG} \\
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline
+\endlastfoot
+
+\textbf{Kiến trúc dữ liệu \& Biểu diễn} & 
+Dựa trên \textbf{Vector Database}. Văn bản được chia nhỏ và chuyển đổi thành các vector nhiều chiều thông qua các mô hình ngôn ngữ (như BERT, text-embedding-ada). Mối quan hệ giữa các đoạn văn bản là ẩn và dựa trên khoảng cách trong không gian vector \cite{gao2023retrieval}. 
+& 
+Dựa trên \textbf{Knowledge Graph}. Dữ liệu được cấu trúc hóa thành các Nodesvà Edges. Các biến thể hiện đại (như Microsoft GraphRAG) còn kết hợp hierarchical community detection để tóm tắt thông tin ở các mức độ trừu tượng khác nhau \cite{edge2024graphrag}. \\ \hline
+
+\textbf{Cơ chế truy vấn} & 
+Similarity Search như Cosine Similarity hoặc Euclidean Distance. Truy vấn của người dùng được vector hóa và so khớp với $k$ đoạn văn bản gần nhất (Top-$k$ retrieval). 
+& 
+Sử dụng Graph Traversal, tìm kiếm đường đi ngắn nhất hoặc Community-based retrieval. Hệ thống có thể gom nhóm thông tin từ các node liên kết dù chúng không nằm gần nhau trong văn bản gốc. \\ \hline
+
+\textbf{Khả năng suy luận \& Kết nối (Reasoning)} & 
+Hạn chế ở mức độ so khớp từ khóa hoặc ngữ nghĩa cục bộ. Gặp khó khăn với các truy vấn đòi hỏi suy luận đa bước hoặc kết nối các mảnh thông tin rời rạc nằm xa nhau trong tài liệu. 
+& 
+Mạnh mẽ trong suy luận đa bước. Cấu trúc đồ thị cho phép mô hình "nhảy" qua các node trung gian để tìm mối liên hệ nhân quả hoặc quan hệ bắc cầu giữa các thực thể, hỗ trợ tốt cho các câu hỏi dạng so sánh, tổng hợp hoặc phân tích nguyên nhân \cite{pan2024unifying}. \\ \hline
+
+\textbf{Ngữ cảnh toàn cục} & 
+Thường gặp vấn đề "Lost in the middle" khi context window chứa quá nhiều đoạn văn bản rời rạc. Khả năng nắm bắt global understanding của tập dữ liệu thấp. 
+& 
+Vượt trội trong việc trả lời các câu hỏi mang tính bao quát nhờ vào các Community summaries. Hệ thống hiểu được cấu trúc vĩ mô của dữ liệu thay vì chỉ các chi tiết vi mô. \\ \hline
+
+\textbf{Chi phí \& Tài nguyên} & 
+\textbf{Ưu điểm:} Chi phí xây dựng indexing thấp, tốc độ truy vấn nhanh. Dễ dàng triển khai với các thư viện mã nguồn mở (FAISS, ChromaDB). \newline
+\textbf{Nhược điểm:} Chi phí suy luận có thể tăng nếu cần retrieve quá nhiều chunks để đảm bảo độ phủ. 
+& 
+\textbf{Nhược điểm:} Chi phí xây dựng chỉ mục rất cao (cần LLM để trích xuất entity/relation). Quy trình cập nhật đồ thị phức tạp khi có dữ liệu mới. \newline
+\textbf{Ưu điểm:} Giảm thiểu số lượng tokens cần thiết khi query nhờ vào việc truy xuất chính xác hơn, giảm nhiễu ngữ cảnh. \\ \hline
+
+\textbf{Khả năng giải thích (Explainability)} & 
+Thấp. Khó giải thích tại sao vector này lại gần vector kia về mặt ngữ nghĩa đối với người dùng cuối. 
+& 
+Cao. Có thể trace back đường đi cụ thể trên đồ thị: Thực thể A liên kết với B qua quan hệ R. Cung cấp căn cứ xác thực rõ ràng cho câu trả lời. \\ \hline
+
+\end{longtable}
+
+\vspace{0.5em}
+\noindent

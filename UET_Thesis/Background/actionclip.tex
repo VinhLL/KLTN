@@ -1,0 +1,49 @@
+\section{ActionCLIP}
+
+\subsection{Introduction}
+
+ActionCLIP, introduced by Wang et al. \cite{wang2021actionclip}, represents a novel and powerful deep learning framework designed for video action recognition by synergistically combining the strengths of computer vision and natural language processing. Building upon the foundational principles of the Contrastive Language-Image Pretraining (CLIP) model \cite{radford2021learning}, ActionCLIP extends CLIP's capabilities to the temporal domain of video. It achieves this by integrating deep neural networks capable of encoding both visual information from video frames and textual descriptions of actions. This innovative approach enables the recognition of actions in videos without the necessity of extensive manual video annotation, offering a significant advantage in terms of scalability and adaptability to novel action categories.
+
+The ActionCLIP model takes as input a video, typically segmented into a series of frames or short video clips, alongside natural language descriptions of the actions it is intended to recognize. These textual descriptions can range from simple phrases like "a person walking" to more complex sentences detailing the ongoing activity, such as "a chef preparing a meal in a kitchen." The model's output is the classification of the action occurring within the video or the assignment of the most relevant action label from the provided textual descriptions to the video content. Fundamentally, ActionCLIP leverages the semantic relationship between visual and textual representations to identify the dominant action portrayed in the video based on the provided textual queries.
+
+\subsection{Operational Principles}
+
+The operational framework of ActionCLIP revolves around the principle of learning a shared embedding space where visual features extracted from video and textual features derived from action descriptions are semantically aligned. This alignment is achieved through a contrastive learning objective that encourages visual and textual representations of the same action to be close to each other in the embedding space, while pushing apart representations of different, unrelated actions. The key components of ActionCLIP's operation include video encoding, text encoding, a shared embedding space, and the contrastive learning mechanism.
+
+\subsubsection{Video Encoding}
+
+Each frame or short clip from the input video is processed by a deep neural network, typically a Convolutional Neural Network (CNN) or a Transformer-based network, to extract salient visual features. This video encoder aims to capture the essential visual elements within the video, such as the involved objects, their motion patterns, the interactions between them, and the overall scene context. The output of this encoding process is a high-dimensional feature vector that encapsulates the visual information relevant to action recognition. Different architectures, such as 3D CNNs or combinations of 2D CNNs with temporal aggregation mechanisms, can be employed as the video encoder depending on the specific implementation and the desired trade-off between computational cost and performance.
+
+\subsubsection{Text Encoding}
+
+Concurrently with video processing, ActionCLIP utilizes a language model, often a Transformer-based model like BERT \cite{devlin2018bert} or GPT \cite{radford2019language}, to encode the natural language descriptions of the actions into feature vectors. The text encoder processes the input text and generates a semantic embedding that captures the meaning and context of the action description. Transformer-based models are well-suited for this task due to their ability to model long-range dependencies in text and capture nuanced semantic relationships between words and phrases.
+
+\subsubsection{Shared Embedding Space}
+
+After extracting features from both the video and the text, ActionCLIP projects these features into a common, multi-modal embedding space. The goal of this shared space is to create a representation where semantically similar visual and textual concepts are located close to each other, regardless of their original modality. This allows for direct comparison and matching between video content and action descriptions based on their embedded representations. The projection into the shared embedding space is typically achieved through linear or non-linear layers learned during the training process.
+
+\subsubsection{Contrastive Learning for Alignment}
+
+To effectively align the visual and textual representations in the shared embedding space, ActionCLIP employs a contrastive learning approach. This learning paradigm aims to maximize the similarity between the feature vectors of corresponding video-text pairs (positive pairs, e.g., a video of someone running and the text "a person running") while minimizing the similarity between feature vectors of non-corresponding pairs (negative pairs, e.g., a video of someone running and the text "a person swimming").
+
+The contrastive loss function used in ActionCLIP can be formally expressed as:
+$$
+\mathcal{L} = \sum_{i} \log \frac{\exp(\text{sim}(f_i, g_i) / \tau)}{\sum_{j} \exp(\text{sim}(f_i, g_j) / \tau)} + \sum_{i} \log \frac{\exp(\text{sim}(g_i, f_i) / \tau)}{\sum_{j} \exp(\text{sim}(g_i, f_j) / \tau)}
+$$
+where:
+\begin{itemize}
+    \item $f_i$: represents the feature vector extracted from the $i$-th video.
+    \item $g_i$: represents the feature vector extracted from the corresponding textual description of the action in the $i$-th video.
+    \item $\text{sim}(a, b)$: is a similarity function, commonly the cosine similarity, defined as:
+    $$
+    \text{sim}(a, b) = \frac{a \cdot b}{\|a\| \cdot \|b\|}
+    $$
+    \item $\tau$: is a temperature parameter that controls the sharpness of the probability distribution.
+\end{itemize}
+The loss function encourages the similarity between matching video and text embeddings to be high, while pushing the similarity between mismatched pairs to be low. The temperature parameter $\tau$ scales the logits before applying the softmax function, influencing the relative importance of hard negative samples during training.
+
+\subsubsection{Zero-Shot Action Recognition}
+
+A significant advantage of ActionCLIP's architecture and the contrastive learning approach is its ability to perform zero-shot action recognition. Once the model has been trained to align visual and textual representations of a wide range of actions, it can recognize actions in new videos even if those specific actions were not present in the training data. This is achieved by leveraging the semantic understanding captured in the shared embedding space. Given a textual description of a novel action (e.g., "mountain climbing"), the model can compute its text embedding and then compare it to the video embeddings of unseen videos. If a video contains the visual cues corresponding to the "mountain climbing" description, its video embedding will be close to the text embedding of "mountain climbing" in the shared space, allowing for accurate recognition without any explicit training on that specific action. This zero-shot capability makes ActionCLIP highly flexible and adaptable to recognizing a broad spectrum of actions beyond its initial training set.
+
+In summary, ActionCLIP's operational principle relies on learning a semantically rich, shared embedding space for videos and action descriptions through contrastive learning. This enables the model to perform both traditional action classification and, more importantly, zero-shot action recognition by measuring the similarity between visual features of videos and textual features of action labels.

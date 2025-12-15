@@ -1,0 +1,51 @@
+\section{Sử dụng LLMs và RAG cho trả lời câu hỏi lịch sử}
+\label{sec:llm_and_rag}
+
+Để đánh giá khả năng xử lý câu hỏi lịch sử, nghiên cứu triển khai và so sánh hai phương pháp chính: (1) Sử dụng trực tiếp LLMs trong chế độ suy luận thuần túy (zero-shot), và (2) RAG Phương pháp thứ nhất đóng vai trò baseline, trong khi phương pháp thứ hai được thiết kế để khắc phục các hạn chế về tri thức tĩnh và độ tin cậy.
+
+\subsection{Sử dụng LLMs cho Trả lời câu hỏi lịch sử}
+\label{subsec:small_llm}
+
+\paragraph{Lựa chọn và Cấu hình Mô hình}
+Ở đây, lựa chọn LLM có kích thước vừa phải (khoảng 4-8B) để cân bằng giữa khả năng biểu diễn ngôn ngữ, yêu cầu tài nguyên tính toán và tốc độ suy luận. Các mô hình này được ưu tiên dựa trên khả năng xử lý tiếng Việt tốt, đặc biệt là với văn phong và thuật ngữ chuyên ngành lịch sử. Để triển khai trên phần cứng có giới hạn.
+
+\paragraph{Quy trình Suy luận và Đánh giá}
+Một pipeline xử lý tự động được thiết kế để đánh giá hàng loạt câu hỏi. Pipeline này bao gồm các bước chính:
+\begin{enumerate}
+    \item \textbf{Preprocessing:} Tự động phân loại câu hỏi và trích xuất các thành phần cần thiết .
+    \item \textbf{Prompt Engineering:} Xây dựng các mẫu prompt chuyên biệt cho từng loại câu hỏi. Các prompt này được thiết kế để định hướng rõ ràng cho LLM, cung cấp ngữ cảnh nhiệm vụ và quy định định dạng đầu ra mong muốn, nhằm giảm thiểu hiện tượng sinh văn bản lan man hoặc không đúng định dạng.
+    \item \textbf{Generate Answer:} LLM sinh phản hồi dựa trên prompt. Hệ thống sau đó áp dụng các quy tắc và biểu thức chính quy để trích xuất câu trả lời cuối cùng từ văn bản phản hồi, đảm bảo kết quả có thể đối chiếu tự động.
+    \item \textbf{Evaluate:} Đáp án được trích xuất tự động so sánh với đáp án chuẩn từ bộ dữ liệu để tính toán độ chính xác.
+\end{enumerate}
+
+\subsection{Phương pháp Retrieval-Augmented Generation}
+\label{subsec:rag_implementation}
+
+RAG được đề xuất để khắc phục những hạn chế cơ bản của mô hình ngôn ngữ thuần túy — cụ thể là knowledge cutoff và xu hướng tạo ra thông tin không chính xác. RAG bổ sung cho LLM một cơ chế truy xuất thông tin thời gian thực từ một kho dữ liệu có cấu trúc, cho phép nó đưa ra câu trả lời dựa trên bằng chứng mới nhất và đáng tin cậy, thay vì chỉ dựa vào tri thức được mã hóa sẵn trong các tham số của mô hình \cite{lewis2020rag}. Kiến trúc được đề xuất hoạt động theo một pipeline hai giai đoạn chính:
+
+\paragraph{1. Giai đoạn Tiền xử lý và Lập chỉ mục:}
+Trước khi có thể xử lý truy vấn, toàn bộ kho tài liệu văn bản nguồn phải được xử lý để chuyển đổi thành một cơ sở dữ liệu vector có thể truy vấn hiệu quả. Quy trình này bao gồm ba bước then chốt:
+
+\begin{enumerate}
+    \item \textbf{Text Chunking:} Văn bản được chia thành các chunks có kích thước phù hợp. Chiến lược phân tách đệ quy được áp dụng để đảm bảo mỗi đoạn chứa đủ ngữ cảnh cho một ý nghĩa hoàn chỉnh, đồng thời duy trì một vùng overlap nhỏ giữa các đoạn liền kề. Điều này nhằm ngăn ngừa sự đứt gãy thông tin tại các điểm phân chia và bảo toàn tính liền mạch của mạch văn.
+
+    \item \textbf{Semantic Encoding:} Mỗi đoạn văn bản sau đó được chuyển đổi thành một biểu diễn embedding thông qua một mô hình nhúng chuyên biệt. Mô hình này được huấn luyện để ánh xạ các đoạn văn có ngữ nghĩa tương tự vào các vị trí gần nhau trong không gian vector nhiều chiều, tạo nền tảng cho việc tìm kiếm dựa trên độ tương đồng ngữ nghĩa.
+
+    \item \textbf{High-Performance Indexing:}  
+    Các vector embedding được lưu trữ và tổ chức trong một cơ sở dữ liệu vector. Để tối ưu hóa tốc độ truy vấn, một cấu trúc chỉ mục tiên tiến (ví dụ: HNSW) được sử dụng. Cấu trúc này cho phép thực hiện phép nearest neighbor search với độ phức tạp gần như logarit, đảm bảo thời gian phản hồi nhanh ngay cả với kho dữ liệu quy mô lớn.
+\end{enumerate}
+
+\paragraph{2. Giai đoạn Truy vấn và Sinh câu trả lời}
+Khi nhận được câu hỏi từ người dùng, hệ thống thực thi một quy trình tuần tự để truy xuất thông tin và tổng hợp câu trả lời.
+
+\begin{enumerate}
+    \item \textbf{Query Encoding:} Câu hỏi đầu vào $Q$ được mã hóa thành vector $V_Q$ bằng chính mô hình nhúng đã sử dụng trong giai đoạn lập chỉ mục, đảm bảo tính đồng nhất trong không gian biểu diễn.
+
+    \item \textbf{Context Retrieval:} Hệ thống thực hiện similarity search, sử dụng độ đo cosine similarity để tìm ra $K$ đoạn văn bản trong kho dữ liệu có vector embedding gần nhất với $V_Q$. Tập hợp $K$ đoạn văn này, ký hiệu là $C = \{c_1, c_2, ..., c_k\}$, tạo thành ngữ cảnh tham chiếu cho câu hỏi.
+
+    \item \textbf{Augmented Prompt Construction:} Ngữ cảnh truy xuất được $C$ được kết hợp với câu hỏi gốc $Q$ trong một khuôn mẫu prompt được thiết kế cẩn thận. Prompt này đóng vai trò hướng dẫn LLM, xác định rõ nhiệm vụ là trả lời câu hỏi dựa chủ yếu vào thông tin được cung cấp trong $C$, và yêu cầu mô hình thừa nhận khi thông tin không đủ.
+
+    \item \textbf{Context-Grounded Generation:} Prompt đã được tăng cường thông tin được đưa vào LLM để sinh ra câu trả lời cuối cùng. Ở bước này, LLM hoạt động như một công cụ tổng hợp và diễn giải thông minh, phân tích và tóm tắt thông tin từ ngữ cảnh được cung cấp để đưa ra câu trả lời chính xác, ngắn gọn. Cơ chế này ràng buộc đầu ra của LLM với nguồn thông tin bên ngoài đã được kiểm chứng, làm giảm thiểu đáng kể nguy cơ hallucination \cite{turn0academia26}.
+\end{enumerate}
+
+Kiến trúc RAG được mô tả tạo thành một vòng khép kín từ dữ liệu thô đến tri thức có thể truy vấn và cuối cùng là câu trả lời được căn cứ. Phương pháp này không chỉ giải quyết vấn đề tri thức tĩnh mà còn tăng cường đáng kể tính minh bạch và khả năng kiểm chứng của hệ thống, vì mỗi tuyên bố trong câu trả lời đều có thể được liên kết ngược về các đoạn văn bản nguồn cụ thể.

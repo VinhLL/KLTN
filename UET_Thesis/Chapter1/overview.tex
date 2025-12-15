@@ -1,0 +1,82 @@
+\section{Bối cảnh và Động lực nghiên cứu}
+Sự phát triển mạnh mẽ của các LLMs như GPT,
+Claude và Gemini đã tạo ra bước tiến vượt bậc trong lĩnh vực Trí tuệ Nhân tạo, đặc biệt ở các nhiệm
+vụ hiểu và sinh ngôn ngữ tự nhiên. Các mô hình này thể hiện hiệu quả cao trong trả lời câu hỏi, tổng
+hợp thông tin và hỗ trợ tạo nội dung tự động \cite{turn0search24}. Tuy nhiên, khi áp dụng vào các hệ
+thống thực tế, LLMs vẫn gặp hạn chế liên quan đến knowledge cutoff và hallucination, dẫn đến giảm độ chính xác khi xử lý các truy vấn đòi hỏi kiến thức chuyên sâu hoặc
+cập nhật thời gian thực \cite{turn0search27, turn0search2}.  
+
+Trong bối cảnh trả lời câu hỏi lịch sử, mô hình không chỉ cần nắm bắt ngôn ngữ mà còn phải
+truy xuất chính xác các sự kiện, mốc thời gian và mối quan hệ phức tạp giữa các thực thể lịch sử. Việc
+chỉ dựa vào tri thức nội tại của LLMs dễ dẫn đến hallucination hoặc thiếu bằng chứng kiểm chứng trong
+các phát biểu lịch sử quan trọng \cite{turn0search2}.  
+
+RAG được giới thiệu như một phương pháp lai nhằm kết hợp
+năng lực ngôn ngữ của LLMs với khả năng truy xuất thông tin từ nguồn tri thức được chuẩn bị sẵn, nhờ đó cải
+thiện độ chính xác \cite{turn0search24, lewis2020rag}. Tuy nhiên, với dữ liệu lịch sử giàu quan hệ,
+RAG truyền thống thường dựa trên truy vấn văn bản không cấu trúc vẫn gặp khó khăn trong việc mô
+hình hóa các mối quan hệ phức tạp và thực hiện suy luận đa bước, do thiếu biểu diễn cấu trúc có ý nghĩa
+\cite{turn0search2}.  
+
+GraphRAG là một hướng tiếp cận mở rộng, tích hợp Knowledge Graph vào quy trình truy
+xuất và sinh, cho phép biểu diễn và truy vấn hiệu quả các mối quan hệ như nhân vật–sự kiện, nguyên
+nhân–kết quả, và bối cảnh địa điểm–thời gian \cite{turn0search1, turn0search2}. Bằng cách sử dụng đồ thị tri thức,
+GraphRAG cung cấp các đường dẫn minh bạch để chứng minh cơ sở tri thức của câu trả lời, từ đó hỗ trợ
+mô hình tránh sai lệch ngữ nghĩa và tăng tính mạch lạc trong trả lời.  
+
+Sự kết hợp giữa LLM và GraphRAG tận dụng khả năng hiểu ngôn ngữ, suy luận theo chuỗi và
+tổng hợp thông tin của mô hình hiện đại, đồng thời bổ sung bằng chứng có cấu trúc từ KG. Điều này
+giúp hệ thống không chỉ trả lời đúng các câu hỏi đơn lẻ mà còn xử lý các truy vấn phức tạp đòi hỏi tổng
+hợp và phân tích nhiều lớp tri thức lịch sử \cite{turn0academia31}. Khi nhu cầu học tập, nghiên cứu lịch sử và khai thác tri
+thức chính xác ngày càng tăng, việc tích hợp GraphRAG vào các hệ thống hỏi–đáp lịch sử trở nên đặc
+biệt cần thiết, mở ra hướng đi mới cho nghiên cứu này.
+
+\section{Tổng quan vấn đề}
+Việc triển khai các hệ thống AI sử dụng mô hình ngôn ngữ lớn kết hợp phương pháp GraphRAG đặt ra nhiều thách thức, ảnh hưởng đáng kể đến khả năng mở rộng, độ tin cậy và khả năng ứng dụng trong thực tế. Mặc dù GraphRAG mang lại cách tiếp cận linh hoạt và có cấu trúc để liên kết mô hình LLM với các nguồn đồ thị tri thức, quá trình triển khai một hệ thống hoàn chỉnh vẫn còn phức tạp, đòi hỏi nhiều thao tác thủ công và phụ thuộc vào kinh nghiệm chuyên sâu của người phát triển.
+
+Một trong những khó khăn lớn xuất phát từ việc lựa chọn, xây dựng và tích hợp các thành phần của hệ thống đồ thị tri thức. Với bài toán lịch sử, các nguồn dữ liệu thường nằm rải rác trong nhiều kho tư liệu, sách, văn bản, hoặc cơ sở dữ liệu mở. Việc chuẩn hóa dữ liệu, xây dựng đồ thị tri thức lịch sử và kết nối chúng với mô hình LLM thông qua GraphRAG đòi hỏi quy trình nhiều bước, bao gồm thu thập dữ liệu, trích xuất thực thể, phân tích quan hệ, và tối ưu hóa cấu trúc đồ thị. Nếu không có quy trình triển khai thống nhất và tự động hóa, người phát triển dễ gặp sai sót trong cấu hình, khó đảm bảo nhất quán giữa các phiên bản dữ liệu và phải tốn nhiều thời gian để tinh chỉnh hệ thống.
+
+Bên cạnh đó, khả năng mở rộng cũng là một vấn đề quan trọng khi các hệ thống trả lời câu hỏi ngày càng được sử dụng cho nhiều lượng truy vấn hơn và yêu cầu phản hồi nhanh hơn. Trong các tình huống thực tế—chẳng hạn như hỗ trợ học tập lịch sử, tra cứu sự kiện theo yêu cầu, hoặc khai thác tri thức trong môi trường giáo dục trực tuyến—hệ thống phải xử lý nhiều loại câu hỏi khác nhau và truy xuất cùng lúc nhiều nguồn dữ liệu từ đồ thị tri thức. Các mô hình GraphRAG nếu không được thiết kế tối ưu về hạ tầng có thể gặp khó khăn trong việc đáp ứng độ trễ thấp, xử lý song song hiệu quả hoặc phân phối tài nguyên theo nhu cầu tăng dần của người dùng.
+
+Một thách thức khác là monitoring \& observability. Do GraphRAG dựa trên cơ chế truy vấn động vào đồ thị tri thức kết hợp với sinh ngôn ngữ từ LLM, hành vi của hệ thống không cố định như các API truyền thống. Việc truy xuất tri thức phụ thuộc vào cấu trúc đồ thị, chất lượng embedding, mức độ liên kết giữa các thực thể… khiến quá trình theo dõi lỗi hay xác định điểm nghẽn hiệu năng trở nên khó khăn hơn. Thiếu các công cụ quan sát tiêu chuẩn khiến khó đánh giá được nguyên nhân sai lệch thông tin lịch sử, xác định tín hiệu bất thường hay tối ưu hiệu suất truy vấn tri thức.
+
+Nếu không có nền tảng triển khai được chuẩn hóa và tích hợp tốt, các hệ thống trả lời câu hỏi lịch sử dựa trên GraphRAG và LLM dễ trở nên phức tạp, khó bảo trì và kém ổn định. Ngược lại, khi các thành phần được thiết kế hợp lý và vận hành bài bản, hệ thống có thể giảm đáng kể gánh nặng kỹ thuật, cải thiện độ tin cậy, nâng cao chất lượng trả lời và mở rộng quy mô linh hoạt. Điều này góp phần thúc đẩy việc ứng dụng GraphRAG vào các hệ thống hỏi – đáp chuyên sâu trong lĩnh vực lịch sử, đáp ứng nhu cầu khai thác tri thức ngày càng tăng trong môi trường giáo dục và nghiên cứu.
+
+\section{Mục tiêu}
+Mục tiêu của nghiên cứu này là thiết kế và xây dựng một hệ thống hỏi–đáp lịch sử dựa trên mô hình ngôn ngữ lớn, kết hợp với phương pháp GraphRAG nhằm tăng độ chính xác, khả năng diễn giải và tính tin cậy của câu trả lời. Hệ thống hướng tới khả năng truy xuất tri thức lịch sử có cấu trúc, tự động hóa quá trình xây dựng đồ thị tri thức, tối ưu quá trình truy vấn và đảm bảo vận hành ổn định ở quy mô lớn. \\
+Các mục tiêu chính của đề tài bao gồm:
+
+\begin{itemize}
+\item \textbf{Xây dựng hệ thống tự động tạo và cập nhật đồ thị tri thức lịch sử:}
+Thiết kế cơ chế thu thập, trích xuất thực thể – quan hệ từ tài liệu lịch sử và tự động xây dựng đồ thị tri thức. Hệ thống sử dụng mô hình LLM kết hợp vòng lặp plan–act để phân tích dữ liệu, trích xuất nội dung và liên kết tri thức. Phương pháp RAG được áp dụng để đảm bảo rằng các suy luận và quyết định của mô hình được dựa trên nguồn tư liệu đáng tin cậy.
+
+\item \textbf{Phát triển kiến trúc GraphRAG tối ưu cho bài toán trả lời câu hỏi lịch sử:}
+Đề xuất kiến trúc xử lý kết hợp giữa LLM và GraphRAG, cho phép mô hình truy vấn tri thức đồ thị theo cách hiệu quả và nhất quán. Hệ thống được thiết kế theo hướng mô-đun, hỗ trợ mở rộng linh hoạt khi kích thước dữ liệu lịch sử tăng lên. Các kỹ thuật tối ưu như vector indexing, hierarchical retrieval, và local-global graph exploration được tích hợp nhằm tăng tốc độ truy vấn và nâng cao độ chính xác của câu trả lời.
+
+\item \textbf{Xây dựng cơ chế giám sát, đánh giá và phân tích độ tin cậy của câu trả lời:}
+Triển khai các công cụ theo dõi hiệu năng truy vấn, độ chính xác thông tin lịch sử, mức độ tương quan giữa câu hỏi và vùng tri thức được truy xuất. Hệ thống hỗ trợ ghi log, phân tích sai lệch và truy vết quá trình sinh câu trả lời, giúp đánh giá nguyên nhân sai sót và tăng tính minh bạch cho mô hình.
+
+\end{itemize}
+
+\section{Cấu trúc Khóa luận tốt nghiệp}
+Khóa luận được tổ chức thành năm chương chính như sau:
+
+\begin{itemize}
+\item \textbf{Chapter 1 – Mở đầu:}
+Chương giới thiệu, trình bày bối cảnh và động lực nghiên cứu, mô tả bài toán trả lời câu hỏi lịch sử, nêu rõ mục tiêu và phạm vi của đề tài. Đồng thời, chương cũng giới thiệu tổng quan cấu trúc của khóa luận.
+
+\item \textbf{Chapter 2 – Cơ sở lý thuyết:}
+Chương cung cấp tổng quan về các kiến thức nền tảng liên quan đến mô hình ngôn ngữ lớn, phương pháp RAG, và kỹ thuật GraphRAG. Ngoài ra, chương phân tích các thách thức trong việc xử lý dữ liệu lịch sử, xây dựng đồ thị tri thức và hạn chế của các phương pháp RAG truyền thống.
+
+\item \textbf{Chapter 3 – Phương pháp và Triển khai:}
+Chương mô tả chi tiết phương pháp đề xuất, bao gồm quy trình thu thập và tiền xử lý dữ liệu lịch sử, xây dựng đồ thị tri thức, thiết kế kiến trúc GraphRAG, và cơ chế truy vấn tri thức kết hợp LLM. Các mô-đun của hệ thống như trích xuất thực thể – quan hệ, cơ chế lấy ngữ cảnh theo đồ thị, và chiến lược tối ưu truy vấn được trình bày ở đây.
+
+\item \textbf{Chapter 4 – Thực nghiệm và Kết quả:}
+Chương trình bày thiết kế thực nghiệm, bộ dữ liệu sử dụng và các tiêu chí đánh giá. Các kết quả thực nghiệm về độ chính xác, mức độ giảm thiểu sai lệch , hiệu suất truy vấn và so sánh giữa LLMs, RAG truyền thống và GraphRAG được báo cáo và phân tích. Chương cũng thảo luận các hạn chế còn tồn tại và đề xuất hướng cải tiến.
+
+\item \textbf{Chapter 5 – Kết luận:}
+Chương cuối cùng tóm tắt các đóng góp chính của đề tài, đánh giá tác động của nghiên cứu, và đề xuất các hướng phát triển trong tương lai cho hệ thống hỏi–đáp lịch sử dựa trên LLM và GraphRAG.
+
+\end{itemize}
+
+\newpage

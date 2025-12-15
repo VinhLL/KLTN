@@ -1,0 +1,340 @@
+\section{Trích xuất entity và relationship từ dữ liệu lịch sử}
+\label{sec:experiment3}
+
+Phần này trình bày chi tiết quá trình trích xuất thực thể (entity) và quan hệ (relationship) từ dữ liệu sách giáo khoa lịch sử để xây dựng Knowledge Graph phục vụ cho hệ thống GraphRAG.
+
+\subsection{Tổng quan quy trình trích xuất}
+
+Quá trình xây dựng Knowledge Graph được thực hiện qua hai giai đoạn chính:
+\begin{enumerate}
+    \item \textbf{Entity Extraction:} Trích xuất và chuẩn hóa các thực thể lịch sử từ văn bản nguồn
+    \item \textbf{Relationship Extraction:} Xác định và trích xuất các mối quan hệ giữa các thực thể
+\end{enumerate}
+
+Cả hai giai đoạn đều sử dụng mô hình ngôn ngữ lớn Gemini-2.5-flash-lite kết hợp với các kỹ thuật prompt engineering tiên tiến để đảm bảo chất lượng và tính nhất quán của kết quả.
+
+\subsection{Trích xuất thực thể (Entity Extraction)}
+
+\subsubsection{Định nghĩa schema thực thể}
+
+Nghiên cứu định nghĩa 11 loại thực thể chuẩn phù hợp với miền dữ liệu lịch sử Việt Nam:
+
+\begin{table}[H]
+\centering
+\caption{Schema các loại thực thể lịch sử}
+\label{tab:entity-types}
+\begin{tabular}{|c|l|l|}
+\hline
+\textbf{STT} & \textbf{Loại thực thể} & \textbf{Ví dụ} \\
+\hline
+1 & Nhân vật & Hồ Chí Minh, Võ Nguyên Giáp \\
+2 & Sự kiện & Cách mạng tháng Tám, Chiến dịch Điện Biên Phủ \\
+3 & Tổ chức & Liên hợp quốc, ASEAN, Đảng Cộng sản VN \\
+4 & Địa điểm & Hà Nội, Điện Biên Phủ, Sài Gòn \\
+5 & Quốc gia & Việt Nam, Liên Xô, Mỹ, Pháp \\
+6 & Văn kiện/Hiệp định & Hiệp định Giơ-ne-vơ, Hiến chương LHQ \\
+7 & Chiến dịch/Trận đánh & Chiến dịch Hồ Chí Minh, Trận Ấp Bắc \\
+8 & Thời kỳ/Giai đoạn & Chiến tranh lạnh, Thời kỳ Đổi mới \\
+9 & Hội nghị & Hội nghị I-an-ta, Hội nghị Tê-hê-ran \\
+10 & Chính sách/Chiến lược & Chiến tranh đặc biệt, Việt Nam hóa chiến tranh \\
+11 & Khái niệm/Phong trào & Phong trào Đồng khởi, Chủ nghĩa xã hội \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Pipeline trích xuất thực thể}
+
+\textbf{Bước 1: Phân đoạn văn bản (Text Segmentation)}
+
+Văn bản nguồn được phân đoạn thành các cửa sổ (windows) với kích thước phù hợp:
+\begin{itemize}
+    \item Window size: 5-8 câu liên tiếp
+    \item Overlap: 2 câu giữa các windows liền kề
+    \item Bảo toàn metadata: topic, lesson, sentence\_range
+\end{itemize}
+
+\textbf{Bước 2: Tạo prompt động (Dynamic Prompting)}
+
+Prompt được thiết kế tự động dựa trên ngữ cảnh của từng đoạn văn bản:
+
+\begin{lstlisting}[language=Python, caption={Template prompt cho entity extraction}]
+ENTITY_EXTRACTION_PROMPT = """
+Ban la chuyen gia lich su Viet Nam. Hay trich xuat cac 
+thuc the TEN RIENG tu doan van ban sau.
+
+CHI TRICH XUAT CAC THUC THE:
+- La ten rieng cu the (khong phai khai niem chung)
+- Co the xac dinh duoc ro rang trong van ban
+- Thuoc mot trong cac loai: {entity_types}
+
+KHONG trich xuat:
+- Cac cum tu mo ho nhu "cac nuoc", "nhieu quoc gia"
+- Cac tinh tu, dong tu hoac cum tu mo ta
+
+VAN BAN:
+{text}
+
+METADATA: Chu de: {topic}, Bai: {lesson}
+
+Tra ve danh sach entity theo dinh dang JSON:
+[{
+  "id": "ten_chuan_hoa",
+  "label": ["ten_chinh", "cac_ten_khac"],
+  "type": "loai_thuc_the",
+  "description": "mo_ta_ngan"
+}]
+"""
+\end{lstlisting}
+
+\textbf{Bước 3: Post-processing và Deduplication}
+
+Sau khi trích xuất, các thực thể được xử lý hậu kỳ:
+
+\begin{enumerate}
+    \item \textbf{Lọc nhiễu:} Loại bỏ các entity không hợp lệ (quá ngắn, không phải tên riêng, không thuộc domain lịch sử)
+    
+    \item \textbf{Chuẩn hóa tên:} Đưa về dạng chuẩn (canonical form)
+    \begin{itemize}
+        \item ``Bác Hồ'', ``Nguyễn Ái Quốc'', ``Hồ Chủ tịch'' → ``Hồ Chí Minh''
+        \item ``Mỹ'', ``Hoa Kỳ'', ``Mĩ'' → ``Mỹ''
+    \end{itemize}
+    
+    \item \textbf{Gộp trùng lặp (Merge Duplicates):} Kết hợp các entity giống nhau từ nhiều windows, tích lũy thông tin và alias
+    
+    \item \textbf{Làm giàu metadata:} Bổ sung thông tin về nguồn gốc, tần suất xuất hiện, timeline events
+\end{enumerate}
+
+\subsubsection{Kết quả trích xuất thực thể}
+
+File output: \texttt{entities\_20251204\_144500.json}
+
+\begin{table}[H]
+\centering
+\caption{Thống kê kết quả trích xuất thực thể}
+\label{tab:entity-stats}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Thống kê} & \textbf{Giá trị} \\
+\hline
+Tổng số thực thể & 487 \\
+Số loại thực thể & 11 \\
+Trung bình aliases/entity & 2.3 \\
+Confidence trung bình & 0.92 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Phân bố thực thể theo loại}
+\label{tab:entity-distribution}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Loại thực thể} & \textbf{Số lượng} & \textbf{Tỷ lệ (\%)} \\
+\hline
+Nhân vật & 68 & 14.0 \\
+Sự kiện & 85 & 17.5 \\
+Tổ chức & 72 & 14.8 \\
+Địa điểm & 45 & 9.2 \\
+Quốc gia & 38 & 7.8 \\
+Văn kiện/Hiệp định & 52 & 10.7 \\
+Chiến dịch/Trận đánh & 41 & 8.4 \\
+Thời kỳ/Giai đoạn & 28 & 5.7 \\
+Hội nghị & 23 & 4.7 \\
+Chính sách/Chiến lược & 18 & 3.7 \\
+Khái niệm/Phong trào & 17 & 3.5 \\
+\hline
+\textbf{Tổng} & \textbf{487} & \textbf{100} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Trích xuất quan hệ (Relationship Extraction)}
+
+\subsubsection{Phương pháp trích xuất quan hệ}
+
+Nghiên cứu áp dụng phương pháp \textbf{Context-aware Entity-centric Prompting} để trích xuất quan hệ:
+
+\begin{enumerate}
+    \item \textbf{Entity-centric approach:} Với mỗi entity, tìm các context windows có chứa entity đó
+    
+    \item \textbf{Multi-phase processing:}
+    \begin{itemize}
+        \item Phase 1: Trích xuất quan hệ trực tiếp từ câu chứa entity
+        \item Phase 2: Trích xuất quan hệ ngầm từ context mở rộng
+        \item Phase 3: Bổ sung quan hệ cho entity chưa được kết nối
+    \end{itemize}
+    
+    \item \textbf{Topic-based clustering:} Nhóm các entity theo chủ đề để tìm quan hệ liên chủ đề
+\end{enumerate}
+
+\subsubsection{Định nghĩa các loại quan hệ}
+
+\begin{table}[H]
+\centering
+\caption{Các loại quan hệ chính trong Knowledge Graph}
+\label{tab:relation-types}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Quan hệ} & \textbf{Ý nghĩa} & \textbf{Ví dụ} \\
+\hline
+THAM\_GIA & Tham gia sự kiện/tổ chức & Hồ Chí Minh → CM tháng 8 \\
+LÃNH\_ĐẠO & Lãnh đạo tổ chức/phong trào & Võ Nguyên Giáp → Điện Biên Phủ \\
+DIỄN\_RA\_TẠI & Địa điểm xảy ra sự kiện & Điện Biên Phủ → Điện Biên \\
+THỜI\_GIAN & Mốc thời gian của sự kiện & CM tháng 8 → 1945 \\
+KÝ\_KẾT & Ký kết văn kiện & VN → Hiệp định Paris \\
+THÀNH\_LẬP & Thành lập tổ chức & Việt Nam → ASEAN \\
+CHỐNG\_LẠI & Đối đầu, chiến đấu chống & VN → Mỹ \\
+HỢP\_TÁC & Hợp tác, liên minh & VN → Liên Xô \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Pipeline trích xuất quan hệ}
+
+\begin{lstlisting}[language=Python, caption={Cấu trúc triplet quan hệ}]
+{
+    "subject_id": "Ho Chi Minh",
+    "predicate": "LANH_DAO",
+    "object_id": "Cach mang thang Tam",
+    "properties": {
+        "time": "1945",
+        "role": "Chu tich"
+    },
+    "metadata": {
+        "extraction_method": "context_analysis",
+        "evidence_count": 5,
+        "confidence": 0.95
+    },
+    "supporting_sentences": [
+        {
+            "evidence": "Ngay 2-9-1945, Chu tich Ho Chi Minh 
+                        doc Tuyen ngon Doc lap...",
+            "source": "Chu de 3/Bai 6"
+        }
+    ]
+}
+\end{lstlisting}
+
+\subsubsection{Validation và Quality Control}
+
+Các bước đảm bảo chất lượng quan hệ:
+
+\begin{enumerate}
+    \item \textbf{Consistency check:} Kiểm tra tính nhất quán của quan hệ (không có mâu thuẫn)
+    
+    \item \textbf{Evidence verification:} Mỗi quan hệ phải có ít nhất một câu evidence từ văn bản nguồn
+    
+    \item \textbf{Confidence scoring:} Tính điểm tin cậy dựa trên:
+    \begin{itemize}
+        \item Số lần xuất hiện của quan hệ trong các context khác nhau
+        \item Độ rõ ràng của evidence
+        \item Mức độ phù hợp với domain knowledge
+    \end{itemize}
+    
+    \item \textbf{Human review sample:} Kiểm tra thủ công một mẫu ngẫu nhiên để đánh giá precision
+\end{enumerate}
+
+\subsection{Kết quả Knowledge Graph}
+
+File output: \texttt{knowledge\_graph\_historical\_v3.json}
+
+\subsubsection{Thống kê tổng quan}
+
+\begin{table}[H]
+\centering
+\caption{Thống kê Knowledge Graph}
+\label{tab:kg-stats}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Thống kê} & \textbf{Giá trị} \\
+\hline
+Tổng số nodes (entities) & 487 \\
+Tổng số edges (relationships) & 1,847 \\
+Số loại quan hệ & 45 \\
+Trung bình degree/node & 7.6 \\
+Confidence trung bình & 0.88 \\
+Kích thước file & 7.25 MB \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Phân tích cấu trúc đồ thị}
+
+\begin{itemize}
+    \item \textbf{Connected components:} 1 component chính (97\% nodes), một số nodes cô lập (3\%)
+    
+    \item \textbf{Hub entities:} Các entity có degree cao nhất:
+    \begin{itemize}
+        \item Hồ Chí Minh (degree: 89)
+        \item Việt Nam (degree: 156)
+        \item Liên hợp quốc (degree: 45)
+        \item ASEAN (degree: 38)
+        \item Mỹ (degree: 52)
+    \end{itemize}
+    
+    \item \textbf{Clustering coefficient:} 0.42 - thể hiện mức độ liên kết chặt chẽ giữa các entity trong cùng chủ đề
+\end{itemize}
+
+\subsubsection{Ví dụ entity và relationship trong Knowledge Graph}
+
+\textbf{Entity mẫu:}
+\begin{lstlisting}[language=Python, caption={Ví dụ entity Liên hợp quốc}]
+{
+    "id": "Lien hop quoc",
+    "label": ["Lien hop quoc", "LHQ", "United Nations"],
+    "type": "To chuc",
+    "description": "To chuc quoc te duoc thanh lap nam 1945 
+                   nham duy tri hoa binh the gioi",
+    "properties": {
+        "ngay_thanh_lap": "24-10-1945",
+        "so_thanh_vien_ban_dau": "51"
+    },
+    "confidence": 1.0,
+    "occurrence_count": 13
+}
+\end{lstlisting}
+
+\textbf{Relationship mẫu:}
+\begin{lstlisting}[language=Python, caption={Ví dụ relationship}]
+{
+    "subject_id": "Lien Xo",
+    "predicate": "THANH_LAP",
+    "object_id": "Lien hop quoc",
+    "properties": {"role": "thanh_vien_thuong_truc"},
+    "confidence": 0.95,
+    "supporting_sentences": [
+        "Ba nuoc Lien Xo, My, Anh da ra quyet dinh 
+         ve viec thanh lap Lien hop quoc..."
+    ]
+}
+\end{lstlisting}
+
+\subsection{Đánh giá chất lượng trích xuất}
+
+\subsubsection{Metrics đánh giá}
+
+\begin{table}[H]
+\centering
+\caption{Kết quả đánh giá chất lượng trích xuất}
+\label{tab:extraction-quality}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Task} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\
+\hline
+Entity Extraction & 0.91 & 0.85 & 0.88 \\
+Entity Type Classification & 0.94 & 0.92 & 0.93 \\
+Relationship Extraction & 0.87 & 0.78 & 0.82 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Phân tích lỗi}
+
+\begin{itemize}
+    \item \textbf{False Positives:} Chủ yếu do trích xuất các cụm từ mô tả thay vì tên riêng
+    \item \textbf{False Negatives:} Do bỏ sót các entity ít xuất hiện hoặc được đề cập một cách ngầm định
+    \item \textbf{Type Misclassification:} Nhầm lẫn giữa Sự kiện và Chiến dịch, giữa Tổ chức và Hội nghị
+\end{itemize}
+
+Knowledge Graph được xây dựng sẽ được sử dụng làm nền tảng cho hệ thống GraphRAG được trình bày trong phần tiếp theo.

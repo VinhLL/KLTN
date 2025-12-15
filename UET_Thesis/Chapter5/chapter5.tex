@@ -1,0 +1,103 @@
+\chapter{Kết luận}
+\label{chap:conclusion}
+
+\section{Tóm tắt đóng góp}
+
+Luận văn này đã nghiên cứu và phát triển một hệ thống trả lời câu hỏi tự động cho lĩnh vực lịch sử Việt Nam, kết hợp các mô hình ngôn ngữ lớn LLM với KG thông qua kiến trúc GraphRAG. Các đóng góp chính của nghiên cứu bao gồm:
+
+\subsection{Đóng góp về dữ liệu}
+
+\begin{enumerate}
+    \item \textbf{Bộ dữ liệu văn bản lịch sử chuẩn hóa:} Xây dựng và chuẩn hóa toàn bộ nội dung sách giáo khoa ``Lịch sử 12 - Kết nối tri thức'' thành định dạng có cấu trúc.
+    
+    \item \textbf{Bộ câu hỏi:} Xây dựng bộ câu hỏi chuẩn hóa gồm 1,000 câu hỏi (507 MCQ + 493 True/False) từ các đề thi, đề ôn tập chính thống, phục vụ cho việc đánh giá các hệ thống trả lời câu hỏi trong lĩnh vực lịch sử Việt Nam.
+    
+    \item \textbf{Knowledge Graph lịch sử Việt Nam:} Xây dựng Knowledge Graph với 625 thực thể thuộc 11 loại và 1683 quan hệ.
+\end{enumerate}
+
+\subsection{Đóng góp về phương pháp}
+
+\begin{enumerate}
+    \item \textbf{Pipeline trích xuất thực thể và quan hệ:} Phát triển quy trình tự động trích xuất các thực thể lịch sử và mối quan hệ giữa chúng từ văn bản tiếng Việt, sử dụng kỹ thuật prompt engineering với mô hình Deepseek-chat.
+    
+    \item \textbf{Kiến trúc GraphRAG cho lịch sử Việt Nam:} Thiết kế và triển khai kiến trúc GraphRAG bốn tầng (Graph Retriever, Graph Encoder, Fusion Module, Generator) tối ưu cho bài toán trả lời câu hỏi lịch sử, tận dụng cả thông tin có cấu trúc từ Knowledge Graph và văn bản nguồn.
+    
+    \item \textbf{Đánh giá so sánh toàn diện:} Thực hiện đánh giá có hệ thống các phương pháp từ LLM zero-shot, RAG truyền thống đến GraphRAG, cung cấp cái nhìn tổng quan về ưu nhược điểm của từng phương pháp.
+\end{enumerate}
+
+
+GraphRAG đạt độ chính xác 65\% tổng thể, cải thiện 8\% so với RAG truyền thống và 18.2\% so với LLM zero-shot. Đặc biệt, với câu hỏi MCQ, GraphRAG cải thiện 14.2\% so với RAG.
+
+\section{Hạn chế và Hướng phát triển}
+
+\subsection{Hạn chế của nghiên cứu}
+
+\begin{enumerate}
+    \item \textbf{Quy mô dữ liệu:} Nghiên cứu chỉ sử dụng một cuốn sách giáo khoa Lịch sử 12, chưa bao phủ được toàn bộ kiến thức lịch sử từ lớp 10-12 và các nguồn học thuật khác. Đôi khi thiếu sót các kiến thức thực tế ngoài chương trình.
+    
+    \item \textbf{Độ phủ của Knowledge Graph:} Với 625 thực thể và 1683 quan hệ, Knowledge Graph vẫn còn thiếu nhiều thông tin, đặc biệt là các quan hệ phức tạp và các thực thể ít được đề cập.
+    
+    \item \textbf{Multi-hop reasoning:} Hệ thống hiện tại chưa xử lý tốt các câu hỏi yêu cầu suy luận qua nhiều bước (multi-hop).
+    
+    \item \textbf{Đánh giá quy mô nhỏ:} Do giới hạn về tài nguyên, thực nghiệm GraphRAG chỉ được đánh giá trên 1000 câu hỏi, cần mở rộng để có kết quả có ý nghĩa thống kê cao hơn.
+    
+    \item \textbf{Latency:} Thời gian xử lý của GraphRAG vẫn còn cao, cần tối ưu thêm cho ứng dụng real-time.
+\end{enumerate}
+
+\subsection{Hướng phát triển trong tương lai}
+
+\begin{enumerate}
+    \item \textbf{Mở rộng Knowledge Graph:}
+    \begin{itemize}
+        \item Bổ sung dữ liệu từ sách giáo khoa Lịch sử 10, 11 và các tài liệu tham khảo
+        \item Tích hợp thông tin từ các nguồn bên ngoài
+        \item Xây dựng ontology chuẩn cho lĩnh vực lịch sử Việt Nam
+    \end{itemize}
+    
+    \item \textbf{Cải thiện Entity Recognition:}
+    \begin{itemize}
+        \item Phát triển mô hình NER chuyên biệt cho lĩnh vực lịch sử Việt Nam
+        \item Kết hợp các kỹ thuật fuzzy matching để xử lý các biến thể tên
+    \end{itemize}
+    
+    \item \textbf{Multi-hop Reasoning:}
+    \begin{itemize}
+        \item Áp dụng các kỹ thuật chain-of-thought prompting
+        \item Phát triển graph traversal algorithms cho multi-hop queries
+        \item Tích hợp iterative reasoning với Knowledge Graph
+    \end{itemize}
+    
+    \item \textbf{Hybrid Retrieval:}
+    \begin{itemize}
+        \item Kết hợp dense retrieval và sparse retrieval
+        \item Sử dụng reranking models để cải thiện độ chính xác của retrieval
+        \item Tích hợp semantic search trên cả text và graph
+    \end{itemize}
+    
+    \item \textbf{Tối ưu hóa hiệu năng:}
+    \begin{itemize}
+        \item Model quantization và knowledge distillation để giảm latency
+        \item Graph pruning để tối ưu sub-graph retrieval
+        \item Distributed processing cho xử lý song song
+    \end{itemize}
+    
+    \item \textbf{Đánh giá mở rộng:}
+    \begin{itemize}
+        \item Thực hiện đánh giá trên toàn bộ 1,000 câu hỏi
+        \item Đánh giá human evaluation về chất lượng câu trả lời
+        \item So sánh với các hệ thống QA thương mại (ChatGPT, Gemini)
+    \end{itemize}
+    
+    \item \textbf{Ứng dụng thực tế:}
+    \begin{itemize}
+        \item Phát triển web application cho học sinh ôn thi
+        \item Tích hợp vào hệ thống E-learning
+        \item Xây dựng chatbot hỗ trợ giáo viên và học sinh
+    \end{itemize}
+\end{enumerate}
+
+\section{Lời kết}
+
+Nghiên cứu này đã chứng minh tiềm năng của việc kết hợp Knowledge Graph với các mô hình ngôn ngữ lớn thông qua kiến trúc GraphRAG cho bài toán trả lời câu hỏi trong lĩnh vực lịch sử. Với độ chính xác 65\% đạt được, hệ thống đã cho thấy sự cải thiện đáng kể so với các phương pháp truyền thống. Tuy còn nhiều hạn chế cần khắc phục, nghiên cứu đã đặt nền móng cho việc phát triển các hệ thống trả lời câu hỏi thông minh hỗ trợ việc dạy và học lịch sử tại Việt Nam.
+
+Với sự phát triển nhanh chóng của công nghệ AI và NLP, tôi tin rằng các hệ thống như GraphRAG sẽ ngày càng hoàn thiện và đóng vai trò quan trọng trong việc số hóa và phổ biến kiến thức lịch sử đến với thế hệ trẻ Việt Nam.

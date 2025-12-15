@@ -1,0 +1,36 @@
+\section{Những thách thức trong việc triển khai GraphRAG}
+
+Việc chuyển đổi từ RAG truyền thống sang GraphRAG mang lại lợi ích về khả năng suy luận và biểu diễn tri thức cấu trúc, nhưng cũng đặt ra những thách thức kỹ thuật đáng kể. Các thách thức chính có thể được phân loại theo ba khía cạnh: độ phức tạp trong trích xuất tri thức, hiệu năng truy vấn, và khả năng mở rộng – cập nhật dữ liệu.
+
+\subsection{Độ phức tạp và chi phí xây dựng đồ thị}
+Khởi tạo Knowledge Graph từ dữ liệu văn bản thô là giai đoạn tốn kém tài nguyên nhất trong pipeline GraphRAG. Các vấn đề cụ thể bao gồm:
+
+\begin{itemize}
+    \item \textbf{Chi phí trích xuất tri thức}: Việc sử dụng các mô hình ngôn ngữ lớn để xác định các entities và relations, sau đó chuyển chúng thành biểu diễn đồ thị, yêu cầu khối lượng tính toán đáng kể, đặc biệt khi cần suy luận ngữ nghĩa cho đa miền. So với việc chỉ tạo vector embeddings cho văn bản, trích xuất triples đòi hỏi nhiều token và thời gian xử lý hơn, dẫn đến chi phí xây dựng indexing cho GraphRAG cao hơn đáng kể \cite{graphrag_vs_vectorrag_2024, knowledge_graphs_graphrag_explained_2024}.
+    
+    \item \textbf{Giải quyết entity resolution}: Hợp nhất các thực thể cùng chỉ một đối tượng nhưng biểu diễn khác nhau (ví dụ: biệt danh, cách viết khác nhau) là vấn đề khó. Nếu không có cơ chế entity resolution hiệu quả, đồ thị dễ bị phân mảnh, gây đứt gãy các mối quan hệ và làm giảm chất lượng suy luận. Điều này đòi hỏi các thuật toán clustering và disambiguation phức tạp, cũng như kết hợp kiến thức ngữ cảnh rộng hơn giữa các nguồn dữ liệu \cite{graphrag_knowledge_graphs_2024, knowledge_graphs_graphrag_explained_2024}.
+    
+    \item \textbf{Nhiễu dữ liệu}: Trong quá trình trích xuất tri thức, các phương pháp tự động có thể tạo ra các liên kết không tồn tại hoặc sai lệch, dẫn đến việc bổ sung các cạnh sai trong đồ thị. Các cạnh sai này không chỉ tăng kích thước đồ thị mà còn gây nhiễu quá trình truy vấn và suy luận sau này, làm giảm độ tin cậy tổng thể của hệ thống \cite{graphrag_vs_vectorrag_2024, graphrag_new_approach_2024}.
+\end{itemize}
+
+\subsection{Độ trễ truy vấn và hiệu suất}
+So với việc tìm kiếm vector đã được tối ưu trong RAG truyền thống, việc duyệt đồ thị trong GraphRAG gặp nhiều trở ngại hiệu năng:
+
+\begin{itemize}
+    \item \textbf{Độ trễ suy luận}: Các truy vấn yêu cầu multi-hop reasoning buộc hệ thống phải duyệt qua nhiều nút và cạnh trung gian. Khi đồ thị lớn và phức tạp, các thuật toán duyệt graph, tìm đường ngắn nhất hoặc lan truyền thông tin có độ phức tạp tính toán cao, gây ra độ trễ khá lớn so với các yêu cầu thời gian thực trong các ứng dụng tương tác \cite{graphrag_unlocking_2024, graphrag_vs_vectorrag_2024}.
+    
+    \item \textbf{Tối ưu hóa context pruning}: Xác định chính xác phần subgraph nên được đưa vào ngữ cảnh cho mô hình ngôn ngữ là một bài toán khó. Nếu chọn quá ít thông tin, mô hình thiếu dữ liệu để trả lời chính xác; nếu chọn quá nhiều, sẽ gây nhiễu và chiếm dụng token window của LLM, làm giảm hiệu quả suy luận \cite{graphrag_knowledge_graphs_2024, graphrag_unlocking_2024}.
+    
+    \item \textbf{Cân bằng giữa global và local context}: Mặc dù GraphRAG mạnh ở việc tổng hợp thông tin community summaries, việc tạo các tóm tắt này là quá trình thêm chi phí tính toán. Giữa độ chi tiết của tổng hợp và chi phí lưu trữ/truy vấn vẫn tồn tại một bài toán tối ưu hóa chưa có lời giải thống nhất trong nghiên cứu hiện nay \cite{graphrag_unlocking_2024, knowledge_graphs_graphrag_explained_2024}.
+\end{itemize}
+
+\subsection{Khả năng mở rộng và cập nhật dữ liệu}
+Duy trì tính nhất quán của Knowledge Graph khi dữ liệu thay đổi theo thời gian là thách thức lớn trong các hệ thống thực tế:
+
+\begin{itemize}
+    \item \textbf{Cập nhật tri thức động}: Trong RAG truyền thống, khi có tài liệu mới, ta chỉ cần thêm vector vào cơ sở dữ liệu. Với GraphRAG, việc thêm tài liệu mới đòi hỏi phải xác định xem các thực thể mới có liên kết với các thực thể cũ hay không, sau đó cập nhật lại đồ thị và có thể chạy lại các thuật toán community detection để duy trì chất lượng cấu trúc graph, gây tốn tài nguyên tính toán \cite{graphrag_knowledge_graphs_2024, knowledge_graphs_graphrag_explained_2024}.
+    
+    \item \textbf{Độ cứng nhắc của schema}: Việc xác định trước một ontology giúp đồ thị sạch hơn nhưng thiếu linh hoạt khi dữ liệu mới lạ xuất hiện. Ngược lại, phương pháp trích xuất mở như OpenIE tạo ra đồ thị thưa thớt, thiếu tính khả thi để truy vấn hiệu quả. Tìm điểm cân bằng giữa schema cứng và linh hoạt là bài toán thiết kế kiến trúc khó khăn, đặc biệt với dữ liệu đa dạng hoặc ngôn ngữ tài nguyên thấp \cite{graphrag_knowledge_graphs_2024, graphrag_vs_vectorrag_2024}.
+    
+    \item \textbf{Thiếu hụt bộ dữ liệu chuẩn}: Hiện nay cộng đồng nghiên cứu vẫn thiếu các bộ dữ liệu chuẩn để đánh giá hiệu quả triển khai GraphRAG, đặc biệt ở các tác vụ yêu cầu suy luận đa bước phức tạp hoặc dữ liệu thực tế phi văn bản. Điều này gây khó khăn trong việc so sánh, đánh giá và tối ưu hóa các pipeline khác nhau \cite{graphrag_unlocking_2024, graphrag_new_approach_2024}.
+\end{itemize}

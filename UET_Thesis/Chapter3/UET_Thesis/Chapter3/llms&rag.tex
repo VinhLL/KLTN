@@ -1,0 +1,88 @@
+\section{Sử dụng mô hình ngôn ngữ và RAG cho trả lời câu hỏi lịch sử}
+\label{sec:llm_and_rag}
+\subsection{Sử dụng mô hình ngôn ngữ cho trả lời câu hỏi}
+\label{subsec:small_llm}
+\textbf{Lý do chọn mô hình.} Đối với các câu hỏi có độ phức tạp thấp (định nghĩa, sự kiện đơn), một mô hình ngôn ngữ với kích thước khoảng từ 2-8B cho phép suy luận nhanh trên GPU có ít bộ nhớ, giảm chi phí hạ tầng.  
+\paragraph{Mô hình được sử dụng.}
+\begin{itemize}
+  \item \texttt{DistilGPT‑2‑Vietnamese} – một phiên bản thu gọn của GPT‑2, được pre‑trained trên bộ dữ liệu tiếng Việt (≈ 100 GB) và fine‑tuned trên bộ câu hỏi lịch sử (3 epoch, batch size 32, learning rate $2\times10^{-5}$).  
+  \item Tokenizer: \texttt{Byte‑Pair Encoding (BPE)} với vocab size 30 k, hỗ trợ Unicode đầy đủ.
+\end{itemize}
+\paragraph{Quy trình inference.}
+\begin{enumerate}
+  \item \textbf{Prompt engineering.} Prompt được cấu trúc gồm:  
+        \begin{verbatim}
+        Question: <câu hỏi>
+        Context: <đoạn văn (≤ 2 câu) liên quan>
+        Answer (JSON):
+        \end{verbatim}
+        Việc đưa \textit{Context} giúp mô hình tránh “hallucination” khi câu hỏi yêu cầu thông tin chi tiết.
+  \item \textbf{Beam search.} Độ rộng beam = 5, length penalty = 1.2, để tạo ra các đáp án đa dạng nhưng vẫn giữ tính ngắn gọn.
+  \item \textbf{Post‑processing.} Kiểm tra tính hợp lệ của JSON (đóng ngoặc, dấu phẩy), chuẩn hoá Unicode và loại bỏ các ký tự không in được.
+\end{enumerate}
+\subsection{Phương pháp Retrieval-Augmented Generation (RAG)}
+\label{subsec:rag_implementation}
+Để khắc phục hạn chế về tri thức tĩnh và hiện tượng "ảo giác" (hallucination) của các mô hình ngôn ngữ lớn (LLM), chúng tôi triển khai chiến lược Retrieval-Augmented Generation (RAG). Hệ thống này cho phép mô hình truy xuất thông tin thời gian thực từ kho dữ liệu sách giáo khoa đã được chuẩn hóa thay vì chỉ dựa vào tham số nội tại. 
+Kiến trúc RAG được hiện thực hóa chi tiết trong các notebook thực nghiệm (\texttt{kb-kg.ipynb} và \texttt{kltn1.ipynb}) với các thành phần kỹ thuật sau:
+\subsubsection{Kiến trúc Vector Store và Lập chỉ mục (Indexing)}
+Quá trình chuyển đổi tri thức từ dạng văn bản sang không gian vector (Vector Space) được thực hiện qua 3 bước:
+\begin{enumerate}
+    \item \textbf{Phân đoạn văn bản (Text Chunking):}
+    Dữ liệu từ \texttt{SGK\_Lich\_Su\_12\_*.txt} không được vector hóa nguyên bản mà được chia nhỏ thành các đơn vị ngữ nghĩa (chunks). Chúng tôi áp dụng chiến lược \textit{Recursive Character Splitting}:
+    \begin{itemize}
+        \item \textbf{Chunk Size:} 256 đến 512 tokens. Kích thước này đủ nhỏ để đảm bảo độ chính xác của vector đại diện, nhưng đủ lớn để chứa trọn vẹn một ý nghĩa sự kiện.
+        \item \textbf{Chunk Overlap:} 20-50 tokens. Vùng chồng lấp này đóng vai trò cầu nối ngữ cảnh, đảm bảo thông tin không bị đứt gãy tại các điểm cắt giữa hai đoạn văn.
+    \end{itemize}
+    \item \textbf{Embedding Model (Mô hình Vector hóa):}
+    Chúng tôi sử dụng mô hình \textbf{\texttt{keepitreal/vietnamese-sbert}} (Sentence-BERT). Đây là mô hình được huấn luyện chuyên biệt trên ngữ liệu tiếng Việt, có khả năng bắt được các đặc trưng ngữ nghĩa sâu (semantic features) của văn phong lịch sử tốt hơn so với các mô hình đa ngôn ngữ (multilingual) thông thường.
+    
+    \item \textbf{Vector Database:}
+    Các vector đặc trưng (embeddings) được lưu trữ và lập chỉ mục bằng thư viện \textbf{FAISS (Facebook AI Similarity Search)} hoặc \textbf{ChromaDB}. Cấu trúc chỉ mục (Index Structure) sử dụng là \textit{HNSW (Hierarchical Navigable Small World)} để tối ưu hóa tốc độ truy vấn Nearest Neighbor trong không gian nhiều chiều.
+\end{enumerate}
+\subsection{Phương pháp Retrieval-Augmented Generation (RAG)}
+\label{subsec:rag_implementation}
+Để khắc phục hạn chế về tri thức tĩnh và hiện tượng hallucination của các mô hình ngôn ngữ, chúng tôi triển khai chiến lược RAG. Hệ thống này cho phép mô hình truy xuất thông tin thời gian thực từ kho dữ liệu sách giáo khoa đã được chuẩn hóa thay vì chỉ dựa vào tham số nội tại. 
+Kiến trúc RAG được thực hiện với các thành phần sau:
+\subsubsection{Kiến trúc Vector Store và Indexing}
+Quá trình chuyển đổi tri thức từ dạng văn bản sang không gian vector (Vector Space) được thực hiện qua 3 bước:
+\begin{enumerate}
+    \item \textbf{Phân đoạn văn bản (Text Chunking):}
+    Dữ liệu từ \texttt{SGK\_Lich\_Su\_12\_*.txt} không được vector hóa nguyên bản mà được chia nhỏ thành các chunks. Thực hiện áp dụng chiến lược \textit{Recursive Character Splitting}:
+    \begin{itemize}
+        \item \textbf{Chunk Size:} 256 đến 512 tokens. Kích thước này đủ nhỏ để đảm bảo độ chính xác của vector đại diện, nhưng đủ lớn để chứa trọn vẹn một ý nghĩa sự kiện.
+        \item \textbf{Chunk Overlap:} 20-50 tokens. Vùng chồng lấp này đóng vai trò cầu nối ngữ cảnh, đảm bảo thông tin không bị đứt gãy tại các điểm cắt giữa hai đoạn văn.
+    \end{itemize}
+    \item \textbf{Embedding Model:}
+    Ở đây, mô hình dành cho embedding là \textbf{\texttt{Qwen/Qwen3-Embedding-0.6B}}. Đây là một mô hình mã nguồn mở kích thước 0.6 tỷ tham số, được thiết kế chuyên biệt cho các tác vụ semantic representation. Mô hình này được huấn luyện trên tập dữ liệu đa miền với mục tiêu học biểu diễn văn bản nén nhưng giàu thông tin, giúp tối ưu cho các downstream tasks như semantic search, clustering, retrieval, và RAG.
+    
+    \item \textbf{Vector Database:}
+    Các embeddings được lưu trữ và lập chỉ mục bằng thư viện \textbf{FAISS (Facebook AI Similarity Search)}. Cấu trúc chỉ mục (Index Structure) sử dụng là \textit{HNSW (Hierarchical Navigable Small World)} để tối ưu hóa tốc độ truy vấn Nearest Neighbor trong không gian nhiều chiều.
+\end{enumerate}
+\subsubsection{Retrieval \& Generation}
+Quy trình xử lý một câu hỏi của người dùng diễn ra như sau:
+\begin{enumerate}
+    \item \textbf{Mã hóa câu hỏi (Query Encoding):}
+    Câu hỏi đầu vào $Q$ được mã hóa thành vector $V_Q$ sử dụng cùng mô hình Embedding đã dùng cho việc lập chỉ mục.
+    \item \textbf{Tìm kiếm tương đồng (Similarity Search):}
+    Hệ thống tính toán độ tương đồng Cosine (Cosine Similarity) giữa $V_Q$ và toàn bộ các vector văn bản trong kho dữ liệu.
+    \[ \text{Similarity}(A, B) = \frac{A \cdot B}{\|A\| \|B\|} \]
+    
+    \item \textbf{Filtering & Top-K Retrieval:}
+    Hệ thống trích xuất $K$ đoạn văn bản (Top-K Chunks, thường $K=3$ hoặc $K=5$) có điểm số tương đồng cao nhất. Đây được coi là Retrieved Context.
+    \item \textbf{Augmented Prompt Construction:}
+    Ngữ cảnh tham chiếu $C = \{c_1, c_2, ..., c_k\}$ được ghép nối với câu hỏi gốc $Q$ theo một mẫu prompt (template) định sẵn:
+    \begin{verbatim}
+    [INSTRUCTION] 
+    Dựa vào thông tin ngữ cảnh được cung cấp dưới đây, hãy trả lời câu hỏi. 
+    Nếu không có thông tin, hãy trả lời "Tôi không biết".
+    
+    [CONTEXT]
+    ... (Nội dung của c1, c2, c3) ...
+    
+    [QUESTION]
+    ... (Câu hỏi Q) ...
+    [/INSTRUCTION]
+    \end{verbatim}
+    \item \textbf{Answer Generation:}
+    Prompt hoàn chỉnh được đưa vào Large Language Model (như \texttt{VinaLLaMA-7B-chat} hoặc \texttt{PhoGPT}) để sinh câu trả lời cuối cùng. Mô hình lúc này đóng vai trò là bộ máy đọc hiểu và tổng hợp thông tin, đảm bảo câu trả lời được trích xuất từ SGK.
+\end{enumerate}

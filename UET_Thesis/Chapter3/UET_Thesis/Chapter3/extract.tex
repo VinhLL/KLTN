@@ -1,0 +1,128 @@
+\section{Trích xuất thực thể và quan hệ để xây dựng Knowledge Graph}
+\label{sec:kg_construction}
+
+Để nâng cao khả năng suy luận logic trong hệ thống trả lời câu hỏi, chúng tôi chuyển đổi dữ liệu văn bản phi cấu trúc thành Đồ thị tri thức (Knowledge Graph - KG). Knowledge Graph là một cấu trúc dữ liệu dạng đồ thị, trong đó các nút (nodes) đại diện cho thực thể (entities) và các cạnh (edges) đại diện cho mối quan hệ (relationships) giữa chúng. Việc xây dựng KG tự động từ văn bản lịch sử yêu cầu hai giai đoạn chính: trích xuất thực thể (Entity Extraction) và trích xuất quan hệ (Relationship Extraction).
+
+\subsection{Tiền xử lý dữ liệu đầu vào}
+\label{subsec:data_preprocessing}
+
+Trước khi thực hiện trích xuất, dữ liệu sách giáo khoa được chuyển đổi từ định dạng văn bản thuần túy sang định dạng JSON phân cấp (hierarchical JSON). Cấu trúc này bảo toàn ngữ nghĩa theo phân cấp: Chủ đề $\rightarrow$ Bài $\rightarrow$ Section $\rightarrow$ Subsection $\rightarrow$ Content. Việc này mang lại nhiều lợi ích:
+
+\begin{itemize}
+    \item \textbf{Bảo toàn ngữ cảnh:} Mỗi đoạn văn bản luôn được gắn với thông tin về chủ đề, bài học, mục lớn và mục con, giúp mô hình hiểu rõ ngữ cảnh khi trích xuất.
+    \item \textbf{Tối ưu token:} Thay vì gửi toàn bộ văn bản dài, hệ thống chỉ gửi các semantic chunks nhỏ gọn kèm metadata ngữ cảnh.
+    \item \textbf{Truy xuất nguồn gốc:} Mỗi thực thể và quan hệ trích xuất được gắn chính xác với vị trí trong sách gốc.
+\end{itemize}
+
+\subsection{Trích xuất thực thể (Entity Extraction)}
+\label{subsec:entity_extraction}
+
+Thực thể lịch sử được định nghĩa là các đối tượng có tên riêng hoặc định danh cụ thể, đóng vai trò là các nút trong đồ thị tri thức. Quy trình trích xuất sử dụng mô hình ngôn ngữ lớn \textbf{DeepSeek-chat} làm hạt nhân xử lý, kết hợp với các bước tiền xử lý và hậu xử lý chuyên biệt cho từng chủ đề trong SGK.
+
+\vspace{0.5em}
+\noindent\textbf{Định nghĩa Schema Entity chuẩn.}
+Việc định nghĩa trước các Entity Types hợp lệ là bước quan trọng để đảm bảo tính nhất quán và khả năng truy vấn của KG. Dựa trên phân tích đặc thù của văn bản lịch sử sách giáo khoa, xác định được 11 Entity Types:
+
+\begin{itemize}
+    \item \textit{Nhân Vật}: Các cá nhân lịch sử có tên riêng (ví dụ: Hồ Chí Minh, Võ Nguyên Giáp). Đây là loại thực thể quan trọng vì nhân vật xuất hiện trong nhiều các sự kiện lịch sử.
+    \item \textit{Tổ chức}: Các tổ chức, đảng phái, liên minh chính trị (ví dụ: Việt Minh, Liên hợp quốc). Việc phân biệt Tổ chức với Quốc gia giúp mô hình hóa chính xác vai trò của các thực thể trong các sự kiện.
+    \item \textit{Quốc gia}: Các quốc gia, vùng lãnh thổ có chủ quyền. Phân loại này cần thiết vì quan hệ ngoại giao và xung đột thường diễn ra ở cấp độ quốc gia.
+    \item \textit{Sự kiện}: Các sự kiện lịch sử quan trọng có tính chất mốc thời gian. Đây là loại thực thể đóng vai trò kết nối các nhân vật, tổ chức, và địa điểm.
+    \item \textit{Chiến dịch/Trận đánh}: Các chiến dịch quân sự, chiến tranh. Việc tách riêng loại này khỏi Sự kiện chung giúp truy vấn chính xác hơn các câu hỏi về lịch sử quân sự.
+    \item \textit{Hội nghị}: Các hội nghị quốc tế, đại hội quan trọng. Hội nghị thường là nơi ký kết các văn kiện, hiệp định, cần được mô hình hóa riêng.
+    \item \textit{Văn kiện/Hiệp định}: Các văn bản pháp lý, hiệp định có tính ràng buộc. Đây là sản phẩm của các sự kiện và hội nghị, đồng thời là căn cứ cho các quyết định sau đó.
+    \item \textit{Địa điểm}: Các địa danh lịch sử. Địa điểm giúp định vị không gian cho các sự kiện và chiến dịch.
+    \item \textit{Chiến lược/Chủ trương}: Các đường lối, chính sách lớn. Loại này đặc biệt quan trọng trong lịch sử Việt Nam hiện đại với các chủ trương như Đổi mới.
+    \item \textit{Khái niệm}: Các thuật ngữ, khái niệm lịch sử trừu tượng (ví dụ: Trật tự hai cực, Chiến tranh lạnh).
+    \item \textit{Công trình}: Các công trình kiến trúc, di tích được xuất hiện.
+\end{itemize}
+
+\vspace{0.5em}
+\noindent\textbf{Quy trình trích xuất thực thể.}
+Pipeline xử lý được thiết kế theo nguyên tắc module hóa, cho phép tùy chỉnh linh hoạt cho từng chủ đề lịch sử:
+
+\begin{enumerate}
+    \item \textbf{Phân đoạn văn bản theo semantic chunks:} Văn bản được xử lý theo cấu trúc JSON phân cấp, trong đó mỗi subsection là một semantic unit. Với các subsection dài (trên 10 câu hoặc 1200 ký tự), hệ thống áp dụng chiến lược chia nhỏ với overlap: mỗi chunk chứa tối đa 7 câu với 5 câu chồng lấn giữa các chunk liên tiếp (step=2 câu). Việc chồng lấn đảm bảo không bỏ sót các thực thể xuất hiện ở ranh giới chunk. Mỗi chunk được gắn metadata đầy đủ về vị trí: topic\_id, lesson\_id, section\_index, subsection\_label, và part number nếu được chia nhỏ.
+
+    \item \textbf{Tạo prompt động theo chủ đề:} Thay vì sử dụng một prompt cố định, hệ thống tự động điều chỉnh prompt dựa trên chủ đề của văn bản đang xử lý. Lý do: mỗi chủ đề lịch sử có đặc thù riêng về loại thực thể ưu tiên, từ viết tắt chuyên ngành, và các nhân vật/tổ chức quan trọng. Ví dụ, với chủ đề ASEAN, prompt sẽ nhấn mạnh việc nhận diện các tổ chức quốc tế và các quốc gia thành viên; với chủ đề Hồ Chí Minh, prompt sẽ hướng dẫn mô hình nhận diện các tên gọi khác nhau của cùng một nhân vật (Nguyễn Ái Quốc, Văn Ba, Hồ Chí Minh). Prompt cũng được mở rộng các từ viết tắt (ví dụ: WTO $\rightarrow$ Tổ chức Thương mại Thế giới) để tăng khả năng nhận diện.
+
+    \item \textbf{Gọi API và phân tích phản hồi:} Mỗi semantic chunk được gửi tới mô hình DeepSeek-chat kèm theo prompt đã tùy chỉnh. Phản hồi JSON từ mô hình được phân tích để trích xuất danh sách thực thể thô. Hệ thống áp dụng cơ chế retry với tối đa 3 lần khi gặp lỗi mạng hoặc JSON không hợp lệ, đồng thời có logic sửa lỗi JSON tự động (loại bỏ trailing commas, thêm delimiters thiếu). Rate limiting với độ trễ 1 giây giữa các request được áp dụng để tránh vượt quá giới hạn API.
+
+    \item \textbf{Lọc thực thể nhiễu:} Các thực thể trích xuất được đưa qua bộ lọc nghiêm ngặt để loại bỏ nhiễu. Các trường hợp bị loại bỏ bao gồm: (a) thực thể quá chung chung không mang tính định danh (ví dụ: ``chính phủ'', ``quân đội'', ``nhân dân''); (b) thực thể chỉ là ngày tháng đơn thuần không gắn với sự kiện cụ thể (ví dụ: ``1945'', ``ngày 30''); (c) thực thể có độ dài quá ngắn (dưới 3 ký tự); (d) các từ mang tính cảm xúc, đánh giá (ví dụ: ``vĩ đại'', ``thiêng liêng''). Việc lọc này giúp giảm nhiễu và tăng chất lượng của KG cuối cùng.
+
+    \item \textbf{Phát hiện và gộp thực thể trùng lặp:} Vì các thực thể có thể xuất hiện ở nhiều cửa sổ với các biến thể tên gọi khác nhau, hệ thống sử dụng thuật toán so sánh chuỗi với ngưỡng tương đồng 0.92 để phát hiện trùng lặp. Đặc biệt, với các thực thể dễ nhầm lẫn (như ``Chiến tranh thế giới thứ nhất'' và ``Chiến tranh thế giới thứ hai''), hệ thống có logic riêng để phân tích số thứ tự và tránh gộp sai. Khi phát hiện trùng lặp, hệ thống gộp danh sách tên gọi (labels), tổng hợp các lần xuất hiện trong văn bản (original\_text), và cập nhật số lần xuất hiện (occurrence\_count).
+
+    \item \textbf{Làm giàu thông tin theo chủ đề:} Sau khi trích xuất, các thực thể được bổ sung thông tin cấu trúc đặc thù theo chủ đề. Ví dụ: với các tên gọi của Hồ Chí Minh, hệ thống tự động gắn thông tin về thời kỳ sử dụng (Nguyễn Ái Quốc: 1919-1942); với các thành viên gia đình, gắn quan hệ họ hàng; với các tổ chức do Bác sáng lập, gắn năm thành lập và vai trò. Việc làm giàu này giúp KG chứa nhiều thông tin ngữ nghĩa hơn mà không cần trích xuất thêm từ văn bản.
+
+    \item \textbf{Xử lý hậu kỳ và xuất kết quả:} Bước cuối cùng bao gồm làm sạch ID và labels chủ yếu là chuẩn hóa, loại bỏ các lần xuất hiện trùng lặp trong original\_text, và đơn giản hóa metadata. Kết quả được xuất ra file JSON với cấu trúc chuẩn hóa, sẵn sàng cho giai đoạn trích xuất quan hệ.
+\end{enumerate}
+
+\vspace{0.5em}
+\noindent\textbf{Cấu trúc dữ liệu thực thể.}
+Mỗi thực thể trong file kết quả chứa các trường: 
+\texttt{id} (định danh duy nhất bằng tiếng Việt), 
+\texttt{label} (danh sách các tên gọi/bí danh), 
+\texttt{type} (loại thực thể theo schema đã định nghĩa), 
+\texttt{description} (mô tả ngắn gọn), 
+\texttt{original\_text} (danh sách các lần xuất hiện kèm thông tin chủ đề, bài học, labels cụ thể trong ngữ cảnh đó, và đoạn văn chính xác), 
+\texttt{properties} (các thuộc tính cấu trúc như năm thành lập, vai trò), \texttt{metadata} (thông tin bổ sung về timeline), 
+\texttt{confidence} (điểm tin cậy), và 
+\texttt{occurrence\_count} (tổng số lần xuất hiện trong corpus).
+
+
+\subsection{Trích xuất quan hệ (Relationship Extraction)}
+\label{subsec:relationship_extraction}
+
+Sau khi có danh sách thực thể, bước tiếp theo là xác định các mối quan hệ ngữ nghĩa giữa chúng. Quan hệ trong KG được biểu diễn dưới dạng bộ ba (triplet): \texttt{(Subject, Predicate, Object)}, trong đó Subject và Object là các thực thể, còn Predicate mô tả mối quan hệ giữa chúng. Chất lượng của các quan hệ quyết định trực tiếp khả năng suy luận đa bước của hệ thống.
+
+\vspace{0.5em}
+\noindent\textbf{Nguyên tắc thiết kế pipeline.}
+Quy trình trích xuất quan hệ được thiết kế dựa trên các nguyên tắc sau:
+
+\begin{itemize}
+    \item \textbf{Context-aware Extraction:} Thay vì trích xuất quan hệ từ toàn bộ văn bản, hệ thống tập trung vào các semantic chunks theo cấu trúc JSON phân cấp. Mỗi chunk được xử lý với đầy đủ ngữ cảnh về chủ đề, bài học, và vị trí trong sách.
+    
+    \item \textbf{Entity-centric Filtering:} Trước khi gửi prompt, hệ thống lọc các thực thể thực sự xuất hiện trong chunk đang xử lý. Việc lọc dựa trên trường \texttt{original\_text} của mỗi thực thể, cho phép xác định chính xác thực thể nào có mặt trong ngữ cảnh topic/lesson hiện tại, kèm theo các labels cụ thể được sử dụng. Điều này giúp prompt chỉ chứa các thực thể liên quan, tăng độ chính xác và giảm nhiễu.
+    
+    \item \textbf{Multi-phase Processing:} Pipeline hoạt động theo 3 giai đoạn để đảm bảo độ bao phủ tối đa: xử lý chính theo semantic chunks, bổ sung cho thực thể chưa kết nối, và kết nối theo nhóm chủ đề.
+\end{itemize}
+
+\vspace{0.5em}
+\noindent\textbf{Quy trình trích xuất quan hệ.}
+
+\begin{enumerate}
+    \item \textbf{Nạp thực thể và tạo Entity Lookup:} Danh sách thực thể từ giai đoạn trước được nạp và tạo bảng tra cứu nhanh theo ID và các labels. Đặc biệt, mỗi thực thể được lưu với thông tin \texttt{original\_text} chứa các labels cụ thể sử dụng trong từng topic/lesson. Việc này cho phép xác thực tức thì xem một thực thể trong quan hệ có tồn tại trong danh sách đã biết hay không, đồng thời giúp lọc thực thể theo ngữ cảnh.
+
+    \item \textbf{Xử lý semantic chunks với overlapping:} Dữ liệu JSON được chia thành các semantic chunks theo cấu trúc phân cấp. Với các subsection dài, hệ thống áp dụng chiến lược chia nhỏ với overlap (7 câu/chunk, 5 câu overlap). Khác với giai đoạn trích xuất thực thể, ở đây việc overlap là cần thiết vì quan hệ có thể trải dài qua nhiều câu, việc chồng chập đảm bảo không bỏ sót các quan hệ nằm ở ranh giới chunk.
+
+    \item \textbf{Lọc thực thể theo ngữ cảnh chunk:} Với mỗi chunk, hệ thống lọc các thực thể thực sự xuất hiện trong văn bản đó bằng cách: (a) kiểm tra trường \texttt{original\_text} để tìm các thực thể có occurrence trong cùng topic/lesson; (b) sử dụng labels cụ thể từ occurrence thay vì labels chung; (c) fallback sang kiểm tra text matching nếu không có dữ liệu occurrence. Chỉ các thực thể được tìm thấy mới được đưa vào prompt, giới hạn tối đa 30 thực thể để tránh prompt quá dài.
+
+    \item \textbf{Sinh prompt với entity context:} Prompt được sinh động bao gồm: (a) thông tin ngữ cảnh semantic (topic, lesson, section, subsection); (b) văn bản chunk cần phân tích; (c) danh sách các thực thể xuất hiện trong chunk kèm type và aliases; (d) danh sách các loại quan hệ gợi ý phổ biến (thành\_lập, lãnh\_đạo, tham\_gia, ký\_kết, thuộc\_về, thông\_qua, etc.); (e) định dạng JSON output mong muốn với các trường subject\_id, predicate, object\_id, evidence, confidence.
+
+    \item \textbf{Gọi API và trích xuất quan hệ thô:} Prompt hoàn chỉnh được gửi tới mô hình DeepSeek-chat. Phản hồi được phân tích qua nhiều chiến lược: (a) tìm JSON object có key ``relationships''; (b) tìm JSON array và wrap vào relationships; (c) tìm các relationship object riêng lẻ. Hệ thống có logic sửa lỗi JSON tự động và retry tối đa 3 lần. Khi không thể trích xuất, trả về danh sách rỗng thay vì lỗi để tiếp tục xử lý.
+
+    \item \textbf{Xác thực quan hệ nghiêm ngặt:} Mỗi quan hệ trích xuất được đưa qua bộ lọc nghiêm ngặt:
+    \begin{itemize}
+        \item \textbf{CẢ HAI} Subject và Object phải tồn tại trong Entity Lookup bằng cách tìm kiếm cả theo ID lẫn labels (exact match hoặc case-insensitive). Đây là yêu cầu nghiêm ngặt để loại bỏ các quan hệ hallucination.
+        \item Subject và Object không được trùng nhau để loại bỏ quan hệ phản xạ vô nghĩa.
+        \item Predicate phải có độ dài tối thiểu 2 ký tự và mang ý nghĩa hành động cụ thể.
+        \item Câu văn chứng minh (evidence) phải có độ dài tối thiểu 8 ký tự và chứa ít nhất một trong hai thực thể hoặc các từ khóa liên kết (với, của, cho, tại, trong, bởi, là, được, do, từ, đến, và).
+    \end{itemize}
+    Hệ thống ghi nhận chi tiết thống kê validation: số quan hệ bị reject do invalid\_subject, invalid\_object, same\_entity, hoặc missing\_predicate để phục vụ phân tích và cải thiện.
+
+    \item \textbf{Gộp quan hệ trùng lặp:} Khi cùng một quan hệ (cùng Subject, Predicate, Object) được trích xuất từ nhiều chunks khác nhau, hệ thống gộp chúng thành một bản ghi duy nhất: (a) tăng occurrence\_count để phản ánh tần suất xuất hiện (tần suất cao thường đồng nghĩa với độ tin cậy cao); (b) lưu trữ tất cả các câu văn chứng minh vào danh sách supporting\_sentences để hỗ trợ truy vết nguồn gốc; (c) cập nhật confidence bằng giá trị cao nhất trong các quan hệ trùng lặp.
+
+    \item \textbf{Bổ sung quan hệ cho thực thể chưa kết nối:} Sau giai đoạn chính, hệ thống xác định các thực thể vẫn chưa có bất kỳ quan hệ nào. Với mỗi thực thể này, hệ thống tìm kiếm các cửa sổ ngữ cảnh chứa nó trong văn bản gốc và thực hiện trích xuất quan hệ có chủ đích với target\_entity\_id được chỉ định rõ ràng. Điều này buộc mô hình tập trung tìm kiếm quan hệ cho thực thể mục tiêu thay vì quét chung.
+
+    \item \textbf{Kết nối theo nhóm chủ đề:} Giai đoạn cuối cùng nhằm tối đa hóa độ bao phủ của KG. Các thực thể vẫn chưa kết nối được nhóm theo loại, sau đó hệ thống tìm kiếm các file văn bản có chứa đồng thời nhiều thực thể cùng nhóm. Quan hệ được trích xuất từ các cửa sổ ngữ cảnh chung này với hy vọng phát hiện các liên kết gián tiếp giữa các thực thể cùng chủ đề.
+\end{enumerate}
+
+\vspace{0.5em}
+\noindent\textbf{Cấu trúc dữ liệu Knowledge Graph.}
+File kết quả chứa hai thành phần:
+\begin{itemize}
+    \item \texttt{entities}: Mảng các đối tượng Entity với đầy đủ thông tin như đã mô tả ở phần trích xuất thực thể, đặc biệt là trường \texttt{original\_text} chứa thông tin về labels cụ thể sử dụng trong từng ngữ cảnh topic/lesson.
+    \item \texttt{triplets}: Mảng các bộ ba quan hệ, mỗi triplet chứa: \texttt{subject\_id} (ID thực thể nguồn), \texttt{predicate} (động từ/cụm động từ mô tả quan hệ bằng tiếng Việt), \texttt{object\_id} (ID thực thể đích), \texttt{confidence} (điểm tin cậy 0.0-1.0), \texttt{occurrence\_count} (số lần quan hệ được phát hiện), \texttt{supporting\_sentences} (danh sách các câu văn gốc chứng minh quan hệ kèm thông tin về nguồn gốc), \texttt{validation\_stats} (thống kê về quá trình validation), và \texttt{metadata} (thông tin về phương pháp trích xuất và chunk\_info).
+\end{itemize}
+
+Knowledge Graph hoàn chỉnh sau đó được nạp vào cơ sở dữ liệu đồ thị Neo4j để phục vụ các truy vấn trong giai đoạn GraphRAG tiếp theo.

@@ -1,0 +1,23 @@
+\section{Mô hình ngôn ngữ lớn}
+
+\subsection{Tổng quan về LLMs}
+LLMs là nền tảng trọng yếu trong các hệ thống xử lý ngôn ngữ tự nhiên và trí tuệ nhân tạo tạo sinh hiện đại. LLMs được xây dựng dựa trên mạng nơ-ron sâu với số lượng tham số từ hàng trăm triệu đến hàng nghìn tỷ, cho phép học biểu diễn ngôn ngữ phong phú thông qua huấn luyện trên tập dữ liệu văn bản quy mô lớn \cite{turn0search0}.  
+
+Sự bùng nổ của LLMs xuất phát từ kiến trúc Transformer – được giới thiệu trong công trình “Attention Is All You Need” – nhờ cơ chế self-attention cho phép nắm bắt phụ thuộc ngôn ngữ dài hạn và xử lý song song hiệu quả, vượt trội so với các kiến trúc truyền thống như RNN/LSTM \cite{vaswani2017attention, turn0search0}. Các mô hình LLM tiêu biểu hiện nay như GPT, Claude hay Gemini đều dựa trên nền tảng này.
+
+\subsection{Kiến trúc và cơ chế hoạt động của LLMs}
+Trong giai đoạn pre-training, LLMs sử dụng các mục tiêu học tự giám sát như causal language modeling hoặc masked language modeling để học biểu diễn ngôn ngữ từ dữ liệu không dán nhãn \cite{devlin2019bert, brown2020language}. Quá trình này cho phép mô hình nắm bắt cấu trúc ngôn ngữ và lưu trữ tri thức trong tham số, giúp chúng thực hiện nhiều tác vụ như trả lời câu hỏi, tóm tắt và dịch thuật mà không cần tinh chỉnh sâu \cite{bommasani2021opportunities}.
+
+Một đặc trưng quan trọng của LLMs là khả năng học theo ngữ cảnh (in-context learning): chỉ với vài ví dụ hoặc hướng dẫn trong prompt, mô hình có thể thích nghi với định dạng đầu ra mong muốn mà không cần huấn luyện lại bộ tham số \cite{brown2020language}. Khả năng này đặc biệt hữu ích trong các ứng dụng yêu cầu định dạng kết quả cụ thể hoặc thích ứng theo nhiệm vụ.
+
+Tuy nhiên, LLMs cũng có những hạn chế đáng chú ý khi áp dụng trực tiếp vào các nhiệm vụ đòi hỏi kiến thức chuyên sâu hoặc bối cảnh mới:
+
+\begin{enumerate}
+    \item \textbf{Knowledge Cutoff:} Kiến thức của LLMs bị giới hạn bởi thời điểm cắt dữ liệu huấn luyện; chúng không thể tự cập nhật thông tin mới hoặc diễn biến sau thời điểm cắt mà không có cơ chế truy xuất bên ngoài \cite{turn0search31}. Hiện tượng này là một phần của giới hạn tri thức của LLMs \cite{turn0search31}.
+    
+    \item \textbf{Hallucination:} LLMs có khuynh hướng tạo ra thông tin sai lệch hoặc không tồn tại nhưng trình bày với độ tự tin cao — hiện tượng này được gọi là hallucination. Hallucination là một thách thức cơ bản trong việc triển khai LLMs vào các ứng dụng yêu cầu độ chính xác cao, và đã được khảo sát sâu từ nhiều góc độ khác nhau trong nghiên cứu gần đây \cite{turn0academia26, turn0academia24}. 
+\end{enumerate}
+
+Để khắc phục các hạn chế này, các kỹ thuật tinh chỉnh hiệu quả về tham số như LoRA đã được phát triển, nhằm thích nghi mô hình với dữ liệu chuyên ngành chỉ bằng cách điều chỉnh một số lượng nhỏ tham số, giúp tối ưu hóa hiệu suất mà không cần huấn luyện lại toàn bộ mô hình \cite{turn0academia27}.  
+
+Mặc dù vậy, ngay cả sau khi tinh chỉnh, LLMs vẫn gặp khó khăn trong xử lý ngữ cảnh dài và suy luận đa bước phức tạp, vốn là yêu cầu phổ biến trong các nghiên cứu lịch sử hoặc bối cảnh đòi hỏi lý giải nhiều tầng. Do đó, trong các hệ thống hỏi–đáp thực tế, LLMs thường được kết hợp với cơ chế truy xuất thông tin bên ngoài như RAG để cung cấp bằng chứng cập nhật và giảm thiểu tối đa nguy cơ hallucination \cite{lewis2020rag}.

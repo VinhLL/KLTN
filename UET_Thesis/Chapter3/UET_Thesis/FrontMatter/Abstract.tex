@@ -1,0 +1,11 @@
+\begin{abstract}
+Nghiên cứu này trình bày một phương pháp kết hợp Knowledge Graph với các mô hình ngôn ngữ lớn (Large Language Models - LLM) thông qua kiến trúc GraphRAG (Graph-enhanced Retrieval-Augmented Generation) để xây dựng hệ thống trả lời câu hỏi tự động trong lĩnh vực lịch sử Việt Nam.
+
+Nghiên cứu được thực hiện qua ba giai đoạn chính. Đầu tiên, chúng tôi xây dựng bộ dữ liệu từ sách giáo khoa ``Lịch sử 12 - Kết nối tri thức với cuộc sống'' và bộ câu hỏi benchmark gồm 1,000 câu hỏi (500 câu trắc nghiệm và 500 câu đúng/sai) từ các đề thi chính thống. Tiếp theo, chúng tôi phát triển pipeline trích xuất tự động các thực thể lịch sử và mối quan hệ giữa chúng từ văn bản tiếng Việt, sử dụng kỹ thuật prompt engineering với mô hình Gemini-2.5-flash-lite, xây dựng được Knowledge Graph với 487 thực thể thuộc 11 loại và 1,847 quan hệ. Cuối cùng, chúng tôi thiết kế và triển khai kiến trúc GraphRAG bốn tầng (Graph Retriever với Neo4j, Graph Encoder với GraphSAGE, Fusion Module với Cross-Attention, và Generator với LLM) để trả lời câu hỏi lịch sử có trích dẫn nguồn.
+
+Kết quả thực nghiệm cho thấy hệ thống GraphRAG đạt độ chính xác 65\% tổng thể (70\% với câu hỏi trắc nghiệm và 60\% với câu hỏi đúng/sai), cải thiện 8\% so với phương pháp RAG truyền thống và 18.2\% so với LLM zero-shot. Nghiên cứu cũng chỉ ra các hạn chế về entity recognition và multi-hop reasoning, đề xuất các hướng phát triển để cải thiện hiệu suất hệ thống.
+
+Đóng góp chính của nghiên cứu bao gồm: (1) Bộ dữ liệu và benchmark cho lĩnh vực lịch sử Việt Nam; (2) Pipeline trích xuất Knowledge Graph từ văn bản lịch sử tiếng Việt với precision 91\%; (3) Kiến trúc GraphRAG tối ưu cho bài toán trả lời câu hỏi lịch sử với khả năng cung cấp citations; (4) Đánh giá so sánh toàn diện các phương pháp LLM, RAG và GraphRAG.
+
+\textbf{Từ khóa:} Mô hình ngôn ngữ lớn (LLM), Knowledge Graph, Retrieval-Augmented Generation (RAG), GraphRAG, Trả lời câu hỏi tự động, Lịch sử Việt Nam, Neo4j, Trích xuất thực thể, Xử lý ngôn ngữ tự nhiên tiếng Việt.
+\end{abstract}
