@@ -14,7 +14,7 @@ Bằng cách mã hóa tri thức thành một mạng lưới các entities đư�
     \item \textbf{Tính Minh bạch và Khả năng Giải thích Cao:} Mỗi phản hồi trong câu trả lời cuối cùng có thể được truy ngược về một hoặc một chuỗi các edges cụ thể trong đồ thị. Điều này cung cấp một cơ chế kiểm chứng mạnh mẽ, cho phép người dùng và nhà phát triển truy vết nguồn gốc của thông tin, đánh giá độ tin cậy và hiểu được quy trình suy luận đằng sau câu trả lời.
 \end{itemize}
 
-Các nghiên cứu khảo sát gần đây \cite{turn0search2, turn0search1} đã chỉ ra rằng GraphRAG đặc biệt phù hợp cho các lĩnh vực mà dữ liệu có tính liên kết nội tại cao, chẳng hạn như phân tích tài liệu lịch sử, y sinh học, hay mạng lưới tài chính, nơi mà các mối quan hệ giữa các thực thể đóng vai trò then chốt.
+Các nghiên cứu khảo sát gần đây \cite{peng2024graph, han2024retrieval} đã chỉ ra rằng GraphRAG đặc biệt phù hợp cho các lĩnh vực mà dữ liệu có tính liên kết nội tại cao, chẳng hạn như phân tích tài liệu lịch sử, y sinh học, hay mạng lưới tài chính, nơi mà các mối quan hệ giữa các thực thể đóng vai trò then chốt.
 
 \subsection{Kiến trúc và cơ chế hoạt động của hệ thống GraphRAG}
 
@@ -26,7 +26,7 @@ Kiến trúc của hệ thống GraphRAG được thiết kế theo một pipeli
     \begin{itemize}
         \item \textit{Named Entity Recognition:} Xác định các thực thể chính như nhân vật, sự kiện, địa điểm, và tổ chức.
         \item \textit{Relation Extraction:} Phát hiện các mối quan hệ ngữ nghĩa có ý nghĩa giữa các thực thể đã được nhận diện.
-        \item \textit{Entity Linking:} Hợp nhất các tham chiếu khác nhau chỉ đến cùng một thực thể trong thế giới thực thành một nút duy nhất trên đồ thị, đảm bảo tính nhất quán và toàn vẹn của tri thức \cite{turn0search1}.
+        \item \textit{Entity Linking:} Hợp nhất các tham chiếu khác nhau chỉ đến cùng một thực thể trong thế giới thực thành một nút duy nhất trên đồ thị, đảm bảo tính nhất quán và toàn vẹn của tri thức \cite{han2024retrieval}.
     \end{itemize}
     Kết quả của giai đoạn này là một KG trong đó các nodes đại diện cho thực thể và các edges đại diện cho quan hệ giữa chúng.
 

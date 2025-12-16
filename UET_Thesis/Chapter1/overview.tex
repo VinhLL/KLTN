@@ -2,32 +2,32 @@
 Sự phát triển mạnh mẽ của các LLMs như GPT,
 Claude và Gemini đã tạo ra bước tiến vượt bậc trong lĩnh vực Trí tuệ Nhân tạo, đặc biệt ở các nhiệm
 vụ hiểu và sinh ngôn ngữ tự nhiên. Các mô hình này thể hiện hiệu quả cao trong trả lời câu hỏi, tổng
-hợp thông tin và hỗ trợ tạo nội dung tự động \cite{turn0search24}. Tuy nhiên, khi áp dụng vào các hệ
+hợp thông tin và hỗ trợ tạo nội dung tự động \cite{gao2023retrieval}. Tuy nhiên, khi áp dụng vào các hệ
 thống thực tế, LLMs vẫn gặp hạn chế liên quan đến knowledge cutoff và hallucination, dẫn đến giảm độ chính xác khi xử lý các truy vấn đòi hỏi kiến thức chuyên sâu hoặc
-cập nhật thời gian thực \cite{turn0search27, turn0search2}.  
+cập nhật thời gian thực \cite{gao2023retrieval, peng2024graph}.  
 
 Trong bối cảnh trả lời câu hỏi lịch sử, mô hình không chỉ cần nắm bắt ngôn ngữ mà còn phải
 truy xuất chính xác các sự kiện, mốc thời gian và mối quan hệ phức tạp giữa các thực thể lịch sử. Việc
 chỉ dựa vào tri thức nội tại của LLMs dễ dẫn đến hallucination hoặc thiếu bằng chứng kiểm chứng trong
-các phát biểu lịch sử quan trọng \cite{turn0search2}.  
+các phát biểu lịch sử quan trọng \cite{peng2024graph}.  
 
 RAG được giới thiệu như một phương pháp lai nhằm kết hợp
 năng lực ngôn ngữ của LLMs với khả năng truy xuất thông tin từ nguồn tri thức được chuẩn bị sẵn, nhờ đó cải
-thiện độ chính xác \cite{turn0search24, lewis2020rag}. Tuy nhiên, với dữ liệu lịch sử giàu quan hệ,
+thiện độ chính xác \cite{gao2023retrieval, lewis2020rag}. Tuy nhiên, với dữ liệu lịch sử giàu quan hệ,
 RAG truyền thống thường dựa trên truy vấn văn bản không cấu trúc vẫn gặp khó khăn trong việc mô
 hình hóa các mối quan hệ phức tạp và thực hiện suy luận đa bước, do thiếu biểu diễn cấu trúc có ý nghĩa
-\cite{turn0search2}.  
+\cite{peng2024graph}.  
 
 GraphRAG là một hướng tiếp cận mở rộng, tích hợp Knowledge Graph vào quy trình truy
 xuất và sinh, cho phép biểu diễn và truy vấn hiệu quả các mối quan hệ như nhân vật–sự kiện, nguyên
-nhân–kết quả, và bối cảnh địa điểm–thời gian \cite{turn0search1, turn0search2}. Bằng cách sử dụng đồ thị tri thức,
+nhân–kết quả, và bối cảnh địa điểm–thời gian \cite{han2024retrieval, peng2024graph}. Bằng cách sử dụng đồ thị tri thức,
 GraphRAG cung cấp các đường dẫn minh bạch để chứng minh cơ sở tri thức của câu trả lời, từ đó hỗ trợ
 mô hình tránh sai lệch ngữ nghĩa và tăng tính mạch lạc trong trả lời.  
 
 Sự kết hợp giữa LLM và GraphRAG tận dụng khả năng hiểu ngôn ngữ, suy luận theo chuỗi và
 tổng hợp thông tin của mô hình hiện đại, đồng thời bổ sung bằng chứng có cấu trúc từ KG. Điều này
 giúp hệ thống không chỉ trả lời đúng các câu hỏi đơn lẻ mà còn xử lý các truy vấn phức tạp đòi hỏi tổng
-hợp và phân tích nhiều lớp tri thức lịch sử \cite{turn0academia31}. Khi nhu cầu học tập, nghiên cứu lịch sử và khai thác tri
+hợp và phân tích nhiều lớp tri thức lịch sử \cite{linders2025knowledge}. Khi nhu cầu học tập, nghiên cứu lịch sử và khai thác tri
 thức chính xác ngày càng tăng, việc tích hợp GraphRAG vào các hệ thống hỏi–đáp lịch sử trở nên đặc
 biệt cần thiết, mở ra hướng đi mới cho nghiên cứu này.
 

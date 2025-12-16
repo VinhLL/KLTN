@@ -53,7 +53,7 @@ Dạng câu hỏi truyền thống gồm 1 câu dẫn và 4 phương án lựa c
 \textbf{Chuẩn hóa định dạng JSON.}
 Toàn bộ câu hỏi sau khi xử lý được chuyển đổi sang định dạng JSON thống nhất để nạp vào pipeline đánh giá tự động.
 \begin{itemize}
-    \item File \texttt{questions\_500.txt}: Chứa danh sách câu hỏi MCQ, TF đã được làm sạch, loại bỏ các câu hỏi thiếu đáp án hoặc lỗi hiển thị.
-    \item File \texttt{question\_1000.txt}: Chứa danh sách câu hỏi MCQ và TF nhưng đã được chia nhỏ thành các cặp câu hỏi - đáp án nhị phân.
+    \item File \texttt{questions\_500.json}: Chứa danh sách câu hỏi MCQ, TF đã được làm sạch, loại bỏ các câu hỏi thiếu đáp án hoặc lỗi hiển thị.
+    \item File \texttt{question\_1000.json}: Chứa danh sách câu hỏi MCQ và TF nhưng đã được chia nhỏ thành các cặp câu hỏi - đáp án nhị phân.
 \end{itemize}
 Sau khi đưa tất cả về dạng json, tiến hành lọc những câu hỏi thiếu đáp án. Khi này chỉ còn dạng câu hỏi MCQ có tình trạng này do vấn đề OCR. Quy trình làm sạch cuối cùng bao gồm việc rà soát thủ công các lỗi cú pháp JSON, loại bỏ các ký tự điều khiển lạ và đảm bảo tính nhất quán của tiếng Việt.
